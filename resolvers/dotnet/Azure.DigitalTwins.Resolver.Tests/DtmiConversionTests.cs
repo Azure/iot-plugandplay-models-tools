@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using System.Runtime.InteropServices;
+using System.IO;
 
 namespace Azure.DigitalTwins.Resolver.Tests
 {
@@ -11,14 +11,17 @@ namespace Azure.DigitalTwins.Resolver.Tests
             string dtmiVariation1 = "dtmi:com:Example:Model;1";
             string dtmiVariation2 = "dtmi:com:example:Model;1";
 
-            string expectedPath = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"dtmi\com\example\model-1.json" : "dtmi/com/example/model-1.json";
+            string registryBasePathWindows = @"C:\fakeRegistry\";
+            string expectedPathWindows = $@"{registryBasePathWindows}/dtmi/com/example/model-1.json";
 
-            Assert.AreEqual(expectedPath, Utility.DtmiToFilePath(dtmiVariation1));
-            Assert.AreEqual(expectedPath, Utility.DtmiToFilePath(dtmiVariation2));
+            Assert.AreEqual(expectedPathWindows, DtmiConventions.ToPath(dtmiVariation1, registryBasePathWindows));
+            Assert.AreEqual(expectedPathWindows, DtmiConventions.ToPath(dtmiVariation2, registryBasePathWindows));
 
-            string basePath1 = @"C:\fakeRegistry\";
+            string registryBasePathLinux = "/me/fakeRegistry";
+            string expectedPathLinux = $@"{registryBasePathLinux}/dtmi/com/example/model-1.json";
 
-            Assert.AreEqual($@"{basePath1}{expectedPath}", Utility.DtmiToFilePath(dtmiVariation1, basePath1));
+            Assert.AreEqual(expectedPathLinux, DtmiConventions.ToPath(dtmiVariation1, registryBasePathLinux));
+            Assert.AreEqual(expectedPathLinux, DtmiConventions.ToPath(dtmiVariation2, registryBasePathLinux));
         }
 
         [Test]
@@ -30,8 +33,8 @@ namespace Azure.DigitalTwins.Resolver.Tests
             string registryBaseEndpoint = "http://localhost/registry";
             string expectedPath = $@"{registryBaseEndpoint}/dtmi/com/example/model-1.json";
 
-            Assert.AreEqual(expectedPath, Utility.DtmiToRemotePath(dtmiVariation1, registryBaseEndpoint));
-            Assert.AreEqual(expectedPath, Utility.DtmiToRemotePath(dtmiVariation2, registryBaseEndpoint));
+            Assert.AreEqual(expectedPath, DtmiConventions.ToPath(dtmiVariation1, registryBaseEndpoint));
+            Assert.AreEqual(expectedPath, DtmiConventions.ToPath(dtmiVariation2, registryBaseEndpoint));
         }
     }
 }

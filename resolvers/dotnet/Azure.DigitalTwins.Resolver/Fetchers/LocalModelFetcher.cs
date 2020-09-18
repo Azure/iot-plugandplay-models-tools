@@ -16,7 +16,7 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
                 throw new DirectoryNotFoundException($@"Local registry directory '{registryPath}' not found or not accessible.");
             }
 
-            string dtmiFilePath = Utility.DtmiToFilePath(dtmi, registryPath);
+            string dtmiFilePath = DtmiConventions.ToPath(dtmi, registryPath);
 
             if (!File.Exists(dtmiFilePath))
             {

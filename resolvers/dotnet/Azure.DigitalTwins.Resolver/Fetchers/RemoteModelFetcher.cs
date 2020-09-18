@@ -17,7 +17,7 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
         public async Task<string> FetchAsync(string dtmi, Uri registryUri)
         {
             string absoluteUri = registryUri.AbsoluteUri;
-            string dtmiRemotePath = Utility.DtmiToRemotePath(dtmi, absoluteUri);
+            string dtmiRemotePath = DtmiConventions.ToPath(dtmi, absoluteUri);
 
             HttpResponseMessage response = await httpClient.GetAsync(dtmiRemotePath);
             response.EnsureSuccessStatusCode();
