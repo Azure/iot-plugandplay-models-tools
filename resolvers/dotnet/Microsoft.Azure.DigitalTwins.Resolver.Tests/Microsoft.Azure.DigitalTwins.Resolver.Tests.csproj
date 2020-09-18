@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+
+    <Version>0.0.1</Version>
+
+    <Authors>digimaun</Authors>
+
+    <Company>Microsoftdigimaun</Company>
+
+    <Copyright>Microsoft</Copyright>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.4" />
+    <PackageReference Include="nunit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Azure.DigitalTwins.Resolver.Extensions\Microsoft.Azure.DigitalTwins.Resolver.Extensions.csproj" />
+    <ProjectReference Include="..\Microsoft.Azure.DigitalTwins.Resolver\Microsoft.Azure.DigitalTwins.Resolver.csproj" />
+  </ItemGroup>
+
+</Project>

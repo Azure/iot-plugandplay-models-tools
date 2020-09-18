@@ -1,0 +1,20 @@
+{
+  "profiles": {
+    "default-resolver": {
+      "commandName": "Project",
+      "commandLineArgs": "/f=../../../test/demodevice.json"
+    },
+    "none-resolver": {
+      "commandName": "Project",
+      "commandLineArgs": "/f=../../../test/demodevice.json /resolver=none"
+    },
+    "public-resolver": {
+      "commandName": "Project",
+      "commandLineArgs": "/f=../../../test/demodevice.json /resolver=public /Logging:LogLevel:Default=Trace"
+    },
+    "local-resolver": {
+      "commandName": "Project",
+      "commandLineArgs": "/f=../../../test/demodevice.json /resolver=local /baseFolder=C:\\Users\\paymaunh\\dev\\source\\superpnp\\resolvers\\Azure.Iot.PnP\\Microsoft.Azure.DigitalTwins.Resolver.Tests\\TestModelRegistry\\ /Logging:LogLevel:Default=Trace"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>0.0.1</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>digimaun</Authors>
+    <Copyright>Microsoft</Copyright>
+    <Company>Microsoft</Company>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Azure.DigitalTwins.Resolver\Microsoft.Azure.DigitalTwins.Resolver.csproj" />
+  </ItemGroup>
+
+</Project>
