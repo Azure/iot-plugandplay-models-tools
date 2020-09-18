@@ -15,7 +15,7 @@ The following code block shows initializing a `ResolverClient` with a **remote e
 using Azure.DigitalTwins.Resolver;
 
 ResolverClient client = ResolverClient.FromRemoteRegistry("https://iotmodels.github.io/registry/");
-IDictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
+Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
 ```
 
 You are also able to initialize the `ResolverClient` with a **local directory** model registry.
@@ -24,7 +24,7 @@ You are also able to initialize the `ResolverClient` with a **local directory** 
 using Azure.DigitalTwins.Resolver;
 
 ResolverClient client = ResolverClient.FromLocalRegistry(@"C:\Me\MyLocalRegistry");
-IDictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
+Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
 ```
 
 The client `ResolveAsync()` function has overloads to look up multiple models at once. This is achieved by passing in comma delimited `DTMI`'s **or** passing in an `IEnumerable<string>` of `DTMI`'s.
@@ -39,11 +39,11 @@ string dtmiToResolve1 = "dtmi:com:example:thermostat;1";
 string dtmiToResolve2 = "dtmi:com:example:sensor;1";
 
 // Multi resolution path 1
-IDictionary<string, string> models = await client.ResolveAsync(dtmiToResolve1, dtmiToResolve2);
+Dictionary<string, string> models = await client.ResolveAsync(dtmiToResolve1, dtmiToResolve2);
 
 // Multi resolution path 2
 string[] targetDtmis = new string[] {dtmiToResolve1, dtmiToResolve2};
-IDictionary<string, string> models = await client.ResolveAsync(targetDtmis);
+Dictionary<string, string> models = await client.ResolveAsync(targetDtmis);
 ```
 
 ## Integration with the DigitalTwins Model Parser
