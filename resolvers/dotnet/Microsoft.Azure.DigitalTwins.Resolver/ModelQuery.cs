@@ -17,9 +17,6 @@ namespace Microsoft.Azure.DigitalTwins.Resolver
             using JsonDocument document = JsonDocument.Parse(modelContent, options);
             JsonElement root = document.RootElement;
 
-            // All models must have "@id" property
-            string dtmi = root.GetProperty("@id").GetString();
-
             if (root.TryGetProperty("extends", out JsonElement extends))
             {
                 if (extends.ValueKind == JsonValueKind.Array)

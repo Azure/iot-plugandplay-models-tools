@@ -14,7 +14,7 @@
     },
     "local-resolver": {
       "commandName": "Project",
-      "commandLineArgs": "/f=../../../test/demodevice.json /resolver=local /baseFolder=C:\\Users\\paymaunh\\dev\\source\\superpnp\\resolvers\\Azure.Iot.PnP\\Microsoft.Azure.DigitalTwins.Resolver.Tests\\TestModelRegistry\\ /Logging:LogLevel:Default=Trace"
+      "commandLineArgs": "/f=../../../test/demodevice.json /resolver=local /baseFolder=C:\\TestModelRegistry\\ /Logging:LogLevel:Default=Trace"
     }
   }
 }
