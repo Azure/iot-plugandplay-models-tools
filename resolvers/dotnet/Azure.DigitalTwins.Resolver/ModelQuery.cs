@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json;
 
-namespace Microsoft.Azure.DigitalTwins.Resolver
+namespace Azure.DigitalTwins.Resolver
 {
     public class ModelQuery
     {

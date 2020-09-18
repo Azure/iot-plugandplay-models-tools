@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Microsoft.Azure.DigitalTwins.Resolver.Fetchers
+namespace Azure.DigitalTwins.Resolver.Fetchers
 {
     public class RemoteModelFetcher : IModelFetcher
     {
@@ -14,7 +14,7 @@ namespace Microsoft.Azure.DigitalTwins.Resolver.Fetchers
             httpClient = new HttpClient();
         }
 
-        public async Task<string> Fetch(string dtmi, Uri registryUri)
+        public async Task<string> FetchAsync(string dtmi, Uri registryUri)
         {
             string absoluteUri = registryUri.AbsoluteUri;
             string dtmiRemotePath = Utility.DtmiToRemotePath(dtmi, absoluteUri);

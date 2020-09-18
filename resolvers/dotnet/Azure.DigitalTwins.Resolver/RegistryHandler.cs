@@ -1,9 +1,9 @@
-﻿using Microsoft.Azure.DigitalTwins.Resolver.Fetchers;
+﻿using Azure.DigitalTwins.Resolver.Fetchers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Microsoft.Azure.DigitalTwins.Resolver
+namespace Azure.DigitalTwins.Resolver
 {
     public class RegistryHandler
     {
@@ -35,12 +35,12 @@ namespace Microsoft.Azure.DigitalTwins.Resolver
             }
         }
 
-        public async Task<Dictionary<string, string>> Process(string dtmi, bool includeDepencies = true)
+        public async Task<IDictionary<string, string>> ProcessAsync(string dtmi, bool includeDepencies = true)
         {
-            return await this.Process(new List<string>() { dtmi }, includeDepencies);
+            return await this.ProcessAsync(new List<string>() { dtmi }, includeDepencies);
         }
 
-        public async Task<Dictionary<string, string>> Process(IEnumerable<string> dtmis, bool includeDependencies = true)
+        public async Task<IDictionary<string, string>> ProcessAsync(IEnumerable<string> dtmis, bool includeDependencies = true)
         {
             Dictionary<string, string> processedModels = new Dictionary<string, string>();
             Queue<string> toProcessModels = new Queue<string>();
@@ -58,7 +58,7 @@ namespace Microsoft.Azure.DigitalTwins.Resolver
                     continue;
                 }
 
-                string definition = await this.Fetch(targetDtmi);
+                string definition = await this.FetchAsync(targetDtmi);
 
                 if (includeDependencies)
                 {
@@ -75,9 +75,9 @@ namespace Microsoft.Azure.DigitalTwins.Resolver
             return processedModels;
         }
 
-        private async Task<string> Fetch(string dtmi)
+        private async Task<string> FetchAsync(string dtmi)
         {
-            return await this._modelFetcher.Fetch(dtmi, this.RegistryUri);
+            return await this._modelFetcher.FetchAsync(dtmi, this.RegistryUri);
         }
     }
 }

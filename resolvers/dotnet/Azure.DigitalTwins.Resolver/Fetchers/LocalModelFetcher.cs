@@ -3,11 +3,11 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Text;
 
-namespace Microsoft.Azure.DigitalTwins.Resolver.Fetchers
+namespace Azure.DigitalTwins.Resolver.Fetchers
 {
     public class LocalModelFetcher : IModelFetcher
     {
-        public async Task<string> Fetch(string dtmi, Uri registryUri)
+        public async Task<string> FetchAsync(string dtmi, Uri registryUri)
         {
             string registryPath = registryUri.AbsolutePath;
 

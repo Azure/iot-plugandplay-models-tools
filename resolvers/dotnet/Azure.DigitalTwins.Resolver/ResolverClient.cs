@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Microsoft.Azure.DigitalTwins.Resolver
+namespace Azure.DigitalTwins.Resolver
 {
     public class ResolverClient
     {
@@ -23,19 +23,19 @@ namespace Microsoft.Azure.DigitalTwins.Resolver
             this.registryHandler = new RegistryHandler(registryUri);
         }
 
-        public async Task<Dictionary<string, string>> ResolveAsync(string dtmi)
+        public async Task<IDictionary<string, string>> ResolveAsync(string dtmi)
         {
-            return await this.registryHandler.Process(dtmi, true);
+            return await this.registryHandler.ProcessAsync(dtmi, true);
         }
 
-        public async Task<Dictionary<string, string>> ResolveAsync(params string[] dtmis)
+        public async Task<IDictionary<string, string>> ResolveAsync(params string[] dtmis)
         {
-            return await this.registryHandler.Process(dtmis, true);
+            return await this.registryHandler.ProcessAsync(dtmis, true);
         }
 
-        public async Task<Dictionary<string, string>> ResolveAsync(IEnumerable<string> dtmis)
+        public async Task<IDictionary<string, string>> ResolveAsync(IEnumerable<string> dtmis)
         {
-            return await this.registryHandler.Process(dtmis, true);
+            return await this.registryHandler.ProcessAsync(dtmis, true);
         }
 
         public Uri RegistryUri { get { return this.registryHandler.RegistryUri; } }

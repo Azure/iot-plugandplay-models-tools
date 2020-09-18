@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 
-namespace Microsoft.Azure.DigitalTwins.Resolver.Tests
+namespace Azure.DigitalTwins.Resolver.Tests
 {
     class TestHelpers
     {

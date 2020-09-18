@@ -1,13 +1,13 @@
 ﻿using System.IO;
 
-namespace Microsoft.Azure.DigitalTwins.Resolver
+namespace Azure.DigitalTwins.Resolver
 {
     public class Utility
     {
         public static string DtmiToFilePath(string dtmi, string basePath=null)
         {
             // Lookups are case insensitive
-            dtmi = dtmi.ToLower();
+            dtmi = dtmi.ToLowerInvariant();
 
             // dtmi:com:example:Thermostat;1 -> dtmi/com/example/thermostat-1.json
             string[] splitDtmi = dtmi.Split(':');
@@ -26,7 +26,7 @@ namespace Microsoft.Azure.DigitalTwins.Resolver
         public static string DtmiToRemotePath(string dtmi, string endpoint)
         {
             // Lookups are case insensitive
-            dtmi = dtmi.ToLower();
+            dtmi = dtmi.ToLowerInvariant();
 
             // dtmi:com:example:Thermostat;1 -> dtmi/com/example/thermostat-1.json
             string[] splitDtmi = dtmi.Split(':');

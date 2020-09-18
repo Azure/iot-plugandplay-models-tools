@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System.Runtime.InteropServices;
 
-namespace Microsoft.Azure.DigitalTwins.Resolver.Tests
+namespace Azure.DigitalTwins.Resolver.Tests
 {
     public class DtmiConversionTests
     {

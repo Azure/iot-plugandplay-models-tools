@@ -1,11 +1,11 @@
 ﻿using Microsoft.Azure.DigitalTwins.Parser;
-using Microsoft.Azure.DigitalTwins.Resolver.Extensions;
+using Azure.DigitalTwins.Resolver.Extensions;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Microsoft.Azure.DigitalTwins.Resolver.Tests
+namespace Azure.DigitalTwins.Resolver.Tests
 {
     public class ParserIntegrationTests
     {

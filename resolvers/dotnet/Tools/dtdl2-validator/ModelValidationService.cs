@@ -1,7 +1,7 @@
 ﻿
 using Microsoft.Azure.DigitalTwins.Parser;
-using Microsoft.Azure.DigitalTwins.Resolver;
-using Microsoft.Azure.DigitalTwins.Resolver.Extensions;
+using Azure.DigitalTwins.Resolver;
+using Azure.DigitalTwins.Resolver.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;

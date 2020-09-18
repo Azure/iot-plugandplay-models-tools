@@ -7,9 +7,9 @@
 
     <Version>0.0.1</Version>
 
-    <Authors>digimaun</Authors>
+    <Authors>Microsoft</Authors>
 
-    <Company>Microsoftdigimaun</Company>
+    <Company>Microsoft</Company>
 
     <Copyright>Microsoft</Copyright>
 
@@ -24,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Azure.DigitalTwins.Resolver.Extensions\Microsoft.Azure.DigitalTwins.Resolver.Extensions.csproj" />
-    <ProjectReference Include="..\Microsoft.Azure.DigitalTwins.Resolver\Microsoft.Azure.DigitalTwins.Resolver.csproj" />
+    <ProjectReference Include="..\Azure.DigitalTwins.Resolver.Extensions\Azure.DigitalTwins.Resolver.Extensions.csproj" />
+    <ProjectReference Include="..\Azure.DigitalTwins.Resolver\Azure.DigitalTwins.Resolver.csproj" />
   </ItemGroup>
 
 </Project>
