@@ -12,25 +12,25 @@ The model resolution client `ResolverClient` provides functionality for retrievi
 The following code block shows initializing a `ResolverClient` with a **remote endpoint** model registry and retrieving a desired model (specified by `DTMI`) and its dependencies.
 
 ```csharp
-using Microsoft.Azure.DigitalTwins.Resolver;
+using Azure.DigitalTwins.Resolver;
 
 ResolverClient client = ResolverClient.FromRemoteRegistry("https://iotmodels.github.io/registry/");
-Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
+IDictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
 ```
 
 You are also able to initialize the `ResolverClient` with a **local directory** model registry.
 
 ```csharp
-using Microsoft.Azure.DigitalTwins.Resolver;
+using Azure.DigitalTwins.Resolver;
 
 ResolverClient client = ResolverClient.FromLocalRegistry(@"C:\Me\MyLocalRegistry");
-Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
+IDictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
 ```
 
 The client `ResolveAsync()` function has overloads to look up multiple models at once. This is achieved by passing in comma delimited `DTMI`'s **or** passing in an `IEnumerable<string>` of `DTMI`'s.
 
 ```csharp
-using Microsoft.Azure.DigitalTwins.Resolver;
+using Azure.DigitalTwins.Resolver;
 
 ResolverClient client = ResolverClient.FromRemoteRegistry("https://iotmodels.github.io/registry/");
 
@@ -39,24 +39,24 @@ string dtmiToResolve1 = "dtmi:com:example:thermostat;1";
 string dtmiToResolve2 = "dtmi:com:example:sensor;1";
 
 // Multi resolution path 1
-Dictionary<string, string> models = await client.ResolveAsync(dtmiToResolve1, dtmiToResolve2);
+IDictionary<string, string> models = await client.ResolveAsync(dtmiToResolve1, dtmiToResolve2);
 
 // Multi resolution path 2
 string[] targetDtmis = new string[] {dtmiToResolve1, dtmiToResolve2};
-Dictionary<string, string> models = await client.ResolveAsync(targetDtmis);
+IDictionary<string, string> models = await client.ResolveAsync(targetDtmis);
 ```
 
 ## Integration with the DigitalTwins Model Parser
 
 The `ResolverClient` is designed to work independently of the Digital Twins `ModelParser`. However this solution includes a sister package
-`Microsoft.Azure.DigitalTwins.Resolver.Extensions` to support integration.
+`Azure.DigitalTwins.Resolver.Extensions` to support integration.
 
 Here is an example to show how this works.
 
 ```csharp
 using Microsoft.Azure.DigitalTwins.Parser;
-using Microsoft.Azure.DigitalTwins.Resolver;
-using Microsoft.Azure.DigitalTwins.Resolver.Extensions;
+using Azure.DigitalTwins.Resolver;
+using Azure.DigitalTwins.Resolver.Extensions;
 
 
 // Instantiate a parser as usual
