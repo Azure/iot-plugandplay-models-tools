@@ -5,10 +5,6 @@ VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.DigitalTwins.Resolver", "Azure.DigitalTwins.Resolver\Azure.DigitalTwins.Resolver.csproj", "{D6B09F39-775E-4C8A-94C6-FD3FFF0A63FA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D8003F8D-CEDC-4B0E-9FD7-D5A061B9F2DC}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{29258CB9-EA49-4A3D-9C84-FB40D9DD661B}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.DigitalTwins.Resolver.Tests", "Azure.DigitalTwins.Resolver.Tests\Azure.DigitalTwins.Resolver.Tests.csproj", "{D9944325-CFD8-4B5B-9544-2A27C1BFB549}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{944175BB-3CD7-4E18-BBDD-8B3B4B7F0262}"
@@ -17,8 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.DigitalTwins.Resolver.Extensions", "Azure.DigitalTwins.Resolver.Extensions\Azure.DigitalTwins.Resolver.Extensions.csproj", "{FFDEC74B-56D8-4A76-BA7D-BA544B8BA243}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{8C977239-4DC7-4201-8C6E-31424BE09B57}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dtdl2-validator", "Tools\dtdl2-validator\dtdl2-validator.csproj", "{296A024B-5D0A-4283-AA64-B34032048D52}"
 EndProject
@@ -47,12 +41,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{D6B09F39-775E-4C8A-94C6-FD3FFF0A63FA} = {D8003F8D-CEDC-4B0E-9FD7-D5A061B9F2DC}
-		{D9944325-CFD8-4B5B-9544-2A27C1BFB549} = {29258CB9-EA49-4A3D-9C84-FB40D9DD661B}
-		{FFDEC74B-56D8-4A76-BA7D-BA544B8BA243} = {D8003F8D-CEDC-4B0E-9FD7-D5A061B9F2DC}
-		{296A024B-5D0A-4283-AA64-B34032048D52} = {8C977239-4DC7-4201-8C6E-31424BE09B57}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EFFD6EB-CE54-49DA-845E-118FB33621A7}
