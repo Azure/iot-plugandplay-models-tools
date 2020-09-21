@@ -1,0 +1,28 @@
+name: Merge
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  dotnet_resolver_tools:
+    name: dotnet resolver tools
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        dotnet: [ '3.1.x' ]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1.6.0 # TODO: Change to latest after setup-dotnet action bug resolution https://github.com/actions/setup-dotnet/issues/128.
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
+    - name: Install dependencies
+      run: dotnet restore resolvers/dotnet
+    - name: Build
+      run: dotnet build --no-restore --configuration Release resolvers/dotnet
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal resolvers/dotnet
