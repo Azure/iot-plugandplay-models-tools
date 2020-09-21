@@ -52,7 +52,7 @@ namespace dtdl2_validator
                 Environment.ExitCode = 1;
                 log.LogError(ex, "DTDL Parser Exception");
             }
-
+            await Task.Delay(500);
         }
 
         private void ConfigureResolver(ModelParser parser, string resolverName)
@@ -99,12 +99,12 @@ namespace dtdl2_validator
 
         (string, string) ReadConfiguration(IConfiguration config)
         {
-            string input = config.GetValue<string>("f");
+            string input = config.GetValue<string>("file");
             string resolver = config.GetValue<string>("resolver"); ;
 
             if (string.IsNullOrEmpty(input))
             {
-                Console.WriteLine("Usage: dtdl2-validator /f=<dtdlFile.json> /resolver?=<public|local|none>");
+                Console.WriteLine("Usage: dtdl2-validator -f <dtdlFile.json> -r <public|local|none>");
                 Environment.ExitCode = 2;
             }
             else

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace dtdl2_validator
@@ -10,10 +11,20 @@ namespace dtdl2_validator
         {
             var cancellationTokenSource = new CancellationTokenSource(5000);
 
+            var cliArgs = new Dictionary<string, string>()
+            {
+                {"-f", "file" },
+                {"--file", "file" },
+                {"-r", "resolver" },
+                {"--resolver", "resolver" },
+                {"-bf", "baseFolder" },
+                {"--baseFolder", "baseFolder" }
+            };
+
             IConfiguration config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
-                .AddCommandLine(args)
+                .AddCommandLine(args, cliArgs)
                 .Build();
             
             ILogger logger = LoggerFactory.Create(builder =>
