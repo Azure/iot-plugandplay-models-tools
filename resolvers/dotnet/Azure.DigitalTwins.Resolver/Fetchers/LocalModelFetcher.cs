@@ -13,14 +13,14 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
 
             if (!Directory.Exists(registryPath))
             {
-                throw new DirectoryNotFoundException($@"Local registry directory '{registryPath}' not found or not accessible.");
+                throw new DirectoryNotFoundException($"Local registry directory '{registryPath}' not found or not accessible.");
             }
 
             string dtmiFilePath = DtmiConventions.ToPath(dtmi, registryPath);
 
             if (!File.Exists(dtmiFilePath))
             {
-                throw new FileNotFoundException($@"Model file '{dtmiFilePath}' not found or not accessible in local registry directory '{registryPath}'");
+                throw new FileNotFoundException($"Model file '{dtmiFilePath}' not found or not accessible in local registry directory '{registryPath}'");
             }
 
             return await File.ReadAllTextAsync(dtmiFilePath, Encoding.UTF8);

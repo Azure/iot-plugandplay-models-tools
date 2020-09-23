@@ -10,7 +10,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
     public class FetchIntegrationTests
     {
         readonly Uri _remoteUri = new Uri(TestHelpers.GetTestRemoteModelRegistry());
-        readonly Uri _localUri = new Uri($@"file://{TestHelpers.GetTestLocalModelRegistry()}");
+        readonly Uri _localUri = new Uri($"file://{TestHelpers.GetTestLocalModelRegistry()}");
         IModelFetcher _localFetcher;
         IModelFetcher _remoteFetcher;
 
@@ -36,7 +36,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
 
-            Uri invalidFileUri = new Uri($@"file://totally/fake/path/please");
+            Uri invalidFileUri = new Uri("file://totally/fake/path/please");
             Assert.ThrowsAsync<DirectoryNotFoundException>(async () => await _localFetcher.FetchAsync(targetDtmi, invalidFileUri));
         }
 

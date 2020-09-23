@@ -29,13 +29,13 @@ namespace Azure.DigitalTwins.Resolver.Tests
             string registryPathWindows = @"C:\Users\me\path\to\registy";
             string registryPathLinux = "/me/path/to/registry";
 
-            Uri registryUriWindows = new Uri($@"file://{registryPathWindows}");
+            Uri registryUriWindows = new Uri($"file://{registryPathWindows}");
             var clientWindows = ResolverClient.FromLocalRegistry(registryPathWindows);
 
             Assert.AreEqual(registryUriWindows, clientWindows.RegistryUri);
             Assert.AreEqual(registryPathWindows.Replace('\\', '/'), clientWindows.RegistryUri.AbsolutePath);
 
-            Uri registryUriLinux = new Uri($@"file://{registryPathLinux}");
+            Uri registryUriLinux = new Uri($"file://{registryPathLinux}");
             var clientLinux = ResolverClient.FromLocalRegistry(registryPathLinux);
 
             Assert.AreEqual(registryUriLinux, clientLinux.RegistryUri);

@@ -43,7 +43,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         public async Task ResolveSingleModelWithDeps(string dtmi, string expectedDeps)
         {
             var result = await localClient.ResolveAsync(dtmi);
-            var expectedDtmis = $@"{dtmi},{expectedDeps}".Split(',', System.StringSplitOptions.RemoveEmptyEntries);
+            var expectedDtmis = $"{dtmi},{expectedDeps}".Split(',', System.StringSplitOptions.RemoveEmptyEntries);
 
             Assert.True(result.Keys.Count == expectedDtmis.Length);
             foreach(var id in expectedDtmis)
@@ -59,7 +59,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         public async Task ResolveMultipleModelsWithDeps(string dtmi1, string dtmi2, string expectedDeps)
         {
             var result = await localClient.ResolveAsync(dtmi1, dtmi2); // Uses ResolveAsync(params string[])
-            var expectedDtmis = $@"{dtmi1},{dtmi2},{expectedDeps}".Split(',', System.StringSplitOptions.RemoveEmptyEntries);
+            var expectedDtmis = $"{dtmi1},{dtmi2},{expectedDeps}".Split(',', System.StringSplitOptions.RemoveEmptyEntries);
 
             Assert.True(result.Keys.Count == expectedDtmis.Length);
             foreach (var id in expectedDtmis)
@@ -86,7 +86,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         public async Task ResolveMultipleModelsWithDepsVariant(string dtmi1, string dtmi2, string expectedDeps)
         {
             var result = await localClient.ResolveAsync(dtmi1, dtmi2);
-            var expectedDtmis = $@"{dtmi1},{dtmi2},{expectedDeps}".Split(',', System.StringSplitOptions.RemoveEmptyEntries);
+            var expectedDtmis = $"{dtmi1},{dtmi2},{expectedDeps}".Split(',', System.StringSplitOptions.RemoveEmptyEntries);
 
             Assert.True(result.Keys.Count == expectedDtmis.Length);
             foreach (var id in expectedDtmis)
