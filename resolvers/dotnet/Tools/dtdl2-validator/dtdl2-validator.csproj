@@ -5,6 +5,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>dtdl2_validator</RootNamespace>
     <Authors>Microsoft</Authors>
+    <PackAsTool>true</PackAsTool>
+    <PackageType>DotNetCliTool</PackageType>
     <Version>0.0.1</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Microsoft</Copyright>
