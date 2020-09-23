@@ -9,6 +9,8 @@
     <Authors>Microsoft</Authors>
     <Version>0.0.1</Version>
     <AssemblyName>resolverclient</AssemblyName>
+    <PackAsTool>true</PackAsTool>
+    <PackageType>DotNetCliTool</PackageType>
   </PropertyGroup>
 
   <ItemGroup>
