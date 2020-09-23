@@ -28,17 +28,3 @@ jobs:
 
     - name: Test
       run: dotnet test --no-restore --verbosity normal resolvers/dotnet
-
-    - name: Pack
-      run: dotnet pack --no-build --verbosity normal resolvers/dotnet
-      
-    - name: Configure ADO feed
-      run: dotnet nuget add source https://pkgs.dev.azure.com/azure-iot-pnp/_packaging/azure.iot.pnp.libraries/nuget/v3/index.json -n PnPFeed -u dmr_pkgs -p ${{ secrets.ADO_PKGS_PAT_TOKEN }} --store-password-in-clear-text
-
-    - name: push
-      run: |
-        for f in resolvers/dotnet/**/*.nupkg
-        do
-            dotnet nuget push $f --source PnPFeed
-        done
-      shell: bash
