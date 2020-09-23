@@ -31,6 +31,6 @@ jobs:
         run: |
           for f in resolvers/dotnet/**/*.nupkg
           do
-              dotnet nuget push $f --source PnPFeed
+              dotnet nuget push $f --source PnPFeed --api-key PnPFeed
           done
         shell: bash
