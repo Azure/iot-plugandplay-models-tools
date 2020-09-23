@@ -7,7 +7,7 @@
     <Authors>Microsoft</Authors>
     <PackAsTool>true</PackAsTool>
     <PackageType>DotNetCliTool</PackageType>
-    <Version>0.0.1</Version>
+    <Version>0.0.123</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Microsoft</Copyright>
   </PropertyGroup>
