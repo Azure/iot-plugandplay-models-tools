@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System;
 using System.Threading.Tasks;
 
 namespace Azure.DigitalTwins.Resolver.Tests
@@ -26,6 +27,13 @@ namespace Azure.DigitalTwins.Resolver.Tests
             Assert.True(result.ContainsKey(dtmi));
             Assert.True(TestHelpers.ParseRootDtmiFromJson(result[dtmi]) == dtmi);
         }
+
+        [TestCase("dtmi:com:example:thermostat;1")]
+        public void ResolveWithWrongCasingThrowsException(string dtmi)
+        {
+            Assert.Throws<AggregateException>(() => localClient.ResolveAsync(dtmi).Wait());
+        }
+
 
         [TestCase("dtmi:com:example:Thermostat;1", "dtmi:azure:deviceManagement:DeviceInformation;1")]
         public async Task ResolveMultipleModelsNoDeps(string dtmi1, string dtmi2)
