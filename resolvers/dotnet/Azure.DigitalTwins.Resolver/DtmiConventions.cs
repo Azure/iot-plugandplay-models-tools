@@ -18,7 +18,7 @@
                 basePath += "/";
             }
 
-            return $@"{basePath}{remoteModelPath}";
+            return $"{basePath}{remoteModelPath}";
         }
     }
 }

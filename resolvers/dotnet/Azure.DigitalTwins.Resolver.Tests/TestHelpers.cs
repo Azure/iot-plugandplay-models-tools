@@ -8,7 +8,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
 {
     class TestHelpers
     {
-        readonly static string _fallbackTestRemoteRegistry = "https://iotmodels.github.io/registry/";
+        readonly static string _fallbackTestRemoteRegistry = "https://devicemodeltest.azureedge.net/";
 
         public static string ParseRootDtmiFromJson(string json)
         {

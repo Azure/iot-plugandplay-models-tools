@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowBasic": {
+      "commandName": "Project",
+      "commandLineArgs": "show --dtmi dtmi:com:example:Thermostat;1"
+    },
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ValidateBasic": {
+      "commandName": "Project",
+      "commandLineArgs": "validate --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRegistry/dtmi/com/example/thermostat-1.json"
+    },
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ValidateFail": {
+      "commandName": "Project",
+      "commandLineArgs": "validate --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRegistry/dtmi/com/example/invalidmodel-2.json"
+    }
+  }
+}

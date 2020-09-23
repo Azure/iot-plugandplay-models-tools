@@ -1,7 +1,7 @@
 
 # Microsoft IoT Plug and Play Model Resolution Client
 
-## :exclamation: WARNING: This project is under heavy active development and should not be depended on in anyway until future notice
+## :exclamation: WARNING: This project is under heavy active development and should not be depended on until further notice
 
 ## Overview
 
@@ -91,10 +91,58 @@ Out of the box, the `ResolverClient` has a default configuration with common set
 
 - Coming soon!
 
-## Common Errors
+## Resolver Client CLI
 
-- Coming soon!
+This solution includes a CLI project `Azure.DigitalTwins.Resolver.CLI` to jumpstart scenarios. You are able to invoke commands via `dotnet run` or as the compiled executable `resolverclient`.
 
-## Contributing
+```bash
+resolverclient:
+  Microsoft IoT Plug and Play Model Resolution CLI
+
+Usage:
+  resolverclient [options] [command]
+
+Options:
+  --version         Show version information
+  -?, -h, --help    Show help and usage information
+
+Commands:
+  show        Retrieve a model and its dependencies by dtmi using the target registry for model resolution.
+  validate    Validates a model using the Digital Twins parser and target registry for model resolution.
+```
+
+**Examples**
+
+```bash
+# Retrieves the target model and its dependencies by dtmi using the default model registry.
+
+> resolverclient show --dtmi "dtmi:com:example:Thermostat;1"
+```
+
+```bash
+# Retrieves the target model and its dependencies by dtmi using a custom registry endpoint.
+
+> resolverclient show --dtmi "dtmi:com:example:Thermostat;1" --registry "https://mycustom.domain/models/"
+```
+
+```bash
+# Retrieves the target model and its dependencies by dtmi using a custom local registry.
+
+> resolverclient show --dtmi "dtmi:com:example:Thermostat;1" --registry "/my/models/"
+```
+
+```bash
+# Validates a DTDLv2 model using the Digital Twins Parser and default model registry for resolution.
+
+> resolverclient validate --model-file ./my/model/file.json
+```
+
+```bash
+# Validates a DTDLv2 model using the Digital Twins Parser and custom registry endpoint for resolution.
+
+> resolverclient validate --model-file ./my/model/file.json --registry "https://mycustom.domain/models/"
+```
+
+## Common Issues
 
 - Coming soon!

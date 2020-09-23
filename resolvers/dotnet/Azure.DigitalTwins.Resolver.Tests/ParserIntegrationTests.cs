@@ -18,7 +18,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
             };
 
             string TestRegistryPath = TestHelpers.GetTestLocalModelRegistry();
-            string testModelPath = $@"{TestRegistryPath}/dtmi/company/demodevice-1.json";
+            string testModelPath = $"{TestRegistryPath}/dtmi/company/demodevice-1.json";
 
             // Shows how to quickly integrate the resolver client with the parser.
             ResolverClient client = ResolverClient.FromLocalRegistry(TestRegistryPath);
@@ -38,7 +38,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
 
             // TODO: One off model -- need consistent remote model registry for IT's
             string TestRegistryPath = TestHelpers.GetTestLocalModelRegistry();
-            string testModelPath = $@"{TestRegistryPath}/dtmi/company/demodevice-2.json";
+            string testModelPath = $"{TestRegistryPath}/dtmi/company/demodevice-2.json";
 
             // Shows how to quickly integrate the resolver client with the parser.
             ResolverClient client = ResolverClient.FromRemoteRegistry(TestHelpers.GetTestRemoteModelRegistry());
