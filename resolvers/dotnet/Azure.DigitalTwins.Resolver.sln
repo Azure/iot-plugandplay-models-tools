@@ -14,9 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.DigitalTwins.Resolver.Extensions", "Azure.DigitalTwins.Resolver.Extensions\Azure.DigitalTwins.Resolver.Extensions.csproj", "{FFDEC74B-56D8-4A76-BA7D-BA544B8BA243}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dtdl2-validator", "Tools\dtdl2-validator\dtdl2-validator.csproj", "{296A024B-5D0A-4283-AA64-B34032048D52}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.DigitalTwins.Resolver.CLI", "Azure.DigitalTwins.Resolver.CLI\Azure.DigitalTwins.Resolver.CLI.csproj", "{BF561D19-CAF1-47F4-93EE-9B9E88C013EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.DigitalTwins.Resolver.CLI", "Azure.DigitalTwins.Resolver.CLI\Azure.DigitalTwins.Resolver.CLI.csproj", "{BF561D19-CAF1-47F4-93EE-9B9E88C013EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,10 +34,6 @@ Global
 		{FFDEC74B-56D8-4A76-BA7D-BA544B8BA243}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFDEC74B-56D8-4A76-BA7D-BA544B8BA243}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFDEC74B-56D8-4A76-BA7D-BA544B8BA243}.Release|Any CPU.Build.0 = Release|Any CPU
-		{296A024B-5D0A-4283-AA64-B34032048D52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{296A024B-5D0A-4283-AA64-B34032048D52}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{296A024B-5D0A-4283-AA64-B34032048D52}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{296A024B-5D0A-4283-AA64-B34032048D52}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BF561D19-CAF1-47F4-93EE-9B9E88C013EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BF561D19-CAF1-47F4-93EE-9B9E88C013EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF561D19-CAF1-47F4-93EE-9B9E88C013EC}.Release|Any CPU.ActiveCfg = Release|Any CPU

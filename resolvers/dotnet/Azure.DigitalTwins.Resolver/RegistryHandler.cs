@@ -69,7 +69,15 @@ namespace Azure.DigitalTwins.Resolver
                     }
                 }
 
-                processedModels.Add(targetDtmi, definition);
+                if (definition.Contains(targetDtmi, StringComparison.InvariantCulture)) 
+                { 
+                    processedModels.Add(targetDtmi, definition);
+                }
+                else
+                {
+                    throw new FormatException($"Incorrect casing for DTMI '{targetDtmi}'");
+                }
+
             }
 
             return processedModels;
@@ -79,5 +87,7 @@ namespace Azure.DigitalTwins.Resolver
         {
             return await this._modelFetcher.FetchAsync(dtmi, this.RegistryUri);
         }
+
+        
     }
 }

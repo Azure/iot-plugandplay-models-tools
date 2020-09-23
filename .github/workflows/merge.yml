@@ -22,7 +22,9 @@ jobs:
         dotnet-version: ${{ matrix.dotnet }}
     - name: Install dependencies
       run: dotnet restore resolvers/dotnet
+
     - name: Build
       run: dotnet build --no-restore --configuration Release resolvers/dotnet
+
     - name: Test
       run: dotnet test --no-restore --verbosity normal resolvers/dotnet
