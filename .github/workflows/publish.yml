@@ -24,7 +24,7 @@ jobs:
       - name: Configure ADO feed
         run: dotnet nuget add source https://pkgs.dev.azure.com/azure-iot-pnp/_packaging/azure.iot.pnp.libraries/nuget/v3/index.json -n PnPFeed -u dmr_pkgs -p ${{ secrets.ADO_PKGS_PAT_TOKEN }} --store-password-in-clear-text
 
-      - name: Publish
+      - name: Push to Nuget
         run: |
           for f in resolvers/dotnet/**/*.nupkg
           do
