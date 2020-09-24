@@ -1,9 +1,8 @@
-name: Push
+name: Publish
 
 on:
-  push:
-    branches: [ main, dev ]
- 
+  workflow_dispatch:
+
 jobs:
   push:
     runs-on: ubuntu-latest
@@ -21,11 +20,11 @@ jobs:
 
       - name: Pack
         run: dotnet pack --verbosity normal resolvers/dotnet
-        
+
       - name: Configure ADO feed
         run: dotnet nuget add source https://pkgs.dev.azure.com/azure-iot-pnp/_packaging/azure.iot.pnp.libraries/nuget/v3/index.json -n PnPFeed -u dmr_pkgs -p ${{ secrets.ADO_PKGS_PAT_TOKEN }} --store-password-in-clear-text
 
-      - name: push
+      - name: Publish
         run: |
           for f in resolvers/dotnet/**/*.nupkg
           do
