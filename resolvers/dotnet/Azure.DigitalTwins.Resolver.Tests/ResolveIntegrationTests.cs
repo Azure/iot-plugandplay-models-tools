@@ -31,7 +31,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         [TestCase("dtmi:com:example:thermostat;1")]
         public void ResolveWithWrongCasingThrowsException(string dtmi)
         {
-            Assert.Throws<AggregateException>(() => localClient.ResolveAsync(dtmi).Wait());
+            Assert.ThrowsAsync<FormatException>(async () => await localClient.ResolveAsync(dtmi));
         }
 
 

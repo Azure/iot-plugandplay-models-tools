@@ -15,13 +15,20 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-
 namespace Azure.DigitalTwins.Resolver.CLI
 {
     class Program
     {
         private static readonly string _defaultRegistry = "https://devicemodeltest.azureedge.net/";
         private static readonly string _parserVersion = typeof(ModelParser).Assembly.GetName().Version.ToString();
+
+        // Alternative to enum to avoid casting.
+        public static class ReturnCodes
+        {
+            public const int Success = 0;
+            public const int ResolutionError = 1;
+            public const int ParserError = 2;
+        }
 
         static async Task<int> Main(string[] args) => await BuildCommandLine()
             .UseHost(_ => Host.CreateDefaultBuilder())
@@ -84,27 +91,27 @@ namespace Azure.DigitalTwins.Resolver.CLI
                     logger.LogInformation($"Using registry location {registry}");
                     result = await InitializeClient(registry).ResolveAsync(dtmi);
                 }
-                catch(DirectoryNotFoundException dnfex)
+                catch (DirectoryNotFoundException dnfex)
                 {
                     logger.LogError(dnfex.Message);
-                    return 1; // TODO: define error codes
+                    return ReturnCodes.ResolutionError;
                 }
                 catch (FileNotFoundException fnfex)
                 {
                     logger.LogError(fnfex.Message);
-                    return 1;
+                    return ReturnCodes.ResolutionError;
                 }
                 catch (HttpRequestException httpex)
                 {
                     logger.LogError(httpex.Message);
-                    return 1;
+                    return ReturnCodes.ResolutionError;
                 }
 
                 List<string> resultList = result.Values.ToList();
                 string normalizedList = string.Join(',', resultList);
                 await Console.Out.WriteLineAsync("[" + string.Join(',', normalizedList) + "]");
 
-                return 0;
+                return ReturnCodes.Success;
             });
 
             return showModel;
@@ -153,7 +160,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 catch (ResolutionException resolutionEx)
                 {
                     logger.LogError(resolutionEx.Message);
-                    return 1; // TODO define error codes.
+                    return ReturnCodes.ResolutionError;
                 }
                 catch (ParsingException parsingEx)
                 {
@@ -166,10 +173,25 @@ namespace Azure.DigitalTwins.Resolver.CLI
 
                     logger.LogError(normalizedErrors);
 
-                    return 2;
+                    return ReturnCodes.ParserError;
+                }
+                catch (DirectoryNotFoundException dnfex)
+                {
+                    logger.LogError(dnfex.Message);
+                    return ReturnCodes.ResolutionError;
+                }
+                catch (FileNotFoundException fnfex)
+                {
+                    logger.LogError(fnfex.Message);
+                    return ReturnCodes.ResolutionError;
+                }
+                catch (HttpRequestException httpex)
+                {
+                    logger.LogError(httpex.Message);
+                    return ReturnCodes.ResolutionError;
                 }
 
-                return 0;
+                return ReturnCodes.Success;
             });
 
             return validateModel;

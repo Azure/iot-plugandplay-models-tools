@@ -7,10 +7,10 @@
     <Copyright>Microsoft</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <AssemblyName>resolverclient</AssemblyName>
     <PackAsTool>true</PackAsTool>
-    <PackageType>DotNetCliTool</PackageType>
+    <ToolCommandName>resolverclient</ToolCommandName>
   </PropertyGroup>
 
   <ItemGroup>
