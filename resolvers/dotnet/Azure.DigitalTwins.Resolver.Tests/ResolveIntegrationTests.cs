@@ -31,9 +31,20 @@ namespace Azure.DigitalTwins.Resolver.Tests
         [TestCase("dtmi:com:example:thermostat;1")]
         public void ResolveWithWrongCasingThrowsException(string dtmi)
         {
-            Assert.ThrowsAsync<FormatException>(async () => await localClient.ResolveAsync(dtmi));
+            Assert.ThrowsAsync<ResolverException>(async () => await localClient.ResolveAsync(dtmi));
         }
 
+        [TestCase("dtmi:com:example:thermojax;999")]
+        public void ResolveInvalidDtmiThrowsException(string dtmi)
+        {
+            Assert.ThrowsAsync<ResolverException>(async () => await localClient.ResolveAsync(dtmi));
+        }
+
+        [TestCase("dtmi:com:example:invalidmodel;1")]
+        public void ResolveInvalidDtmiDepsThrowsException(string dtmi)
+        {
+            Assert.ThrowsAsync<ResolverException>(async () => await localClient.ResolveAsync(dtmi));
+        }
 
         [TestCase("dtmi:com:example:Thermostat;1", "dtmi:azure:deviceManagement:DeviceInformation;1")]
         public async Task ResolveMultipleModelsNoDeps(string dtmi1, string dtmi2)
@@ -51,7 +62,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         public async Task ResolveSingleModelWithDeps(string dtmi, string expectedDeps)
         {
             var result = await localClient.ResolveAsync(dtmi);
-            var expectedDtmis = $"{dtmi},{expectedDeps}".Split(',', System.StringSplitOptions.RemoveEmptyEntries);
+            var expectedDtmis = $"{dtmi},{expectedDeps}".Split(',', StringSplitOptions.RemoveEmptyEntries);
 
             Assert.True(result.Keys.Count == expectedDtmis.Length);
             foreach(var id in expectedDtmis)
@@ -61,13 +72,51 @@ namespace Azure.DigitalTwins.Resolver.Tests
             }
         }
 
+        [TestCase("dtmi:com:example:Phone;2",
+          "dtmi:com:example:TemperatureController;1",
+          "dtmi:com:example:Thermostat;1," +
+          "dtmi:azure:deviceManagement:DeviceInformation;1," +
+          "dtmi:azure:deviceManagement:DeviceInformation;2," +
+          "dtmi:com:example:Camera;3")]
+        public async Task ResolveMultipleModelsWithDeps(string dtmi1, string dtmi2, string expectedDeps)
+        {
+            var result = await localClient.ResolveAsync(dtmi1, dtmi2);
+            var expectedDtmis = $"{dtmi1},{dtmi2},{expectedDeps}".Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+            Assert.True(result.Keys.Count == expectedDtmis.Length);
+            foreach (var id in expectedDtmis)
+            {
+                Assert.True(result.ContainsKey(id));
+                Assert.True(TestHelpers.ParseRootDtmiFromJson(result[id]) == id);
+            }
+        }
+
         [TestCase("dtmi:com:example:TemperatureController;1",
                   "dtmi:com:example:ConferenceRoom;1", // Model uses extends
                   "dtmi:com:example:Thermostat;1,dtmi:azure:deviceManagement:DeviceInformation;1,dtmi:com:example:Room;1")]
-        public async Task ResolveMultipleModelsWithDeps(string dtmi1, string dtmi2, string expectedDeps)
+        public async Task ResolveMultipleModelsWithDepsExpand(string dtmi1, string dtmi2, string expectedDeps)
         {
             var result = await localClient.ResolveAsync(dtmi1, dtmi2); // Uses ResolveAsync(params string[])
-            var expectedDtmis = $"{dtmi1},{dtmi2},{expectedDeps}".Split(',', System.StringSplitOptions.RemoveEmptyEntries);
+            var expectedDtmis = $"{dtmi1},{dtmi2},{expectedDeps}".Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+            Assert.True(result.Keys.Count == expectedDtmis.Length);
+            foreach (var id in expectedDtmis)
+            {
+                Assert.True(result.ContainsKey(id));
+                Assert.True(TestHelpers.ParseRootDtmiFromJson(result[id]) == id);
+            }
+        }
+
+        [TestCase("dtmi:com:example:TemperatureController;1",
+                  "dtmi:com:example:ColdStorage;1", // Model uses extends[]
+                  "dtmi:com:example:Thermostat;1," +
+                  "dtmi:azure:deviceManagement:DeviceInformation;1," +
+                  "dtmi:com:example:Room;1," +
+                  "dtmi:com:example:Freezer;1")]
+        public async Task ResolveMultipleModelsWithDepsExpandVariant(string dtmi1, string dtmi2, string expectedDeps)
+        {
+            var result = await localClient.ResolveAsync(dtmi1, dtmi2); // Uses ResolveAsync(params string[])
+            var expectedDtmis = $"{dtmi1},{dtmi2},{expectedDeps}".Split(',', StringSplitOptions.RemoveEmptyEntries);
 
             Assert.True(result.Keys.Count == expectedDtmis.Length);
             foreach (var id in expectedDtmis)
@@ -83,25 +132,6 @@ namespace Azure.DigitalTwins.Resolver.Tests
             var result = await localClient.ResolveAsync(dtmiDupe1, dtmiDupe2);
             Assert.True(result.Keys.Count == 1);
             Assert.True(TestHelpers.ParseRootDtmiFromJson(result[dtmiDupe1]) == dtmiDupe1);
-        }
-
-        [TestCase("dtmi:com:example:Phone;2",
-                  "dtmi:com:example:TemperatureController;1",
-                  "dtmi:com:example:Thermostat;1," +
-                  "dtmi:azure:deviceManagement:DeviceInformation;1," +
-                  "dtmi:azure:deviceManagement:DeviceInformation;2," +
-                  "dtmi:com:example:Camera;3")]
-        public async Task ResolveMultipleModelsWithDepsVariant(string dtmi1, string dtmi2, string expectedDeps)
-        {
-            var result = await localClient.ResolveAsync(dtmi1, dtmi2);
-            var expectedDtmis = $"{dtmi1},{dtmi2},{expectedDeps}".Split(',', System.StringSplitOptions.RemoveEmptyEntries);
-
-            Assert.True(result.Keys.Count == expectedDtmis.Length);
-            foreach (var id in expectedDtmis)
-            {
-                Assert.True(result.ContainsKey(id));
-                Assert.True(TestHelpers.ParseRootDtmiFromJson(result[id]) == id);
-            }
         }
     }
 }

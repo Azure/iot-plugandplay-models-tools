@@ -1,4 +1,5 @@
 ﻿using Azure.DigitalTwins.Resolver.Fetchers;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,6 +8,10 @@ namespace Azure.DigitalTwins.Resolver
 {
     public class RegistryHandler
     {
+        private readonly IModelFetcher _modelFetcher;
+        private readonly ClientLogger _logger;
+        private readonly ModelQuery _modelQuery;
+
         public enum RegistryTypeCategory
         {
             RemoteUri,
@@ -16,22 +21,23 @@ namespace Azure.DigitalTwins.Resolver
         public Uri RegistryUri { get; }
         public RegistryTypeCategory RegistryType { get; }
 
-        private readonly IModelFetcher _modelFetcher;
-        private readonly ModelQuery _modelQuery;
-
-        public RegistryHandler(Uri registryUri)
+        public RegistryHandler(Uri registryUri, ILogger logger=null)
         {
+            _logger = new ClientLogger(logger);
             _modelQuery = new ModelQuery();
             RegistryUri = registryUri;
+
             if (registryUri.Scheme == "file")
             {
-                this.RegistryType = RegistryTypeCategory.LocalUri;
-                this._modelFetcher = new LocalModelFetcher();
+                _logger.LogInformation("Client initialized with file content fetcher.");
+                RegistryType = RegistryTypeCategory.LocalUri;
+                _modelFetcher = new LocalModelFetcher();
             }
             else
             {
-                this.RegistryType = RegistryTypeCategory.RemoteUri;
-                this._modelFetcher = new RemoteModelFetcher();
+                _logger.LogInformation("Client initialized with http content fetcher.");
+                RegistryType = RegistryTypeCategory.RemoteUri;
+                _modelFetcher = new RemoteModelFetcher();
             }
         }
 
@@ -55,14 +61,19 @@ namespace Azure.DigitalTwins.Resolver
                 string targetDtmi = toProcessModels.Dequeue();
                 if (processedModels.ContainsKey(targetDtmi))
                 {
+                    _logger.LogInformation($"Already processed DTMI {targetDtmi}. Skipping...");
                     continue;
                 }
+                _logger.LogInformation($"Processing DTMI '{targetDtmi}'");
 
                 string definition = await this.FetchAsync(targetDtmi);
 
                 if (includeDependencies)
                 {
                     List<string> dependencies = this._modelQuery.GetDependencies(definition);
+                    if (dependencies.Count > 0)
+                        _logger.LogInformation($"Discovered dependencies {string.Join(",", dependencies)}");
+
                     foreach (string dep in dependencies)
                     {
                         toProcessModels.Enqueue(dep);
@@ -75,9 +86,10 @@ namespace Azure.DigitalTwins.Resolver
                 }
                 else
                 {
-                    throw new FormatException($"Incorrect casing for DTMI '{targetDtmi}'");
+                    // TODO: Msg to include expected -> retrieved. Do after ModelQuery updates.
+                    string formatErrorMsg = $"Retrieved model content has incorrect DTMI casing.";
+                    throw new ResolverException(targetDtmi, formatErrorMsg, new FormatException(formatErrorMsg));
                 }
-
             }
 
             return processedModels;
@@ -85,9 +97,15 @@ namespace Azure.DigitalTwins.Resolver
 
         private async Task<string> FetchAsync(string dtmi)
         {
-            return await this._modelFetcher.FetchAsync(dtmi, this.RegistryUri);
+            try
+            {
+                return await this._modelFetcher.FetchAsync(dtmi, this.RegistryUri, this._logger);
+            }
+            catch (Exception ex)
+            {
+                string fetchErrorMsg = $"Failed retrieving content from '{this.RegistryUri.AbsoluteUri}'.";
+                throw new ResolverException(dtmi, fetchErrorMsg, ex);
+            }
         }
-
-        
     }
 }
