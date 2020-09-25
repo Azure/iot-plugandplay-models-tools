@@ -4,6 +4,14 @@
       "commandName": "Project",
       "commandLineArgs": "show --dtmi dtmi:com:example:Thermostat;1"
     },
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowBasicOutFile1": {
+      "commandName": "Project",
+      "commandLineArgs": "show --dtmi dtmi:com:example:Thermostat;1 -o mytestmodel.json"
+    },
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowBasicOutFile2": {
+      "commandName": "Project",
+      "commandLineArgs": "show --dtmi dtmi:com:example:TemperatureController;1 -o mytestmodel.json"
+    },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowFail": {
       "commandName": "Project",
       "commandLineArgs": "show --dtmi dtmi:com:example:Thermojax;999"

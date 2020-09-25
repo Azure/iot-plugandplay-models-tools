@@ -11,9 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Azure.DigitalTwins.Resolver.CLI
 {
@@ -50,11 +50,11 @@ namespace Azure.DigitalTwins.Resolver.CLI
         }
 
 
-        private static ResolverClient InitializeClient(string registry)
+        private static ResolverClient InitializeClient(string registry, ILogger logger)
         {
             ResolverClient client;
             client = Directory.Exists(registry) ?
-                ResolverClient.FromLocalRegistry(registry) : ResolverClient.FromRemoteRegistry(registry);
+                ResolverClient.FromLocalRegistry(registry, logger) : ResolverClient.FromRemoteRegistry(registry, logger);
             return client;
         }
 
@@ -76,10 +76,15 @@ namespace Azure.DigitalTwins.Resolver.CLI
                     description: "Model Registry location. Can be remote endpoint or local directory.",
                     getDefaultValue: () => _defaultRegistry
                     ),
+                new Option<string>(
+                    new string[]{ "--output", "-o" },
+                    description: "Desired file path to write result contents.",
+                    getDefaultValue: () => null
+                    ),
             };
 
             showModel.Description = "Retrieve a model and its dependencies by dtmi using the target registry for model resolution.";
-            showModel.Handler = CommandHandler.Create<string, string, IHost>(async (dtmi, registry, host) =>
+            showModel.Handler = CommandHandler.Create<string, string, IHost, string>(async (dtmi, registry, host, output) =>
             {
                 IServiceProvider serviceProvider = host.Services;
                 ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
@@ -89,27 +94,24 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 try
                 {
                     logger.LogInformation($"Using registry location {registry}");
-                    result = await InitializeClient(registry).ResolveAsync(dtmi);
+                    result = await InitializeClient(registry, logger).ResolveAsync(dtmi);
                 }
-                catch (DirectoryNotFoundException dnfex)
+                catch (ResolverException resolverEx)
                 {
-                    logger.LogError(dnfex.Message);
-                    return ReturnCodes.ResolutionError;
-                }
-                catch (FileNotFoundException fnfex)
-                {
-                    logger.LogError(fnfex.Message);
-                    return ReturnCodes.ResolutionError;
-                }
-                catch (HttpRequestException httpex)
-                {
-                    logger.LogError(httpex.Message);
+                    logger.LogError(resolverEx.Message);
                     return ReturnCodes.ResolutionError;
                 }
 
                 List<string> resultList = result.Values.ToList();
                 string normalizedList = string.Join(',', resultList);
-                await Console.Out.WriteLineAsync("[" + string.Join(',', normalizedList) + "]");
+                string payload = "[" + string.Join(',', normalizedList) + "]";
+                await Console.Out.WriteLineAsync(payload);
+
+                if (!string.IsNullOrEmpty(output))
+                {
+                    logger.LogInformation($"Writing result to file '{output}'");
+                    await File.WriteAllTextAsync(output, payload, Encoding.UTF8);
+                }
 
                 return ReturnCodes.Success;
             });
@@ -142,7 +144,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
                 ILogger logger = loggerFactory.CreateLogger(typeof(Program));
 
-                ResolverClient client = InitializeClient(registry);
+                ResolverClient client = InitializeClient(registry, logger);
 
                 logger.LogInformation($"Parser version: {_parserVersion}");
                 ModelParser parser = new ModelParser
@@ -175,19 +177,9 @@ namespace Azure.DigitalTwins.Resolver.CLI
 
                     return ReturnCodes.ParserError;
                 }
-                catch (DirectoryNotFoundException dnfex)
+                catch (ResolverException resolverEx)
                 {
-                    logger.LogError(dnfex.Message);
-                    return ReturnCodes.ResolutionError;
-                }
-                catch (FileNotFoundException fnfex)
-                {
-                    logger.LogError(fnfex.Message);
-                    return ReturnCodes.ResolutionError;
-                }
-                catch (HttpRequestException httpex)
-                {
-                    logger.LogError(httpex.Message);
+                    logger.LogError(resolverEx.Message);
                     return ReturnCodes.ResolutionError;
                 }
 

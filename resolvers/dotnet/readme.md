@@ -75,13 +75,59 @@ parser.DtmiResolver = client.ParserDtmiResolver;
 var parserResult = await parser.ParseAsync(...);
 ```
 
-## Federated Model Resolution
+## Logging
 
-- Coming soon!
+To support traceability and diagnostics, the `ResolverClient` supports an optional `ILogger` parameter to pass in during initialization.
 
-## Configuration
+The following shows an example of how to pass in an `ILogger` instance.
 
-Out of the box, the `ResolverClient` has a default configuration with common settings so it is not strictly necessary for to provide one.
+```csharp
+IServiceProvider serviceProvider = host.Services;
+ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+ILogger logger = loggerFactory.CreateLogger(typeof(Program));
+
+logger.LogInformation($"Using registry location {registry}");
+
+// ResolverClient will use the logger.
+client = ResolverClient.FromRemoteRegistry(registry, logger);
+```
+
+Logging configuration is done with the standard `Microsoft.Extensions.Hosting` pattern using configuration appsettings or via environment variables.
+
+When using env vars, we recommend using the cross-platform environment variable syntax (double underscore `__` delimiters).
+
+```powershell
+# powershell example for setting the default logger min log level to "Trace" in the current session.
+$env:Logging__LogLevel__Default="Trace"
+```
+
+```bash
+# bash example for setting the default logger min log level to "Warning"
+export Logging__LogLevel__Default="Trace"
+```
+
+## Error Handling
+
+In general when the `ResolverClient` hits an issue resolving `DTMI`'s a `ResolverException` will be thrown which summarizes the issue. The `ResolverException` may contain an inner exception with additional details as to why the exception occured.
+
+This snippet from the `CLI` shows a way to use `ResolverException`.
+
+```csharp
+try
+{
+    logger.LogInformation($"Using registry location {registry}");
+    result = await InitializeClient(registry, logger).ResolveAsync(dtmi);
+}
+catch (ResolverException resolverEx)
+{
+    logger.LogError(resolverEx.Message);
+    return ReturnCodes.ResolutionError;
+}
+```
+
+## Settings
+
+Out of the box, the `ResolverClient` has default settings with common options so it is not strictly necessary for to provide one.
 
 ### General Settings
 
@@ -111,7 +157,7 @@ Commands:
   validate    Validates a model using the Digital Twins parser and target registry for model resolution.
 ```
 
-**Examples**
+### Examples
 
 ```bash
 # Retrieves the target model and its dependencies by dtmi using the default model registry.
@@ -123,6 +169,12 @@ Commands:
 # Retrieves the target model and its dependencies by dtmi using a custom registry endpoint.
 
 > resolverclient show --dtmi "dtmi:com:example:Thermostat;1" --registry "https://mycustom.domain/models/"
+```
+
+```bash
+# Retrieves the target model and its dependencies by dtmi using the default model registry and save contents to a new file with the path /my/model/result.json.
+
+> resolverclient show --dtmi "dtmi:com:example:Thermostat;1" -o "/my/model/result.json"
 ```
 
 ```bash
@@ -142,7 +194,3 @@ Commands:
 
 > resolverclient validate --model-file ./my/model/file.json --registry "https://mycustom.domain/models/"
 ```
-
-## Common Issues
-
-- Coming soon!

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,19 +9,19 @@ namespace Azure.DigitalTwins.Resolver
     {
         readonly RegistryHandler registryHandler = null;
 
-        public static ResolverClient FromRemoteRegistry(string registryUri)
+        public static ResolverClient FromRemoteRegistry(string registryUri, ILogger logger = null)
         {
-            return new ResolverClient(new Uri(registryUri));
+            return new ResolverClient(new Uri(registryUri), logger);
         }
 
-        public static ResolverClient FromLocalRegistry(string registryPath)
+        public static ResolverClient FromLocalRegistry(string registryPath, ILogger logger = null)
         {
-            return new ResolverClient(new Uri($"file://{registryPath}"));
+            return new ResolverClient(new Uri($"file://{registryPath}"), logger);
         }
 
-        public ResolverClient(Uri registryUri)
+        public ResolverClient(Uri registryUri, ILogger logger = null)
         {
-            this.registryHandler = new RegistryHandler(registryUri);
+            this.registryHandler = new RegistryHandler(registryUri, logger);
         }
 
         public async Task<IDictionary<string, string>> ResolveAsync(string dtmi)

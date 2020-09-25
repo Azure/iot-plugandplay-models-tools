@@ -14,10 +14,12 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
             httpClient = new HttpClient();
         }
 
-        public async Task<string> FetchAsync(string dtmi, Uri registryUri)
+        public async Task<string> FetchAsync(string dtmi, Uri registryUri, ClientLogger logger)
         {
             string absoluteUri = registryUri.AbsoluteUri;
             string dtmiRemotePath = DtmiConventions.ToPath(dtmi, absoluteUri);
+
+            logger.LogInformation($"Attempting to retrieve model content from {dtmiRemotePath}");
 
             HttpResponseMessage response = await httpClient.GetAsync(dtmiRemotePath);
             response.EnsureSuccessStatusCode();

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,7 +7,7 @@
     <Copyright>Microsoft</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>0.0.4</Version>
+    <Version>0.0.5</Version>
     <AssemblyName>resolverclient</AssemblyName>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>resolverclient</ToolCommandName>
