@@ -2,12 +2,13 @@
 using System.IO;
 using System.Threading.Tasks;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace Azure.DigitalTwins.Resolver.Fetchers
 {
     public class LocalModelFetcher : IModelFetcher
     {
-        public async Task<string> FetchAsync(string dtmi, Uri registryUri, ClientLogger logger)
+        public async Task<string> FetchAsync(string dtmi, Uri registryUri, ILogger logger)
         {
             string registryPath = registryUri.AbsolutePath;
 

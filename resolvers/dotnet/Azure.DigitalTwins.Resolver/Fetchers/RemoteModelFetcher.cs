@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -14,7 +15,7 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
             httpClient = new HttpClient();
         }
 
-        public async Task<string> FetchAsync(string dtmi, Uri registryUri, ClientLogger logger)
+        public async Task<string> FetchAsync(string dtmi, Uri registryUri, ILogger logger)
         {
             string absoluteUri = registryUri.AbsoluteUri;
             string dtmiRemotePath = DtmiConventions.ToPath(dtmi, absoluteUri);

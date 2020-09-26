@@ -1,5 +1,6 @@
 ﻿using Azure.DigitalTwins.Resolver.Fetchers;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace Azure.DigitalTwins.Resolver
     public class RegistryHandler
     {
         private readonly IModelFetcher _modelFetcher;
-        private readonly ClientLogger _logger;
+        private readonly ILogger _logger;
         private readonly ModelQuery _modelQuery;
 
         public enum RegistryTypeCategory
@@ -23,7 +24,7 @@ namespace Azure.DigitalTwins.Resolver
 
         public RegistryHandler(Uri registryUri, ILogger logger=null)
         {
-            _logger = new ClientLogger(logger);
+            _logger = logger ?? NullLogger.Instance;
             _modelQuery = new ModelQuery();
             RegistryUri = registryUri;
 
@@ -72,7 +73,7 @@ namespace Azure.DigitalTwins.Resolver
                 {
                     List<string> dependencies = this._modelQuery.GetDependencies(definition);
                     if (dependencies.Count > 0)
-                        _logger.LogInformation($"Discovered dependencies {string.Join(",", dependencies)}");
+                        _logger.LogInformation($"Discovered dependencies {string.Join(", ", dependencies)}");
 
                     foreach (string dep in dependencies)
                     {
