@@ -6,6 +6,6 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
 {
     public interface IModelFetcher
     {
-        Task<string> FetchAsync(string dtmi, Uri registryUri, ClientLogger logger);
+        Task<string> FetchAsync(string dtmi, Uri registryUri, ILogger logger);
     }
 }
