@@ -1,4 +1,4 @@
-# Device Model Repo. Resolution Samples
+# Resolution Samples for Device Model Repository
 
 DTDL models stored on a compatible Device Model Repository can be located at a known location from the DTMI.
 
@@ -6,7 +6,7 @@ This sample shows how to convert any given DTMI to a relative path that can be u
 
 ## dtmi2path
 
-Based on the [DRM convention](https://github.com/Azure/device-models-tools/wiki/Resolution-Convention) a DTMI can be translated to a relative path by using the next rules:
+Based on the [DMR convention](https://github.com/Azure/device-models-tools/wiki/Resolution-Convention) a DTMI can be translated to a relative path by using the next rules:
 
 - Convert all characters to lower case
 - Replace `:` with `/`
