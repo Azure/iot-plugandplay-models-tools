@@ -16,7 +16,7 @@ Based on the [DMR convention](https://github.com/Azure/device-models-tools/wiki/
 dtmi:com:example:Thermostat;1 -> dtmi/com/example/thermostat-1.json
 ```
 
-The next JavaScript function implements these rules:
+The next JavaScript function implements these rules and validates the DTMI using the RegEx provided in the [DTMI spec](https://github.com/Azure/digital-twin-model-identifier#validation-regular-expressions)
 
 ```JS
 /**
