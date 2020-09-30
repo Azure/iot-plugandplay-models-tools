@@ -23,25 +23,10 @@ namespace ResolutionSample
             // Target DTMI for resolution.
             string toParseDtmi = args.Length == 0 ? "dtmi:com:example:TemperatureController;1" : args[0];
 
-            // Setup parser DtmiResolver callback in case more dependencies are needed
-            Func<IReadOnlyCollection<Dtmi>, Task<IEnumerable<string>>> resolveCallback = async dtmis => {
-
-                Console.WriteLine("resolveCallback invoked!");
-                List<string> result = new List<string>();
-
-                foreach(Dtmi dtmi in dtmis)
-                {
-                    string content = await Resolve(dtmi.ToString());
-                    result.Add(content);
-                }
-
-                return result;
-            };
-
             // Assign the callback
             ModelParser parser = new ModelParser
             {
-                DtmiResolver = resolveCallback.Invoke
+                DtmiResolver = ResolveCallback
             };
 
             // Initiate first Resolve for the target dtmi to pass content to parser
@@ -49,6 +34,20 @@ namespace ResolutionSample
 
             await parser.ParseAsync(new List<string> { dtmiContent });
             Console.WriteLine("Parsing success!");
+        }
+
+        static async Task<IEnumerable<string>> ResolveCallback(IReadOnlyCollection<Dtmi> dtmis)
+        {
+            Console.WriteLine("ResolveCallback invoked!");
+            List<string> result = new List<string>();
+
+            foreach (Dtmi dtmi in dtmis)
+            {
+                string content = await Resolve(dtmi.ToString());
+                result.Add(content);
+            }
+
+            return result;
         }
 
         static async Task<string> Resolve(string dtmi)
@@ -76,15 +75,8 @@ namespace ResolutionSample
             if (!IsValidDtmi(dtmi))
                 throw new ArgumentException($"Invalid DTMI input: {dtmi}");
 
-            // Lookups are case insensitive
-            dtmi = dtmi.ToLowerInvariant();
-
             // dtmi:com:example:Thermostat;1 -> dtmi/com/example/thermostat-1.json
-            string[] splitDtmi = dtmi.Split(':');
-            string modelPath = string.Join('/', splitDtmi);
-            modelPath = modelPath.Replace(';', '-');
-
-            return $"/{modelPath}.json";
+            return $"/{dtmi.ToLowerInvariant().Replace(":", "/").Replace(";", "-")}.json";
         }
 
         static bool IsValidDtmi(string dtmi)
