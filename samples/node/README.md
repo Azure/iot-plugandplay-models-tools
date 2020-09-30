@@ -20,7 +20,7 @@ The next JavaScript function implements these rules and validates the DTMI using
 
 ```JS
 /**
- * @description Converts DTMI to dtmi/com/example/device-1.json path.
+ * @description Converts DTMI to /dtmi/com/example/device-1.json path.
  *   Validates DTMI with RegEx from https://github.com/Azure/digital-twin-model-identifier#validation-regular-expressions
  * @param {string} dtmi
  * @returns {string)}
