@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace ResolutionSample
 {
@@ -15,7 +16,7 @@ namespace ResolutionSample
             _httpClient = new HttpClient();
         }
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             // Determine target DTMI for resolution.
             string dtmiTarget = args.Length == 0 ? "dtmi:azure:DeviceManagement:DeviceInformation;1" : args[0];
@@ -27,9 +28,12 @@ namespace ResolutionSample
 
             // Apply model repository convention
             string dtmiPath = DtmiToPath(dtmiTarget);
+            string fullyQualifiedPath = $"{_repositoryEndpoint}{dtmiPath}";
 
-            // Make request synchronously (for this exmaple)
-            string modelContent = _httpClient.GetStringAsync($"{_repositoryEndpoint}/{dtmiPath}").Result;
+            Console.WriteLine($"Fully qualified model path: {fullyQualifiedPath}");
+
+            // Make request
+            string modelContent = await _httpClient.GetStringAsync(fullyQualifiedPath);
 
             // Output string content to stdout
             Console.WriteLine(modelContent);
@@ -44,9 +48,8 @@ namespace ResolutionSample
             string[] splitDtmi = dtmi.Split(':');
             string modelPath = string.Join('/', splitDtmi);
             modelPath = modelPath.Replace(';', '-');
-            modelPath += ".json";
 
-            return modelPath;
+            return $"/{modelPath}.json";
         }
 
         static bool IsValidDtmi(string dtmi)
