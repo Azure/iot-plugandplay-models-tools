@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ResolutionSample": {
+      "commandName": "Project",
+      "commandLineArgs": "dtmi:azure:DeviceManagement:DeviceInformation;1"
+    }
+  }
+}
