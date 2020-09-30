@@ -3,8 +3,10 @@ name: Merge
 on:
   push:
     branches: [ main, dev ]
+    paths-ignore: sample
   pull_request:
     branches: [ main, dev ]
+    paths-ignore: sample
 
 jobs:
   dotnet_resolver_tools:
