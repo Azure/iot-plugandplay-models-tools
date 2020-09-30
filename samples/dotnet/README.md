@@ -13,6 +13,8 @@ The sample achieves the following points:
 
 Open the project or solution file and start debugging!
 
-Alternatively you can execute `dotnet run` and use the default `DTMI` arg of `dtmi:azure:DeviceManagement:DeviceInformation;1` or pass in your own `DTMI` arg via `dotnet run -- "<dtmiString>"`.
+Alternatively you can execute `dotnet run` and use the default `DTMI` arg of `dtmi:com:example:TemperatureController;1` or pass in your own `DTMI` arg via `dotnet run -- "<dtmiString>"`.
 
-This sample uses the DMR endpoint `https://devicemodels.azure.com`.
+> :exclamation: Note be aware of shell rules for argument input. For example in powershell quote the dtmi input i.e. `dotnet run -- "<dtmiString>"`
+
+This sample uses the DMR endpoint `https://devicemodeltest.azureedge.net` by default.

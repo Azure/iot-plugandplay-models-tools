@@ -2,7 +2,7 @@
   "profiles": {
     "ResolutionSample": {
       "commandName": "Project",
-      "commandLineArgs": "dtmi:azure:DeviceManagement:DeviceInformation;1"
+      "commandLineArgs": "dtmi:com:example:TemperatureController;1"
     }
   }
 }
