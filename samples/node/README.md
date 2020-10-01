@@ -1,8 +1,6 @@
-# Resolution Samples for Device Model Repository
+# Node Resolution Sample
 
-DTDL models stored on a compatible Device Model Repository can be located at a known location from the DTMI.
-
-This sample shows how to convert any given DTMI to a relative path that can be used to retrieve the required DTDL interface.
+This samples shows how to convert any given DTMI to a relative path that can be used to retrieve the required DTDL interface.
 
 ## dtmi2path
 
@@ -22,7 +20,7 @@ The next JavaScript function implements these rules and validates the DTMI using
 /**
  * @description Converts DTMI to dtmi/com/example/device-1.json path
  * @param {string} dtmi
- * @returns {string)}
+ * @returns {string}
  */
 const dtmi2path = dtmi => {
   if (RegExp('^dtmi:[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$').test(dtmi)) {

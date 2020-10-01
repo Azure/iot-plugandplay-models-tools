@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ResolutionSample": {
+      "commandName": "Project",
+      "commandLineArgs": "dtmi:com:example:TemperatureController;1"
+    }
+  }
+}

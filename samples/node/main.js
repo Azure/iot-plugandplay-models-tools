@@ -5,7 +5,7 @@ const https = require('https')
  * @description Converts DTMI to dtmi/com/example/device-1.json path.
  *   Validates DTMI with RegEx from https://github.com/Azure/digital-twin-model-identifier#validation-regular-expressions
  * @param {string} dtmi
- * @returns {string)}
+ * @returns {string}
  */
 const dtmi2path = dtmi => {
   if (RegExp('^dtmi:[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$').test(dtmi)) {
