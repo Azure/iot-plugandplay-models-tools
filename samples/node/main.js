@@ -1,39 +1,52 @@
-// dtmi2path sample
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 const https = require('https')
 
 /**
+ * @description Validates DTMI with RegEx from https://github.com/Azure/digital-twin-model-identifier#validation-regular-expressions
+ * @param {string} dtmi
+ */
+const isDtmi = dtmi => {
+  return RegExp('^dtmi:[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$').test(dtmi)
+}
+
+/**
  * @description Converts DTMI to /dtmi/com/example/device-1.json path.
- *   Validates DTMI with RegEx from https://github.com/Azure/digital-twin-model-identifier#validation-regular-expressions
  * @param {string} dtmi
  * @returns {string}
  */
-const dtmi2path = dtmi => {
-  if (RegExp('^dtmi:[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$').test(dtmi)) {
-    return `/${dtmi.toLowerCase().replace(/:/g, '/').replace(';', '-')}.json`
-  } else return 'NOT-VALID-DTMI'
+const dtmiToPath = dtmi => {
+  if (!isDtmi(dtmi)) {
+    return null
+  }
+  // dtmi:com:example:Thermostat;1 -> dtmi/com/example/thermostat-1.json
+  return `/${dtmi.toLowerCase().replace(/:/g, '/').replace(';', '-')}.json`
 }
 
-const repo = 'devicemodels.azure.com'
-const dtmi = 'dtmi:azure:DeviceManagement:DeviceInformation;1'
-const path = dtmi2path(dtmi)
-console.log(repo, path)
+const repositoryEndpoint = 'devicemodeltest.azureedge.net'
+const dtmi = process.argv[2] || 'dtmi:azure:DeviceManagement:DeviceInformation;1'
+const path = dtmiToPath(dtmi)
+console.log(repositoryEndpoint, path)
 
-const options = {
-  hostname: repo,
-  port: 443,
-  path: path,
-  method: 'GET'
-}
+if (path) {
+  const options = {
+    hostname: repositoryEndpoint,
+    port: 443,
+    path: path,
+    method: 'GET'
+  }
 
-const req = https.request(options, res => {
-  console.log(`statusCode: ${res.statusCode}`)
-  res.on('data', d => {
-    process.stdout.write(d)
+  const req = https.request(options, res => {
+    console.log(`statusCode: ${res.statusCode}`)
+    res.on('data', d => {
+      process.stdout.write(d)
+    })
   })
-})
 
-req.on('error', error => {
-  console.error(error)
-})
+  req.on('error', error => {
+    console.error(error)
+  })
 
-req.end()
+  req.end()
+} else console.log(`Invalid DTMI ${dtmi}`)

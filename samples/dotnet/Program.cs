@@ -1,4 +1,7 @@
-﻿using Microsoft.Azure.DigitalTwins.Parser;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using Microsoft.Azure.DigitalTwins.Parser;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -9,7 +12,7 @@ namespace ResolutionSample
 {
     class Program
     {
-        static readonly string _repositoryEndpoint = "https://devicemodeltest.azureedge.net";
+        const string _repositoryEndpoint = "https://devicemodeltest.azureedge.net";
         static readonly HttpClient _httpClient;
 
         static Program()
@@ -23,16 +26,16 @@ namespace ResolutionSample
             // Target DTMI for resolution.
             string toParseDtmi = args.Length == 0 ? "dtmi:com:example:TemperatureController;1" : args[0];
 
-            // Assign the callback
-            ModelParser parser = new ModelParser
-            {
-                DtmiResolver = ResolveCallback
-            };
-
             // Initiate first Resolve for the target dtmi to pass content to parser
             string dtmiContent = await Resolve(toParseDtmi);
+
             if (!string.IsNullOrEmpty(dtmiContent))
             {
+                // Assign the callback
+                ModelParser parser = new ModelParser
+                {
+                    DtmiResolver = ResolveCallback
+                };
                 await parser.ParseAsync(new List<string> { dtmiContent });
                 Console.WriteLine("Parsing success!");
             } 
@@ -64,7 +67,6 @@ namespace ResolutionSample
                 return await Task.FromResult<string>(string.Empty);
             }
             string fullyQualifiedPath = $"{_repositoryEndpoint}{dtmiPath}";
-
             Console.WriteLine($"Fully qualified model path: {fullyQualifiedPath}");
 
             // Make request

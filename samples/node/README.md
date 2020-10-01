@@ -1,42 +1,71 @@
 # Node Resolution Sample
 
-This samples shows how to convert any given DTMI to a relative path that can be used to retrieve the required DTDL interface.
+This example project shows a minimum implementation of the [DMR resolution convention](https://github.com/Azure/device-models-tools/wiki/Resolution-Convention) for `node` using `ES6 JavaScript`.
 
-## dtmi2path
+The sample achieves the following points:
 
-Based on the [DMR convention](https://github.com/Azure/device-models-tools/wiki/Resolution-Convention) a DTMI can be translated to a relative path by using the next rules:
+- Takes a `DTMI` argument or uses a default for resolution.
+- Validates the `DTMI` format using RegEx predefined in the [DTMI specification document](https://github.com/Azure/digital-twin-model-identifier#validation-regular-expressions).
+- Transforms the `DTMI` to a path using an implementation of the [DMR resolution convention](https://github.com/Azure/device-models-tools/wiki/Resolution-Convention).
+- Retrieves string content via http request to a fully qualified path combining the DMR endpoint and transformed `DTMI`.
 
-- Convert all characters to lower case
-- Replace `:` with `/`
-- The file name is the last DTMI segment with the version and the `.json` extension
+## Quick Start
+
+Open the folder from the command line to run:
 
 ```bash
-dtmi:com:example:Thermostat;1 -> dtmi/com/example/thermostat-1.json
+node main.js
 ```
 
-The next JavaScript function implements these rules and validates the DTMI using the RegEx provided in the [DTMI spec](https://github.com/Azure/digital-twin-model-identifier#validation-regular-expressions)
+> :exclamation: Note there are no external dependencies, so there is no need to `npm install` any additional packages.
 
-```JS
+This sample uses the DMR endpoint `https://devicemodeltest.azureedge.net` by default.
+
+## Code Walktrough
+
+To convert a DTMI to an absolute path we use the `dtmiToPath` function, with `isDtmi`:
+
+```javascript
+/**
+ * @description Validates DTMI with RegEx from https://github.com/Azure/digital-twin-model-identifier#validation-regular-expressions
+ * @param {string} dtmi
+ */
+const isDtmi = dtmi => {
+  return RegExp('^dtmi:[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$').test(dtmi)
+}
+
 /**
  * @description Converts DTMI to /dtmi/com/example/device-1.json path.
- *   Validates DTMI with RegEx from https://github.com/Azure/digital-twin-model-identifier#validation-regular-expressions
  * @param {string} dtmi
  * @returns {string}
  */
-const dtmi2path = dtmi => {
-  if (RegExp('^dtmi:[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$').test(dtmi)) {
+const dtmiToPath = dtmi => {
+  if (isDtmi(dtmi)) {
     return `/${dtmi.toLowerCase().replace(/:/g, '/').replace(';', '-')}.json`
-  } else return 'NOT-VALID-DTMI'
+  } else return null
 }
 ```
 
-To use this function from a Node.js console app:
+With the resulting path and the base URL for the repository we can obtain the interface:
 
-```js
-const repo = 'devicemodels.azure.com'
-const dtmi = 'dtmi:azure:DeviceManagement:DeviceInformation;1'
-const path = dtmi2path(dtmi)
-console.log(repo, path)
+```javascript
+const https = require('https')
+const repositoryEndpoint = 'devicemodeltest.azureedge.net'
+const dtmi = process.argv[2] || 'dtmi:azure:DeviceManagement:DeviceInformation;1'
+const path = dtmiToPath(dtmi)
+console.log(repositoryEndpoint, path)
+
+const options = {
+  hostname: repositoryEndpoint,
+  port: 443,
+  path: path,
+  method: 'GET'
+}
+
+const req = https.request(options, res => {
+  console.log(`statusCode: ${res.statusCode}`)
+  res.on('data', d => {
+    process.stdout.write(d)
+  })
+})
 ```
-
-Full sample is available in the `main.js` script located in the folder.
