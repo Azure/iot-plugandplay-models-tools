@@ -31,9 +31,11 @@ namespace ResolutionSample
 
             // Initiate first Resolve for the target dtmi to pass content to parser
             string dtmiContent = await Resolve(toParseDtmi);
-
-            await parser.ParseAsync(new List<string> { dtmiContent });
-            Console.WriteLine("Parsing success!");
+            if (!string.IsNullOrEmpty(dtmiContent))
+            {
+                await parser.ParseAsync(new List<string> { dtmiContent });
+                Console.WriteLine("Parsing success!");
+            } 
         }
 
         static async Task<IEnumerable<string>> ResolveCallback(IReadOnlyCollection<Dtmi> dtmis)
@@ -56,6 +58,11 @@ namespace ResolutionSample
 
             // Apply model repository convention
             string dtmiPath = DtmiToPath(dtmi.ToString());
+            if (string.IsNullOrEmpty(dtmiPath)) 
+            {
+                Console.WriteLine($"Invalid DTMI: {dtmi}");
+                return await Task.FromResult<string>(string.Empty);
+            }
             string fullyQualifiedPath = $"{_repositoryEndpoint}{dtmiPath}";
 
             Console.WriteLine($"Fully qualified model path: {fullyQualifiedPath}");
@@ -72,9 +79,10 @@ namespace ResolutionSample
 
         static string DtmiToPath(string dtmi)
         {
-            if (!IsValidDtmi(dtmi))
-                throw new ArgumentException($"Invalid DTMI input: {dtmi}");
-
+            if (!IsValidDtmi(dtmi)) 
+            {
+                return null;
+            }
             // dtmi:com:example:Thermostat;1 -> dtmi/com/example/thermostat-1.json
             return $"/{dtmi.ToLowerInvariant().Replace(":", "/").Replace(";", "-")}.json";
         }
