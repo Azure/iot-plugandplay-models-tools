@@ -20,7 +20,7 @@ Alternatively you can execute `dotnet run` and use the default `DTMI` arg of `dt
 
 This sample uses the DMR endpoint `https://devicemodeltest.azureedge.net` by default.
 
-## Code walktrhough
+## Code walkthrough
 
 To convert a DTMI to an absolute path we use the `DtmiToPath` function, with `IsValidDtmi`:
 
