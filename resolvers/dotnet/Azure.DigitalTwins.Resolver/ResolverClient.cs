@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ namespace Azure.DigitalTwins.Resolver
 
         public static ResolverClient FromLocalRegistry(string registryPath, ILogger logger = null)
         {
-            return new ResolverClient(new Uri($"file://{registryPath}"), logger);
+            return new ResolverClient(new Uri($"file://{Path.GetFullPath(registryPath)}"), logger);
         }
 
         public ResolverClient(Uri registryUri, ILogger logger = null)

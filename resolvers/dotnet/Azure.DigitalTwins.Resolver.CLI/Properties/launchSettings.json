@@ -27,6 +27,10 @@
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ValidateFail2": {
       "commandName": "Project",
       "commandLineArgs": "validate --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRegistry/dtmi/com/example/invalidmodel-2.json"
+    },
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ValidateRegistryDot": {
+      "commandName": "Project",
+      "commandLineArgs": "validate --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRegistry/dtmi/com/example/invalidmodel-2.json --registry ."
     }
   }
 }
