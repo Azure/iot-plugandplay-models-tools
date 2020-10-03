@@ -17,7 +17,7 @@ namespace Azure.DigitalTwins.Resolver
 
         public static ResolverClient FromLocalRegistry(string registryPath, ILogger logger = null)
         {
-            return new ResolverClient(new Uri($"file://{Path.GetFullPath(registryPath)}"), logger);
+            return new ResolverClient(new Uri($"file://{registryPath}"), logger);
         }
 
         public ResolverClient(Uri registryUri, ILogger logger = null)

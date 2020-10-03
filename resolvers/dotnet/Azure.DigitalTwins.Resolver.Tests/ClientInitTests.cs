@@ -47,7 +47,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         [Test]
         public void ClientInitLocalRegistryHelper()
         {
-            string registryPathWindows = @"C:\Users\me\path\to\registy";
+            string registryPathWindows = @"C:/me/path/to/registry";
 
             Uri registryUriWindows = new Uri($"file://{registryPathWindows}");
             var clientWindows = ResolverClient.FromLocalRegistry(registryPathWindows);
