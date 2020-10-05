@@ -1,70 +1,117 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 
 namespace Azure.DigitalTwins.Resolver
 {
     public class ModelQuery
     {
-        public List<string> GetDependencies(string modelContent)
-        {
-            List<string> result = new List<string>();
+        readonly string _content;
+        readonly JsonDocumentOptions _parseOptions;
 
-            var options = new JsonDocumentOptions
+        public ModelQuery(string content)
+        {
+            _content = content;
+            _parseOptions = new JsonDocumentOptions
             {
                 AllowTrailingCommas = true
             };
+        }
 
-            using JsonDocument document = JsonDocument.Parse(modelContent, options);
-            JsonElement root = document.RootElement;
+        public ModelMetadata GetMetadata()
+        {
+            return new ModelMetadata(GetId(), GetExtends(), GetComponentSchemas());
+        }
 
-            if (root.TryGetProperty("extends", out JsonElement extends))
+        public string GetId()
+        {
+            using JsonDocument document = JsonDocument.Parse(_content, _parseOptions);
+            JsonElement _root = document.RootElement;
+
+            if (_root.TryGetProperty("@id", out JsonElement id))
             {
-                if (extends.ValueKind == JsonValueKind.Array)
+                if (id.ValueKind == JsonValueKind.String)
                 {
-                    foreach(var element in extends.EnumerateArray())
-                    {
-                        result.Add(element.GetString());
-                    }
-                }
-                else
-                {
-                    result.Add(extends.GetString());
+                    return id.GetString();
                 }
             }
 
-            if (root.TryGetProperty("contents", out JsonElement contents))
-            {
-                List<JsonElement> components = new List<JsonElement>();
+            return string.Empty;
+        }
 
-                foreach(var element in contents.EnumerateArray())
+        public IList<string> GetExtends()
+        {
+            using JsonDocument document = JsonDocument.Parse(_content, _parseOptions);
+            JsonElement _root = document.RootElement;
+
+            List<string> dependencies = new List<string>();
+
+            if (_root.TryGetProperty("extends", out JsonElement extends))
+            {
+                if (extends.ValueKind == JsonValueKind.Array)
                 {
-                    if (element.TryGetProperty("@type", out JsonElement type))
+                    foreach (JsonElement extendElement in extends.EnumerateArray())
                     {
-                        if (type.ValueKind == JsonValueKind.String && type.GetString() == "Component")
+                        if (extendElement.ValueKind == JsonValueKind.String)
                         {
-                            components.Add(element);
+                            dependencies.Add(extendElement.GetString());
                         }
                     }
                 }
-
-                // TODO: Refactor
-                foreach(var component in components)
+                else if (extends.ValueKind == JsonValueKind.String)
                 {
-                    if (component.TryGetProperty("schema", out JsonElement schema))
+                    dependencies.Add(extends.GetString());
+                }
+            }
+
+            return dependencies;
+        }
+
+        public IList<string> GetComponentSchemas()
+        {
+            using JsonDocument document = JsonDocument.Parse(_content, _parseOptions);
+            JsonElement _root = document.RootElement;
+
+            List<string> componentSchemas = new List<string>();
+
+            if (_root.TryGetProperty("contents", out JsonElement contents))
+            {
+                if (contents.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var element in contents.EnumerateArray())
                     {
-                        if (schema.ValueKind == JsonValueKind.String)
+                        if (element.TryGetProperty("@type", out JsonElement type))
                         {
-                            string schemaValue = schema.GetString();
-                            if (!result.Contains(schemaValue))
+                            if (type.ValueKind == JsonValueKind.String && type.GetString() == "Component")
                             {
-                                result.Add(schemaValue);
+                                if (element.TryGetProperty("schema", out JsonElement schema))
+                                {
+                                    if (schema.ValueKind == JsonValueKind.String)
+                                    {
+                                        componentSchemas.Add(schema.GetString());
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
 
-            return result;
+            return componentSchemas;
+        }
+
+        public class ModelMetadata {
+            public string Id { get; }
+            public IList<string> Extends { get; }
+            public IList<string> ComponentSchemas { get; }
+            public IList<string> Dependencies { get { return Extends.Union(ComponentSchemas).ToList();  } }
+
+            public ModelMetadata(string id, IList<string> extends, IList<string> componentSchemas)
+            {
+                this.Id = id;
+                this.Extends = extends;
+                this.ComponentSchemas = componentSchemas;
+            }
         }
     }
 }

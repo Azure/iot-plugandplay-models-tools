@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Azure.DigitalTwins.Resolver.Tests
@@ -33,11 +34,27 @@ namespace Azure.DigitalTwins.Resolver.Tests
         [TestCase("dtmi:com:example:thermostat;1")]
         public void ResolveWithWrongCasingThrowsException(string dtmi)
         {
-            Assert.ThrowsAsync<ResolverException>(async () => await _localClient.ResolveAsync(dtmi));
+            string expectedExMsg = 
+                "Unable to resolve 'dtmi:com:example:thermostat;1'. " +
+                "Retrieved model content has incorrect DTMI casing. " +
+                "Expected dtmi:com:example:thermostat;1, parsed dtmi:com:example:Thermostat;1";
+
+            ResolverException re = Assert.ThrowsAsync<ResolverException>(async () => await _localClient.ResolveAsync(dtmi));
+            Assert.AreEqual(re.Message, expectedExMsg);
+        }
+
+        [TestCase("dtmi:com:example:Thermostat:1")]
+        [TestCase("dtmi:com:example::Thermostat;1")]
+        [TestCase("com:example:Thermostat;1")]
+        public void ResolveInvalidDtmiFormatThrowsException(string dtmi)
+        {
+            string expectedExMsg = $"Unable to resolve '{dtmi}'. Input DTMI '{dtmi}' has an invalid format.";
+            ResolverException re = Assert.ThrowsAsync<ResolverException>(async () => await _localClient.ResolveAsync(dtmi));
+            Assert.AreEqual(re.Message, expectedExMsg);
         }
 
         [TestCase("dtmi:com:example:thermojax;999")]
-        public void ResolveInvalidDtmiThrowsException(string dtmi)
+        public void ResolveNoneExistantDtmiContentThrowsException(string dtmi)
         {
             Assert.ThrowsAsync<ResolverException>(async () => await _localClient.ResolveAsync(dtmi));
         }
@@ -48,7 +65,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
             Assert.ThrowsAsync<ResolverException>(async () => await _localClient.ResolveAsync(dtmi));
         }
 
-        [TestCase("dtmi:com:example:Thermostat;1", "dtmi:azure:deviceManagement:DeviceInformation;1")]
+        [TestCase("dtmi:com:example:Thermostat;1", "dtmi:azure:DeviceManagement:DeviceInformation;1")]
         public async Task ResolveMultipleModelsNoDeps(string dtmi1, string dtmi2)
         {
             var result = await _localClient.ResolveAsync(new string[] { dtmi1, dtmi2 });
@@ -60,7 +77,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         }
 
         [TestCase("dtmi:com:example:TemperatureController;1", 
-                  "dtmi:com:example:Thermostat;1,dtmi:azure:deviceManagement:DeviceInformation;1")]
+                  "dtmi:com:example:Thermostat;1,dtmi:azure:DeviceManagement:DeviceInformation;1")]
         public async Task ResolveSingleModelWithDepsAndLogger(string dtmi, string expectedDeps)
         {
             Mock<ILogger> _logger = new Mock<ILogger>();
@@ -84,23 +101,23 @@ namespace Azure.DigitalTwins.Resolver.Tests
             _logger.ValidateLog($"Attempting to retrieve model content from " +
                 $"{DtmiConventions.ToPath(expectedDtmis[0], localClient.RegistryUri.AbsolutePath)}", LogLevel.Information, Times.Once());
 
-            _logger.ValidateLog($"Discovered dependencies dtmi:com:example:Thermostat;1, dtmi:azure:deviceManagement:DeviceInformation;1", LogLevel.Information, Times.Once());
+            _logger.ValidateLog($"Discovered dependencies dtmi:com:example:Thermostat;1, dtmi:azure:DeviceManagement:DeviceInformation;1", LogLevel.Information, Times.Once());
             
             _logger.ValidateLog($"Processing DTMI 'dtmi:com:example:Thermostat;1'", LogLevel.Information, Times.Once());
             _logger.ValidateLog($"Attempting to retrieve model content from " +
                 $"{DtmiConventions.ToPath(expectedDtmis[1], localClient.RegistryUri.AbsolutePath)}", LogLevel.Information, Times.Once());
 
-            _logger.ValidateLog($"Processing DTMI 'dtmi:azure:deviceManagement:DeviceInformation;1'", LogLevel.Information, Times.Once());
+            _logger.ValidateLog($"Processing DTMI 'dtmi:azure:DeviceManagement:DeviceInformation;1'", LogLevel.Information, Times.Once());
             _logger.ValidateLog($"Attempting to retrieve model content from " +
                 $"{DtmiConventions.ToPath(expectedDtmis[2], localClient.RegistryUri.AbsolutePath)}", LogLevel.Information, Times.Once());
         }
 
         [TestCase("dtmi:com:example:Phone;2",
-          "dtmi:com:example:TemperatureController;1",
-          "dtmi:com:example:Thermostat;1," +
-          "dtmi:azure:deviceManagement:DeviceInformation;1," +
-          "dtmi:azure:deviceManagement:DeviceInformation;2," +
-          "dtmi:com:example:Camera;3")]
+                  "dtmi:com:example:TemperatureController;1",
+                  "dtmi:com:example:Thermostat;1," +
+                  "dtmi:azure:DeviceManagement:DeviceInformation;1," +
+                  "dtmi:azure:DeviceManagement:DeviceInformation;2," +
+                  "dtmi:com:example:Camera;3")]
         public async Task ResolveMultipleModelsWithDeps(string dtmi1, string dtmi2, string expectedDeps)
         {
             var result = await _localClient.ResolveAsync(dtmi1, dtmi2);
@@ -116,7 +133,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
 
         [TestCase("dtmi:com:example:TemperatureController;1",
                   "dtmi:com:example:ConferenceRoom;1", // Model uses extends
-                  "dtmi:com:example:Thermostat;1,dtmi:azure:deviceManagement:DeviceInformation;1,dtmi:com:example:Room;1")]
+                  "dtmi:com:example:Thermostat;1,dtmi:azure:DeviceManagement:DeviceInformation;1,dtmi:com:example:Room;1")]
         public async Task ResolveMultipleModelsWithDepsExpand(string dtmi1, string dtmi2, string expectedDeps)
         {
             var result = await _localClient.ResolveAsync(dtmi1, dtmi2); // Uses ResolveAsync(params string[])
@@ -133,7 +150,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         [TestCase("dtmi:com:example:TemperatureController;1",
                   "dtmi:com:example:ColdStorage;1", // Model uses extends[]
                   "dtmi:com:example:Thermostat;1," +
-                  "dtmi:azure:deviceManagement:DeviceInformation;1," +
+                  "dtmi:azure:DeviceManagement:DeviceInformation;1," +
                   "dtmi:com:example:Room;1," +
                   "dtmi:com:example:Freezer;1")]
         public async Task ResolveMultipleModelsWithDepsExpandVariant(string dtmi1, string dtmi2, string expectedDeps)
@@ -149,7 +166,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
             }
         }
 
-        [TestCase("dtmi:azure:deviceManagement:DeviceInformation;1", "dtmi:azure:deviceManagement:DeviceInformation;1")]
+        [TestCase("dtmi:azure:DeviceManagement:DeviceInformation;1", "dtmi:azure:DeviceManagement:DeviceInformation;1")]
         public async Task ResolveEnsureNoDupes(string dtmiDupe1, string dtmiDupe2)
         {
             var result = await _localClient.ResolveAsync(dtmiDupe1, dtmiDupe2);

@@ -30,11 +30,14 @@ namespace Azure.DigitalTwins.Resolver.Tests
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
 
+            string expectedPath = DtmiConventions.ToPath(targetDtmi, _localUri.AbsolutePath);
+            string fetcherPath = _localFetcher.GetPath(targetDtmi, _localUri);
+            Assert.AreEqual(fetcherPath, expectedPath);
+
             // Resolution correctness is covered in ResolverIntegrationTests
             string content = await _localFetcher.FetchAsync(targetDtmi, _localUri, _logger.Object);
             Assert.IsNotNull(content);
-
-            string expectedPath = DtmiConventions.ToPath(targetDtmi, _localUri.AbsolutePath);
+ 
             _logger.ValidateLog($"Attempting to retrieve model content from {expectedPath}", LogLevel.Information, Times.Once());
         }
 
@@ -64,11 +67,14 @@ namespace Azure.DigitalTwins.Resolver.Tests
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
 
+            string expectedPath = DtmiConventions.ToPath(targetDtmi, _remoteUri.AbsoluteUri);
+            string fetcherPath = _remoteFetcher.GetPath(targetDtmi, _remoteUri);
+            Assert.AreEqual(fetcherPath, expectedPath);
+
             // Resolution correctness is covered in ResolverIntegrationTests
             string content = await _remoteFetcher.FetchAsync(targetDtmi, _remoteUri, _logger.Object);
             Assert.IsNotNull(content);
 
-            string expectedPath = DtmiConventions.ToPath(targetDtmi, _remoteUri.AbsoluteUri);
             _logger.ValidateLog($"Attempting to retrieve model content from {expectedPath}", LogLevel.Information, Times.Once());
         }
 

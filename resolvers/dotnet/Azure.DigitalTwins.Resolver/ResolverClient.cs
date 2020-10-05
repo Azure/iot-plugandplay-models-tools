@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -37,6 +38,16 @@ namespace Azure.DigitalTwins.Resolver
         public async Task<IDictionary<string, string>> ResolveAsync(IEnumerable<string> dtmis)
         {
             return await this.registryHandler.ProcessAsync(dtmis, true);
+        }
+
+        public string GetPath(string dtmi)
+        {
+            return this.registryHandler.ToPath(dtmi);
+        }
+
+        public static bool IsValidDtmi(string dtmi)
+        {
+            return RegistryHandler.IsValidDtmi(dtmi);
         }
 
         public Uri RegistryUri { get { return this.registryHandler.RegistryUri; } }
