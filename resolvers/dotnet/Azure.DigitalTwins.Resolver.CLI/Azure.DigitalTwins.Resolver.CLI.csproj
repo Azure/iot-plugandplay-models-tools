@@ -7,10 +7,10 @@
     <Copyright>Microsoft</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>0.0.6</Version>
+    <Version>0.0.7</Version>
     <AssemblyName>dmr-client</AssemblyName>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>dmrclient</ToolCommandName>
+    <ToolCommandName>dmr-client</ToolCommandName>
     <PackageId>dmr-client</PackageId>
     <Product>Azure.DigitalTwins.Resolver.CLI</Product>
   </PropertyGroup>
