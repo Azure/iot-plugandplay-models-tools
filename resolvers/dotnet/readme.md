@@ -136,14 +136,14 @@ Out of the box, the `ResolverClient` has default settings with common options so
 
 ## Device Model Repository CLI
 
-This solution includes a CLI project `Azure.DigitalTwins.Resolver.CLI` to jumpstart scenarios. You are able to invoke commands via `dotnet run` or as the compiled executable `dmrclient`.
+This solution includes a CLI project `Azure.DigitalTwins.Resolver.CLI` to jumpstart scenarios. You are able to invoke commands via `dotnet run` or as the compiled executable `dmr-client`.
 
 ```bash
 dmrclient:
   Microsoft IoT Plug and Play Device Model Repository CLI
 
 Usage:
-  dmrclient [options] [command]
+  dmr-client [options] [command]
 
 Options:
   --version         Show version information
@@ -157,18 +157,18 @@ Commands:
 
 ## Examples
 
-### dmrclient show
+### dmr-client show
 
 ```bash
 # Show the fully qualified path of dtmi:com:example:Thermostat;1 with respect to the default repository.
 
-> dmrclient show --dtmi "dtmi:com:example:Thermostat;1"
+> dmr-client show --dtmi "dtmi:com:example:Thermostat;1"
 ```
 
 ```bash
 # Show the fully qualified path of dtmi:com:example:Thermostat;1 with respect to a custom local repository.
 
-> dmrclient show --dtmi "dtmi:com:example:Thermostat;1" --repository "/my/model/repo"
+> dmr-client show --dtmi "dtmi:com:example:Thermostat;1" --repository "/my/model/repo"
 ```
 
 ### dmrclient resolve
@@ -176,25 +176,25 @@ Commands:
 ```bash
 # Retrieves the target model and its dependencies by dtmi using the default model repository.
 
-> dmrclient resolve --dtmi "dtmi:com:example:Thermostat;1"
+> dmr-client resolve --dtmi "dtmi:com:example:Thermostat;1"
 ```
 
 ```bash
 # Retrieves the target model and its dependencies by dtmi using a custom repository endpoint.
 
-> dmrclient resolve --dtmi "dtmi:com:example:Thermostat;1" --repository "https://mycustom.domain/models/"
+> dmr-client resolve --dtmi "dtmi:com:example:Thermostat;1" --repository "https://mycustom.domain/models/"
 ```
 
 ```bash
 # Retrieves the target model and its dependencies by dtmi using the default model repository and save contents to a new file with the path /my/model/result.json.
 
-> dmrclient resolve --dtmi "dtmi:com:example:Thermostat;1" -o "/my/model/result.json"
+> dmr-client resolve --dtmi "dtmi:com:example:Thermostat;1" -o "/my/model/result.json"
 ```
 
 ```bash
 # Retrieves the target model and its dependencies by dtmi using a custom local repository.
 
-> dmrclient resolve --dtmi "dtmi:com:example:Thermostat;1" --repository "/my/models/"
+> dmr-client resolve --dtmi "dtmi:com:example:Thermostat;1" --repository "/my/models/"
 ```
 
 ### dmrclient validate
@@ -202,11 +202,11 @@ Commands:
 ```bash
 # Validates a DTDLv2 model using the Digital Twins Parser and default model repository for resolution.
 
-> dmrclient validate --model-file ./my/model/file.json
+> dmr-client validate --model-file ./my/model/file.json
 ```
 
 ```bash
 # Validates a DTDLv2 model using the Digital Twins Parser and custom repository endpoint for resolution.
 
-> dmrclient validate --model-file ./my/model/file.json --repository "https://mycustom.domain/models/"
+> dmr-client validate --model-file ./my/model/file.json --repository "https://mycustom.domain/models/"
 ```

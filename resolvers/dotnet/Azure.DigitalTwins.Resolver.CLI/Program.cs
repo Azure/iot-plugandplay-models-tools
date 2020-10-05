@@ -1,19 +1,21 @@
-﻿using Microsoft.Azure.DigitalTwins.Parser;
-using Azure.DigitalTwins.Resolver.Extensions;
+﻿using Azure.DigitalTwins.Resolver.Extensions;
+using Microsoft.Azure.DigitalTwins.Parser;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace Azure.DigitalTwins.Resolver.CLI
 {
@@ -63,9 +65,9 @@ namespace Azure.DigitalTwins.Resolver.CLI
         {
             Command showModel = new Command("show")
             {
-                CommonOptions.Dtmi(),
-                CommonOptions.Repo(),
-                CommonOptions.Output()
+                CommonOptions.Dtmi,
+                CommonOptions.Repo,
+                CommonOptions.Output
             };
 
             showModel.Description = "Shows the fully qualified path of an input dtmi. Does not evaluate existance of content.";
@@ -98,9 +100,9 @@ namespace Azure.DigitalTwins.Resolver.CLI
         {
             Command resolveModel = new Command("resolve")
             {
-                CommonOptions.Dtmi(),
-                CommonOptions.Repo(),
-                CommonOptions.Output()
+                CommonOptions.Dtmi,
+                CommonOptions.Repo,
+                CommonOptions.Output
             };
 
             resolveModel.Description = "Retrieve a model and its dependencies by dtmi using the target repository for model resolution.";
@@ -126,12 +128,20 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 List<string> resultList = result.Values.ToList();
                 string normalizedList = string.Join(',', resultList);
                 string payload = "[" + string.Join(',', normalizedList) + "]";
-                await Console.Out.WriteLineAsync(payload);
+
+                using JsonDocument document = JsonDocument.Parse(payload, CommonOptions.DefaultJsonParseOptions);
+                using MemoryStream stream = new MemoryStream();
+                await JsonSerializer.SerializeAsync(stream, document.RootElement, CommonOptions.DefaultJsonSerializerOptions);
+                stream.Position = 0;
+                using StreamReader streamReader = new StreamReader(stream);
+                string jsonSerialized = await streamReader.ReadToEndAsync();
+
+                await Console.Out.WriteLineAsync(jsonSerialized);
 
                 if (!string.IsNullOrEmpty(output))
                 {
                     logger.LogInformation($"Writing result to file '{output}'");
-                    await File.WriteAllTextAsync(output, payload, Encoding.UTF8);
+                    await File.WriteAllTextAsync(output, jsonSerialized, Encoding.UTF8);
                 }
 
                 return ReturnCodes.Success;
@@ -150,7 +160,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
                     Argument = new Argument<FileInfo>().ExistingOnly(),
                     IsRequired = true
                 },
-                CommonOptions.Repo()
+                CommonOptions.Repo
             };
 
             validateModel.Description = "Validates a model using the Digital Twins model parser. Uses the target repository for model resolution.";
@@ -185,7 +195,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 {
                     IList<ParsingError> errors = parsingEx.Errors;
                     string normalizedErrors = string.Empty;
-                    foreach(ParsingError error in errors)
+                    foreach (ParsingError error in errors)
                     {
                         normalizedErrors += $"{error.Message}{Environment.NewLine}";
                     }
