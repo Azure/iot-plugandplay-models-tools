@@ -171,7 +171,7 @@ Commands:
 > dmr-client show --dtmi "dtmi:com:example:Thermostat;1" --repository "/my/model/repo"
 ```
 
-### dmrclient resolve
+### dmr-client resolve
 
 ```bash
 # Retrieves the target model and its dependencies by dtmi using the default model repository.
@@ -197,7 +197,7 @@ Commands:
 > dmr-client resolve --dtmi "dtmi:com:example:Thermostat;1" --repository "/my/models/"
 ```
 
-### dmrclient validate
+### dmr-client validate
 
 ```bash
 # Validates a DTDLv2 model using the Digital Twins Parser and default model repository for resolution.
