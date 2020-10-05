@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.IO;
 using System.Text.Json;
 
 namespace Azure.DigitalTwins.Resolver.CLI
@@ -18,8 +19,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
                     Argument = new Argument<string>
                     {
                         Arity = ArgumentArity.ExactlyOne,
-                    },
-                    IsRequired = true
+                    }
                 };
             }
         }
@@ -45,6 +45,19 @@ namespace Azure.DigitalTwins.Resolver.CLI
                     description: "Desired file path to write result contents.",
                     getDefaultValue: () => null
                     );
+            }
+        }
+
+        public static Option<FileInfo> ModelFile
+        {
+            get
+            {
+                return new Option<FileInfo>(
+                    "--model-file",
+                    description: "Path to file containing Digital Twins model content.")
+                {
+                    Argument = new Argument<FileInfo>().ExistingOnly()
+                };
             }
         }
 

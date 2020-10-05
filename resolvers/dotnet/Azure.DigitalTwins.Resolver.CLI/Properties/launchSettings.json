@@ -24,6 +24,10 @@
       "commandName": "Project",
       "commandLineArgs": "resolve --dtmi dtmi:com:example:Thermojax;999"
     },
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveFromFile": {
+      "commandName": "Project",
+      "commandLineArgs": "resolve --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRegistry/dtmi/com/example/temperaturecontroller-1.json --repository ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRegistry/ -o mytestmodel.expanded.json"
+    },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ValidateBasic": {
       "commandName": "Project",
       "commandLineArgs": "validate --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRegistry/dtmi/com/example/thermostat-1.json"

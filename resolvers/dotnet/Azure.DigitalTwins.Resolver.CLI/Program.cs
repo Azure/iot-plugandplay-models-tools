@@ -14,7 +14,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Azure.DigitalTwins.Resolver.CLI
@@ -63,14 +62,18 @@ namespace Azure.DigitalTwins.Resolver.CLI
 
         private static Command BuildShowCommand()
         {
+            // DTMI is required for this command
+            var dtmiOption = CommonOptions.Dtmi;
+            dtmiOption.IsRequired = true;
+
             Command showModel = new Command("show")
             {
-                CommonOptions.Dtmi,
+                dtmiOption,
                 CommonOptions.Repo,
                 CommonOptions.Output
             };
 
-            showModel.Description = "Shows the fully qualified path of an input dtmi. Does not evaluate existance of content.";
+            showModel.Description = "Shows the fully qualified path of an input dtmi. Does not evaluate existence of content.";
             showModel.Handler = CommandHandler.Create<string, string, IHost, string>(async (dtmi, repository, host, output) =>
             {
                 IServiceProvider serviceProvider = host.Services;
@@ -102,11 +105,12 @@ namespace Azure.DigitalTwins.Resolver.CLI
             {
                 CommonOptions.Dtmi,
                 CommonOptions.Repo,
-                CommonOptions.Output
+                CommonOptions.Output,
+                CommonOptions.ModelFile
             };
 
-            resolveModel.Description = "Retrieve a model and its dependencies by dtmi using the target repository for model resolution.";
-            resolveModel.Handler = CommandHandler.Create<string, string, IHost, string>(async (dtmi, repository, host, output) =>
+            resolveModel.Description = "Retrieve a model and its dependencies by dtmi or model file using the target repository for model resolution.";
+            resolveModel.Handler = CommandHandler.Create<string, string, IHost, string, FileInfo>(async (dtmi, repository, host, output, modelFile) =>
             {
                 IServiceProvider serviceProvider = host.Services;
                 ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
@@ -116,6 +120,9 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 IDictionary<string, string> result;
                 try
                 {
+                    if(string.IsNullOrWhiteSpace(dtmi) && modelFile != null) {
+                        dtmi = GetRootDtmiFromFile(modelFile);
+                    }
                     logger.LogInformation($"Using repository location: {repository}");
                     result = await InitializeClient(repository, logger).ResolveAsync(dtmi);
                 }
@@ -150,16 +157,21 @@ namespace Azure.DigitalTwins.Resolver.CLI
             return resolveModel;
         }
 
+        private static string GetRootDtmiFromFile(FileInfo fileName)
+        {
+            var jsonDocument = JsonDocument.Parse(File.ReadAllText(fileName.FullName));
+            var idElement = jsonDocument.RootElement.GetProperty("@id");
+            return idElement.GetString();
+        }
+
         private static Command BuildValidateCommand()
         {
+            var modelFileOption = CommonOptions.ModelFile;
+            modelFileOption.IsRequired = true; // Option is required for this command
+
             Command validateModel = new Command("validate")
             {
-                new Option<FileInfo>(
-                    "--model-file",
-                    description: "Path to file containing Digital Twins model content."){
-                    Argument = new Argument<FileInfo>().ExistingOnly(),
-                    IsRequired = true
-                },
+                modelFileOption,
                 CommonOptions.Repo
             };
 
