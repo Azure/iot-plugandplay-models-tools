@@ -16,7 +16,7 @@
     {
       "@type": "Component",
       "name": "deviceInfo",
-      "schema": "dtmi:azure:deviceManagement:DeviceInformation;2"
+      "schema": "dtmi:azure:DeviceManagement:DeviceInformation;2"
     }
   ],
   "@context": "dtmi:dtdl:context;2"

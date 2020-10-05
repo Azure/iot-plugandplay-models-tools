@@ -5,7 +5,7 @@ namespace Azure.DigitalTwins.Resolver
     public class ResolverException : Exception
     {
         public ResolverException(string dtmi) : 
-            base($"Unable to resolve '{dtmi}'")
+            base($"Unable to resolve '{dtmi}'. ")
         {
         }
 

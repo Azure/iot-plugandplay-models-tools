@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Azure.DigitalTwins.Resolver
@@ -11,7 +12,6 @@ namespace Azure.DigitalTwins.Resolver
     {
         private readonly IModelFetcher _modelFetcher;
         private readonly ILogger _logger;
-        private readonly ModelQuery _modelQuery;
 
         public enum RegistryTypeCategory
         {
@@ -22,10 +22,9 @@ namespace Azure.DigitalTwins.Resolver
         public Uri RegistryUri { get; }
         public RegistryTypeCategory RegistryType { get; }
 
-        public RegistryHandler(Uri registryUri, ILogger logger=null)
+        public RegistryHandler(Uri registryUri, ILogger logger = null)
         {
             _logger = logger ?? NullLogger.Instance;
-            _modelQuery = new ModelQuery();
             RegistryUri = registryUri;
 
             if (registryUri.Scheme == "file")
@@ -42,6 +41,18 @@ namespace Azure.DigitalTwins.Resolver
             }
         }
 
+        public string ToPath(string dtmi)
+        {
+            return _modelFetcher.GetPath(dtmi, this.RegistryUri);
+        }
+
+        public static bool IsValidDtmi(string dtmi)
+        {
+            // Regex defined at https://github.com/Azure/digital-twin-model-identifier#validation-regular-expressions
+            Regex rx = new Regex(@"^dtmi:[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$");
+            return rx.IsMatch(dtmi);
+        }
+
         public async Task<IDictionary<string, string>> ProcessAsync(string dtmi, bool includeDepencies = true)
         {
             return await this.ProcessAsync(new List<string>() { dtmi }, includeDepencies);
@@ -54,6 +65,13 @@ namespace Azure.DigitalTwins.Resolver
 
             foreach (string dtmi in dtmis)
             {
+                if (!IsValidDtmi(dtmi))
+                {
+                    string invalidArgMsg = $"Input DTMI '{dtmi}' has an invalid format.";
+                    _logger.LogError(invalidArgMsg);
+                    throw new ResolverException(dtmi, invalidArgMsg, new ArgumentException(invalidArgMsg));
+                }
+
                 toProcessModels.Enqueue(dtmi);
             }
 
@@ -68,10 +86,12 @@ namespace Azure.DigitalTwins.Resolver
                 _logger.LogInformation($"Processing DTMI '{targetDtmi}'");
 
                 string definition = await this.FetchAsync(targetDtmi);
+                ModelQuery.ModelMetadata metadata = new ModelQuery(definition).GetMetadata();
 
                 if (includeDependencies)
                 {
-                    List<string> dependencies = this._modelQuery.GetDependencies(definition);
+                    IList<string> dependencies = metadata.Dependencies;
+
                     if (dependencies.Count > 0)
                         _logger.LogInformation($"Discovered dependencies {string.Join(", ", dependencies)}");
 
@@ -81,16 +101,15 @@ namespace Azure.DigitalTwins.Resolver
                     }
                 }
 
-                if (definition.Contains(targetDtmi, StringComparison.InvariantCulture)) 
-                { 
-                    processedModels.Add(targetDtmi, definition);
-                }
-                else
+                string parsedDtmi = metadata.Id;
+                if (!parsedDtmi.Equals(targetDtmi, StringComparison.Ordinal))
                 {
-                    // TODO: Msg to include expected -> retrieved. Do after ModelQuery updates.
-                    string formatErrorMsg = $"Retrieved model content has incorrect DTMI casing.";
+                    string formatErrorMsg =
+                        $"Retrieved model content has incorrect DTMI casing. Expected {targetDtmi}, parsed {parsedDtmi}";
                     throw new ResolverException(targetDtmi, formatErrorMsg, new FormatException(formatErrorMsg));
                 }
+
+                processedModels.Add(targetDtmi, definition);
             }
 
             return processedModels;

@@ -19,7 +19,7 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
                 throw new DirectoryNotFoundException($"Local registry directory '{registryPath}' not found or not accessible.");
             }
 
-            string dtmiFilePath = DtmiConventions.ToPath(dtmi, registryPath);
+            string dtmiFilePath = GetPath(dtmi, registryUri);
             logger.LogInformation($"Attempting to retrieve model content from {dtmiFilePath}");
 
             if (!File.Exists(dtmiFilePath))
@@ -30,6 +30,12 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
             }
 
             return await File.ReadAllTextAsync(dtmiFilePath, Encoding.UTF8);
+        }
+
+        public string GetPath(string dtmi, Uri registryUri)
+        {
+            string registryPath = registryUri.AbsolutePath;
+            return DtmiConventions.ToPath(dtmi, registryPath);
         }
     }
 }

@@ -59,11 +59,8 @@ using Azure.DigitalTwins.Resolver;
 using Azure.DigitalTwins.Resolver.Extensions;
 
 
-// Instantiate a parser as usual
-ModelParser parser = new ModelParser
-{
-    Options = new HashSet<ModelParsingOption>() { ModelParsingOption.StrictPartitionEnforcement }
-};
+// Instantiate the parser as usual
+ModelParser parser = new ModelParser()
 
 // Make a resolver client using the desired registry
 ResolverClient client = ResolverClient.FromRemoteRegistry("https://iotmodels.github.io/registry/");
@@ -127,7 +124,7 @@ catch (ResolverException resolverEx)
 
 ## Settings
 
-Out of the box, the `ResolverClient` has default settings with common options so it is not strictly necessary for to provide one.
+Out of the box, the `ResolverClient` has default settings with common options so it is not strictly necessary for you to provide one.
 
 ### General Settings
 
@@ -137,60 +134,79 @@ Out of the box, the `ResolverClient` has default settings with common options so
 
 - Coming soon!
 
-## Resolver Client CLI
+## Device Model Repository CLI
 
-This solution includes a CLI project `Azure.DigitalTwins.Resolver.CLI` to jumpstart scenarios. You are able to invoke commands via `dotnet run` or as the compiled executable `resolverclient`.
+This solution includes a CLI project `Azure.DigitalTwins.Resolver.CLI` to jumpstart scenarios. You are able to invoke commands via `dotnet run` or as the compiled executable `dmrclient`.
 
 ```bash
-resolverclient:
-  Microsoft IoT Plug and Play Model Resolution CLI
+dmrclient:
+  Microsoft IoT Plug and Play Device Model Repository CLI
 
 Usage:
-  resolverclient [options] [command]
+  dmrclient [options] [command]
 
 Options:
   --version         Show version information
   -?, -h, --help    Show help and usage information
 
 Commands:
-  show        Retrieve a model and its dependencies by dtmi using the target registry for model resolution.
-  validate    Validates a model using the Digital Twins parser and target registry for model resolution.
+  show        Shows the fully qualified path of an input dtmi. Does not evaluate existance of content.
+  resolve     Retrieve a model and its dependencies by dtmi using the target repository for model resolution.
+  validate    Validates a model using the Digital Twins model parser. Uses the target repository for model resolution.
 ```
 
-### Examples
+## Examples
+
+### dmrclient show
 
 ```bash
-# Retrieves the target model and its dependencies by dtmi using the default model registry.
+# Show the fully qualified path of dtmi:com:example:Thermostat;1 with respect to the default repository.
 
-> resolverclient show --dtmi "dtmi:com:example:Thermostat;1"
-```
-
-```bash
-# Retrieves the target model and its dependencies by dtmi using a custom registry endpoint.
-
-> resolverclient show --dtmi "dtmi:com:example:Thermostat;1" --registry "https://mycustom.domain/models/"
+> dmrclient show --dtmi "dtmi:com:example:Thermostat;1"
 ```
 
 ```bash
-# Retrieves the target model and its dependencies by dtmi using the default model registry and save contents to a new file with the path /my/model/result.json.
+# Show the fully qualified path of dtmi:com:example:Thermostat;1 with respect to a custom local repository.
 
-> resolverclient show --dtmi "dtmi:com:example:Thermostat;1" -o "/my/model/result.json"
+> dmrclient show --dtmi "dtmi:com:example:Thermostat;1" --repository "/my/model/repo"
+```
+
+### dmrclient resolve
+
+```bash
+# Retrieves the target model and its dependencies by dtmi using the default model repository.
+
+> dmrclient resolve --dtmi "dtmi:com:example:Thermostat;1"
 ```
 
 ```bash
-# Retrieves the target model and its dependencies by dtmi using a custom local registry.
+# Retrieves the target model and its dependencies by dtmi using a custom repository endpoint.
 
-> resolverclient show --dtmi "dtmi:com:example:Thermostat;1" --registry "/my/models/"
+> dmrclient resolve --dtmi "dtmi:com:example:Thermostat;1" --repository "https://mycustom.domain/models/"
 ```
 
 ```bash
-# Validates a DTDLv2 model using the Digital Twins Parser and default model registry for resolution.
+# Retrieves the target model and its dependencies by dtmi using the default model repository and save contents to a new file with the path /my/model/result.json.
 
-> resolverclient validate --model-file ./my/model/file.json
+> dmrclient resolve --dtmi "dtmi:com:example:Thermostat;1" -o "/my/model/result.json"
 ```
 
 ```bash
-# Validates a DTDLv2 model using the Digital Twins Parser and custom registry endpoint for resolution.
+# Retrieves the target model and its dependencies by dtmi using a custom local repository.
 
-> resolverclient validate --model-file ./my/model/file.json --registry "https://mycustom.domain/models/"
+> dmrclient resolve --dtmi "dtmi:com:example:Thermostat;1" --repository "/my/models/"
+```
+
+### dmrclient validate
+
+```bash
+# Validates a DTDLv2 model using the Digital Twins Parser and default model repository for resolution.
+
+> dmrclient validate --model-file ./my/model/file.json
+```
+
+```bash
+# Validates a DTDLv2 model using the Digital Twins Parser and custom repository endpoint for resolution.
+
+> dmrclient validate --model-file ./my/model/file.json --repository "https://mycustom.domain/models/"
 ```

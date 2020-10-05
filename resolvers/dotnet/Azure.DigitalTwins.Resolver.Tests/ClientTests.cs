@@ -5,7 +5,7 @@ using System;
 
 namespace Azure.DigitalTwins.Resolver.Tests
 {
-    public class ClientInitTests
+    public class ClientTests
     {
         Mock<ILogger> _logger;
 
@@ -64,6 +64,16 @@ namespace Azure.DigitalTwins.Resolver.Tests
             Assert.AreEqual(registryPathLinux, clientLinux.RegistryUri.AbsolutePath);
 
             _logger.ValidateLog("Client initialized with file content fetcher.", LogLevel.Information, Times.Once());
+        }
+
+        [TestCase("dtmi:com:example:Thermostat;1", true)]
+        [TestCase("dtmi:contoso:scope:entity;2", true)]
+        [TestCase("dtmi:com:example:Thermostat:1", false)]
+        [TestCase("dtmi:com:example::Thermostat;1", false)]
+        [TestCase("com:example:Thermostat;1", false)]
+        public void ClientIsValidDtmi(string dtmi, bool expected)
+        {
+            Assert.AreEqual(ResolverClient.IsValidDtmi(dtmi), expected);
         }
     }
 }

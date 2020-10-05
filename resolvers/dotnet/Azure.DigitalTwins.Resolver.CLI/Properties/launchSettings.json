@@ -1,20 +1,28 @@
 {
   "profiles": {
-    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowBasic": {
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowRemote": {
       "commandName": "Project",
-      "commandLineArgs": "show --dtmi dtmi:com:example:Thermostat;1"
+      "commandLineArgs": "resolve --dtmi dtmi:com:example:Thermostat;1"
     },
-    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowBasicOutFile1": {
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowLocal": {
       "commandName": "Project",
-      "commandLineArgs": "show --dtmi dtmi:com:example:Thermostat;1 -o mytestmodel.json"
+      "commandLineArgs": "resolve --dtmi dtmi:com:example:Thermostat;1 --repository ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRegistry/"
     },
-    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowBasicOutFile2": {
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveBasic": {
       "commandName": "Project",
-      "commandLineArgs": "show --dtmi dtmi:com:example:TemperatureController;1 -o mytestmodel.json"
+      "commandLineArgs": "resolve --dtmi dtmi:com:example:Thermostat;1"
     },
-    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowFail": {
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveBasicOutFile1": {
       "commandName": "Project",
-      "commandLineArgs": "show --dtmi dtmi:com:example:Thermojax;999"
+      "commandLineArgs": "resolve --dtmi dtmi:com:example:Thermostat;1 -o mytestmodel.json"
+    },
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveBasicOutFile2": {
+      "commandName": "Project",
+      "commandLineArgs": "resolve --dtmi dtmi:com:example:TemperatureController;1 -o mytestmodel.json"
+    },
+    "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveFail": {
+      "commandName": "Project",
+      "commandLineArgs": "resolve --dtmi dtmi:com:example:Thermojax;999"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ValidateBasic": {
       "commandName": "Project",

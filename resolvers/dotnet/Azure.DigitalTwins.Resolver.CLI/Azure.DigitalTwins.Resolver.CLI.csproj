@@ -7,14 +7,16 @@
     <Copyright>Microsoft</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>0.0.5</Version>
-    <AssemblyName>resolverclient</AssemblyName>
+    <Version>0.0.6</Version>
+    <AssemblyName>dmrclient</AssemblyName>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>resolverclient</ToolCommandName>
+    <ToolCommandName>dmrclient</ToolCommandName>
+    <PackageId>Azure.DigitalTwins.Resolver.CLI</PackageId>
+    <Product>Azure.DigitalTwins.Resolver.CLI</Product>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.4" />
+    <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.5" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.8" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
     <PackageReference Include="System.CommandLine.Hosting" Version="0.3.0-alpha.20371.2" />

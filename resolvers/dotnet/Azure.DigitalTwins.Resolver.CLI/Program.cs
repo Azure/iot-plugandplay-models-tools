@@ -19,8 +19,8 @@ namespace Azure.DigitalTwins.Resolver.CLI
 {
     class Program
     {
-        private static readonly string _defaultRegistry = "https://devicemodeltest.azureedge.net/";
         private static readonly string _parserVersion = typeof(ModelParser).Assembly.GetName().Version.ToString();
+        private static readonly string _resolverVersion = typeof(ResolverClient).Assembly.GetName().Version.ToString();
 
         // Alternative to enum to avoid casting.
         public static class ReturnCodes
@@ -40,21 +40,22 @@ namespace Azure.DigitalTwins.Resolver.CLI
         {
             RootCommand root = new RootCommand("parent")
             {
-                Description = "Microsoft IoT Plug and Play Model Resolution CLI"
+                Description = "Microsoft IoT Plug and Play Device Model Repository CLI"
             };
 
             root.Add(BuildShowCommand());
+            root.Add(BuildResolveCommand());
             root.Add(BuildValidateCommand());
 
             return new CommandLineBuilder(root);
         }
 
 
-        private static ResolverClient InitializeClient(string registry, ILogger logger)
+        private static ResolverClient InitializeClient(string repository, ILogger logger)
         {
             ResolverClient client;
-            client = Directory.Exists(registry) ?
-                ResolverClient.FromLocalRegistry(registry, logger) : ResolverClient.FromRemoteRegistry(registry, logger);
+            client = Directory.Exists(repository) ?
+                ResolverClient.FromLocalRegistry(repository, logger) : ResolverClient.FromRemoteRegistry(repository, logger);
             return client;
         }
 
@@ -62,39 +63,59 @@ namespace Azure.DigitalTwins.Resolver.CLI
         {
             Command showModel = new Command("show")
             {
-                new Option<string>(
-                    "--dtmi",
-                    description: "Digital Twin Model Identifier. Example: dtmi:com:example:Thermostat;1"){
-                    Argument = new Argument<string>
-                    {
-                        Arity = ArgumentArity.ExactlyOne,
-                    },
-                    IsRequired = true
-                },
-                new Option<string>(
-                    "--registry",
-                    description: "Model Registry location. Can be remote endpoint or local directory.",
-                    getDefaultValue: () => _defaultRegistry
-                    ),
-                new Option<string>(
-                    new string[]{ "--output", "-o" },
-                    description: "Desired file path to write result contents.",
-                    getDefaultValue: () => null
-                    ),
+                CommonOptions.Dtmi(),
+                CommonOptions.Repo(),
+                CommonOptions.Output()
             };
 
-            showModel.Description = "Retrieve a model and its dependencies by dtmi using the target registry for model resolution.";
-            showModel.Handler = CommandHandler.Create<string, string, IHost, string>(async (dtmi, registry, host, output) =>
+            showModel.Description = "Shows the fully qualified path of an input dtmi. Does not evaluate existance of content.";
+            showModel.Handler = CommandHandler.Create<string, string, IHost, string>(async (dtmi, repository, host, output) =>
             {
                 IServiceProvider serviceProvider = host.Services;
                 ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
                 ILogger logger = loggerFactory.CreateLogger(typeof(Program));
 
+                logger.LogInformation($"Resolver client version: {_resolverVersion}");
+                logger.LogInformation($"Using repository location: {repository}");
+
+                ResolverClient client = InitializeClient(repository, logger);
+                string qualifiedPath = client.GetPath(dtmi);
+                await Console.Out.WriteLineAsync(qualifiedPath);
+
+                if (!string.IsNullOrEmpty(output))
+                {
+                    logger.LogInformation($"Writing result to file '{output}'");
+                    await File.WriteAllTextAsync(output, qualifiedPath, Encoding.UTF8);
+                }
+
+                return ReturnCodes.Success;
+            });
+
+            return showModel;
+        }
+
+        private static Command BuildResolveCommand()
+        {
+            Command resolveModel = new Command("resolve")
+            {
+                CommonOptions.Dtmi(),
+                CommonOptions.Repo(),
+                CommonOptions.Output()
+            };
+
+            resolveModel.Description = "Retrieve a model and its dependencies by dtmi using the target repository for model resolution.";
+            resolveModel.Handler = CommandHandler.Create<string, string, IHost, string>(async (dtmi, repository, host, output) =>
+            {
+                IServiceProvider serviceProvider = host.Services;
+                ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+                ILogger logger = loggerFactory.CreateLogger(typeof(Program));
+
+                logger.LogInformation($"Resolver client version: {_resolverVersion}");
                 IDictionary<string, string> result;
                 try
                 {
-                    logger.LogInformation($"Using registry location {registry}");
-                    result = await InitializeClient(registry, logger).ResolveAsync(dtmi);
+                    logger.LogInformation($"Using repository location: {repository}");
+                    result = await InitializeClient(repository, logger).ResolveAsync(dtmi);
                 }
                 catch (ResolverException resolverEx)
                 {
@@ -116,7 +137,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 return ReturnCodes.Success;
             });
 
-            return showModel;
+            return resolveModel;
         }
 
         private static Command BuildValidateCommand()
@@ -129,24 +150,20 @@ namespace Azure.DigitalTwins.Resolver.CLI
                     Argument = new Argument<FileInfo>().ExistingOnly(),
                     IsRequired = true
                 },
-                new Option<string>(
-                    "--registry",
-                    description: "Model Registry location. Can be remote endpoint or local directory.",
-                    getDefaultValue: () => _defaultRegistry
-                    ),
+                CommonOptions.Repo()
             };
 
-            validateModel.Description = "Validates a model using the Digital Twins parser and target registry for model resolution.";
-            validateModel.Handler = CommandHandler.Create<FileInfo, string, IHost>(async (modelFile, registry, host) =>
+            validateModel.Description = "Validates a model using the Digital Twins model parser. Uses the target repository for model resolution.";
+            validateModel.Handler = CommandHandler.Create<FileInfo, string, IHost>(async (modelFile, repository, host) =>
             {
                 // TODO: DRY
                 IServiceProvider serviceProvider = host.Services;
                 ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
                 ILogger logger = loggerFactory.CreateLogger(typeof(Program));
 
-                ResolverClient client = InitializeClient(registry, logger);
+                ResolverClient client = InitializeClient(repository, logger);
 
-                logger.LogInformation($"Parser version: {_parserVersion}");
+                logger.LogInformation($"Parser version: {_parserVersion}, Resolver client version: {_resolverVersion}");
                 ModelParser parser = new ModelParser
                 {
                     Options = new HashSet<ModelParsingOption>() { ModelParsingOption.StrictPartitionEnforcement }
@@ -156,7 +173,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
 
                 try
                 {
-                    logger.LogInformation($"Registry location: {registry}");
+                    logger.LogInformation($"Repository location: {repository}");
                     await parser.ParseAsync(new string[] { File.ReadAllText(modelFile.FullName) });
                 }
                 catch (ResolutionException resolutionEx)
