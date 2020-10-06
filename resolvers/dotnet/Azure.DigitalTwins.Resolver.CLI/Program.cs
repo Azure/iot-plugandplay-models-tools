@@ -29,6 +29,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
             public const int Success = 0;
             public const int ResolutionError = 1;
             public const int ParserError = 2;
+            public const int InvalidArguments = 3;
         }
 
         static async Task<int> Main(string[] args) => await BuildCommandLine()
@@ -118,9 +119,16 @@ namespace Azure.DigitalTwins.Resolver.CLI
 
                 logger.LogInformation($"Resolver client version: {_resolverVersion}");
                 IDictionary<string, string> result;
+
+                //check that we have eithe model file or dtmi
+                if (string.IsNullOrWhiteSpace(dtmi) && modelFile == null)
+                {
+                    logger.LogError("Either dtmi or modelfile must be specified");
+                    return ReturnCodes.InvalidArguments;
+                }
                 try
                 {
-                    if(string.IsNullOrWhiteSpace(dtmi) && modelFile != null) {
+                    if(string.IsNullOrWhiteSpace(dtmi)) {
                         dtmi = GetRootDtmiFromFile(modelFile);
                     }
                     logger.LogInformation($"Using repository location: {repository}");
@@ -130,6 +138,11 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 {
                     logger.LogError(resolverEx.Message);
                     return ReturnCodes.ResolutionError;
+                }
+                catch (KeyNotFoundException keyNotFoundEx)
+                {
+                    logger.LogError(keyNotFoundEx.Message);
+                    return ReturnCodes.ParserError;
                 }
 
                 List<string> resultList = result.Values.ToList();
