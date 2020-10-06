@@ -8,7 +8,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
 {
     class TestHelpers
     {
-        readonly static string _fallbackTestRemoteRegistry = "https://devicemodeltest.azureedge.net/";
+        readonly static string _fallbackTestRemoteRepo = "https://devicemodeltest.azureedge.net/";
 
         public static string ParseRootDtmiFromJson(string json)
         {
@@ -27,14 +27,14 @@ namespace Azure.DigitalTwins.Resolver.Tests
             return Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(TestContext.CurrentContext.TestDirectory)));
         }
 
-        public static string GetTestLocalModelRegistry()
+        public static string GetTestLocalModelRepo()
         {
-            return Path.Combine(GetTestDirectoryPath(), "TestModelRegistry");
+            return Path.Combine(GetTestDirectoryPath(), "TestModelRepo");
         }
 
-        public static string GetTestRemoteModelRegistry()
+        public static string GetTestRemoteModelRepo()
         {
-            return Environment.GetEnvironmentVariable("PNP_TEST_REMOTE_REGISTRY") ?? _fallbackTestRemoteRegistry;
+            return Environment.GetEnvironmentVariable("PNP_TEST_REMOTE_REPO") ?? _fallbackTestRemoteRepo;
         }
     }
 }

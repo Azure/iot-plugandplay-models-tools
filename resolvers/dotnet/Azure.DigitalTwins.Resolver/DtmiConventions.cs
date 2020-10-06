@@ -6,19 +6,14 @@
         {
             // Lookups are case insensitive
             dtmi = dtmi.ToLowerInvariant();
+            string dtmiPath = $"{dtmi.Replace(":", "/").Replace(";", "-")}.json";
 
-            // dtmi:com:example:Thermostat;1 -> dtmi/com/example/thermostat-1.json
-            string[] splitDtmi = dtmi.Split(':');
-            string remoteModelPath = string.Join('/', splitDtmi);
-            remoteModelPath = remoteModelPath.Replace(';', '-');
-            remoteModelPath += ".json";
-
-            if (!basePath.EndsWith('/'))
+            if (!basePath.EndsWith("/"))
             {
                 basePath += "/";
             }
 
-            return $"{basePath}{remoteModelPath}";
+            return $"{basePath}{dtmiPath}";
         }
     }
 }

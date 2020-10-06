@@ -57,7 +57,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
         {
             ResolverClient client;
             client = Directory.Exists(repository) ?
-                ResolverClient.FromLocalRegistry(repository, logger) : ResolverClient.FromRemoteRegistry(repository, logger);
+                ResolverClient.FromLocalRepo(repository, logger) : ResolverClient.FromRemoteRepo(repository, logger);
             return client;
         }
 
@@ -107,11 +107,12 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 CommonOptions.Dtmi,
                 CommonOptions.Repo,
                 CommonOptions.Output,
+                CommonOptions.Silent,
                 CommonOptions.ModelFile
             };
 
             resolveModel.Description = "Retrieve a model and its dependencies by dtmi or model file using the target repository for model resolution.";
-            resolveModel.Handler = CommandHandler.Create<string, string, IHost, string, FileInfo>(async (dtmi, repository, host, output, modelFile) =>
+            resolveModel.Handler = CommandHandler.Create<string, string, IHost, string, bool, FileInfo>(async (dtmi, repository, host, output, silent, modelFile) =>
             {
                 IServiceProvider serviceProvider = host.Services;
                 ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
@@ -156,7 +157,8 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 using StreamReader streamReader = new StreamReader(stream);
                 string jsonSerialized = await streamReader.ReadToEndAsync();
 
-                await Console.Out.WriteLineAsync(jsonSerialized);
+                if (!silent)
+                    await Console.Out.WriteLineAsync(jsonSerialized);
 
                 if (!string.IsNullOrEmpty(output))
                 {

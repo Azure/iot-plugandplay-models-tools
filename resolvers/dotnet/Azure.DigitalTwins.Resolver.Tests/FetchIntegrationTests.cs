@@ -11,8 +11,8 @@ namespace Azure.DigitalTwins.Resolver.Tests
 {
     public class FetchIntegrationTests
     {
-        readonly Uri _remoteUri = new Uri(TestHelpers.GetTestRemoteModelRegistry());
-        readonly Uri _localUri = new Uri($"file://{TestHelpers.GetTestLocalModelRegistry()}");
+        readonly Uri _remoteUri = new Uri(TestHelpers.GetTestRemoteModelRepo());
+        readonly Uri _localUri = new Uri($"file://{TestHelpers.GetTestLocalModelRepo()}");
         Mock<ILogger> _logger;
         IModelFetcher _localFetcher;
         IModelFetcher _remoteFetcher;
@@ -26,7 +26,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         }
 
         [Test]
-        public async Task FetchLocalRegistry()
+        public async Task FetchLocalRepo()
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
 
@@ -38,32 +38,32 @@ namespace Azure.DigitalTwins.Resolver.Tests
             string content = await _localFetcher.FetchAsync(targetDtmi, _localUri, _logger.Object);
             Assert.IsNotNull(content);
  
-            _logger.ValidateLog($"Attempting to retrieve model content from {expectedPath}", LogLevel.Information, Times.Once());
+            _logger.ValidateLog(StdStrings.FetchingContent(fetcherPath), LogLevel.Information, Times.Once());
         }
 
         [Test]
-        public void FetchLocalRegistryDoesNotExist()
+        public void FetchLocalRepoDoesNotExist()
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
 
             Uri invalidFileUri = new Uri("file://totally/fake/path/please");
             Assert.ThrowsAsync<DirectoryNotFoundException>(async () => await _localFetcher.FetchAsync(targetDtmi, invalidFileUri, _logger.Object));
 
-            _logger.ValidateLog($"Local registry directory '{invalidFileUri.AbsolutePath}' not found or not accessible.", LogLevel.Error, Times.Once());
+            _logger.ValidateLog(StdStrings.ErrorAccessLocalRepository(invalidFileUri.AbsolutePath), LogLevel.Error, Times.Once());
         }
 
         [Test]
-        public void FetchLocalRegistryModelDoesNotExist()
+        public void FetchLocalRepoModelDoesNotExist()
         {
             string targetDtmi = "dtmi:com:example:thermojax;1";
             Assert.ThrowsAsync<FileNotFoundException>(async () => await _localFetcher.FetchAsync(targetDtmi, _localUri, _logger.Object));
 
-            string expectedPath = DtmiConventions.ToPath(targetDtmi, _localUri.AbsolutePath);
-            _logger.ValidateLog($"Model file '{expectedPath}' not found or not accessible in local registry directory '{_localUri.AbsolutePath}'", LogLevel.Error, Times.Once());
+            string expectedModelPath = DtmiConventions.ToPath(targetDtmi, _localUri.AbsolutePath);
+            _logger.ValidateLog(StdStrings.ErrorAccessLocalRepositoryModel(expectedModelPath), LogLevel.Error, Times.Once());
         }
 
         [Test]
-        public async Task FetchRemoteRegistry()
+        public async Task FetchRemoteRepo()
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
 
@@ -75,24 +75,26 @@ namespace Azure.DigitalTwins.Resolver.Tests
             string content = await _remoteFetcher.FetchAsync(targetDtmi, _remoteUri, _logger.Object);
             Assert.IsNotNull(content);
 
-            _logger.ValidateLog($"Attempting to retrieve model content from {expectedPath}", LogLevel.Information, Times.Once());
+            _logger.ValidateLog($"{StdStrings.FetchingContent(fetcherPath)}", LogLevel.Information, Times.Once());
         }
 
         [Test]
-        public void FetchRemoteRegistryDoesNotExist()
+        public void FetchRemoteRepoDoesNotExist()
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
-            Uri invalidRemoteUri = new Uri("http://localhost/fakeRegistry/");
-            Assert.ThrowsAsync<HttpRequestException>(async () => await _remoteFetcher.FetchAsync(targetDtmi, invalidRemoteUri, _logger.Object));
+            Uri invalidRemoteUri = new Uri("http://localhost/fakeRepo/");
+            HttpRequestException re = Assert.ThrowsAsync<HttpRequestException>(async () => await _remoteFetcher.FetchAsync(targetDtmi, invalidRemoteUri, _logger.Object));
+            re.Message.Contains("404");
 
             // Don't need to verify a log entry as any http errors from fetcher are currently encapsulated in HttpRequestException
         }
 
         [Test]
-        public void FetchRemoteRegistryModelDoesNotExist()
+        public void FetchRemoteRepoModelDoesNotExist()
         {
             string targetDtmi = "dtmi:com:example:thermojax;1";
-            Assert.ThrowsAsync<HttpRequestException>(async () => await _remoteFetcher.FetchAsync(targetDtmi, _remoteUri, _logger.Object));
+            HttpRequestException re = Assert.ThrowsAsync<HttpRequestException>(async () => await _remoteFetcher.FetchAsync(targetDtmi, _remoteUri, _logger.Object));
+            re.Message.Contains("404");
 
             // Don't need to verify a log entry as any http errors from fetcher are currently encapsulated in HttpRequestException
         }

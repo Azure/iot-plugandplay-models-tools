@@ -61,6 +61,18 @@ namespace Azure.DigitalTwins.Resolver.CLI
             }
         }
 
+        public static Option<bool> Silent
+        {
+            get
+            {
+                return new Option<bool>(
+                  "--silent",
+                  description: "Silences command result output on stdout.",
+                  getDefaultValue: () => false
+                  );
+            }
+        }
+
         public static JsonDocumentOptions DefaultJsonParseOptions
         {
             get
