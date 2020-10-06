@@ -14,7 +14,7 @@ The following code block shows initializing a `ResolverClient` with a **remote e
 ```csharp
 using Azure.DigitalTwins.Resolver;
 
-ResolverClient client = ResolverClient.FromRemoteRepo("https://iotmodels.github.io/registry/");
+ResolverClient client = ResolverClient.FromRemoteRepository("https://iotmodels.github.io/registry/");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
 ```
 
@@ -23,7 +23,7 @@ You are also able to initialize the `ResolverClient` with a **local directory** 
 ```csharp
 using Azure.DigitalTwins.Resolver;
 
-ResolverClient client = ResolverClient.FromLocalRepo(@"C:\Me\MyModelRepo");
+ResolverClient client = ResolverClient.FromLocalRepository(@"C:\Me\MyModelRepo");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
 ```
 
@@ -32,7 +32,7 @@ The client `ResolveAsync()` function has overloads to look up multiple models at
 ```csharp
 using Azure.DigitalTwins.Resolver;
 
-ResolverClient client = ResolverClient.FromRemoteRepo("https://iotmodels.github.io/registry/");
+ResolverClient client = ResolverClient.FromRemoteRepository("https://iotmodels.github.io/registry/");
 
 // Id's for reuse
 string dtmiToResolve1 = "dtmi:com:example:thermostat;1";
@@ -63,7 +63,7 @@ using Azure.DigitalTwins.Resolver.Extensions;
 ModelParser parser = new ModelParser()
 
 // Make a resolver client using the desired repo
-ResolverClient client = ResolverClient.FromRemoteRepo("https://iotmodels.github.io/registry/");
+ResolverClient client = ResolverClient.FromRemoteRepository("https://iotmodels.github.io/registry/");
 
 // Assign the ResolverClient.ParserDtmiResolver delegate
 parser.DtmiResolver = client.ParserDtmiResolver;
@@ -86,7 +86,7 @@ ILogger logger = loggerFactory.CreateLogger(typeof(Program));
 logger.LogInformation($"Using repository location {repository}");
 
 // ResolverClient will use the logger.
-client = ResolverClient.FromRemoteRepo(repository, logger);
+client = ResolverClient.FromRemoteRepository(repository, logger);
 ```
 
 Logging configuration is done with the standard `Microsoft.Extensions.Hosting` pattern using configuration appsettings or via environment variables.

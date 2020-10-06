@@ -38,7 +38,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
             string content = await _localFetcher.FetchAsync(targetDtmi, _localUri, _logger.Object);
             Assert.IsNotNull(content);
  
-            _logger.ValidateLog(StdStrings.FetchingContent(fetcherPath), LogLevel.Information, Times.Once());
+            _logger.ValidateLog(StandardStrings.FetchingContent(fetcherPath), LogLevel.Information, Times.Once());
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
             Uri invalidFileUri = new Uri("file://totally/fake/path/please");
             Assert.ThrowsAsync<DirectoryNotFoundException>(async () => await _localFetcher.FetchAsync(targetDtmi, invalidFileUri, _logger.Object));
 
-            _logger.ValidateLog(StdStrings.ErrorAccessLocalRepository(invalidFileUri.AbsolutePath), LogLevel.Error, Times.Once());
+            _logger.ValidateLog(StandardStrings.ErrorAccessLocalRepository(invalidFileUri.AbsolutePath), LogLevel.Error, Times.Once());
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
             Assert.ThrowsAsync<FileNotFoundException>(async () => await _localFetcher.FetchAsync(targetDtmi, _localUri, _logger.Object));
 
             string expectedModelPath = DtmiConventions.ToPath(targetDtmi, _localUri.AbsolutePath);
-            _logger.ValidateLog(StdStrings.ErrorAccessLocalRepositoryModel(expectedModelPath), LogLevel.Error, Times.Once());
+            _logger.ValidateLog(StandardStrings.ErrorAccessLocalRepositoryModel(expectedModelPath), LogLevel.Error, Times.Once());
         }
 
         [Test]
@@ -75,7 +75,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
             string content = await _remoteFetcher.FetchAsync(targetDtmi, _remoteUri, _logger.Object);
             Assert.IsNotNull(content);
 
-            _logger.ValidateLog($"{StdStrings.FetchingContent(fetcherPath)}", LogLevel.Information, Times.Once());
+            _logger.ValidateLog($"{StandardStrings.FetchingContent(fetcherPath)}", LogLevel.Information, Times.Once());
         }
 
         [Test]

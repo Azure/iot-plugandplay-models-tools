@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Azure.DigitalTwins.Resolver
 {
-    public class RepoHandler
+    public class RepositoryHandler
     {
         private readonly IModelFetcher _modelFetcher;
         private readonly ILogger _logger;
@@ -22,12 +22,12 @@ namespace Azure.DigitalTwins.Resolver
         public Uri RepositoryUri { get; }
         public RepositoryTypeCategory RepositoryType { get; }
 
-        public RepoHandler(Uri repositoryUri, ILogger logger = null)
+        public RepositoryHandler(Uri repositoryUri, ILogger logger = null)
         {
             _logger = logger ?? NullLogger.Instance;
             RepositoryUri = repositoryUri;
 
-            _logger.LogInformation(StdStrings.ClientInitWithFetcher(repositoryUri.Scheme));
+            _logger.LogInformation(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme));
 
             if (repositoryUri.Scheme == "file")
             {
@@ -45,7 +45,7 @@ namespace Azure.DigitalTwins.Resolver
         {
             if (!IsValidDtmi(dtmi))
             {
-                string invalidArgMsg = StdStrings.InvalidDtmiFormat(dtmi);
+                string invalidArgMsg = StandardStrings.InvalidDtmiFormat(dtmi);
                 _logger.LogError(invalidArgMsg);
                 throw new ResolverException(dtmi, invalidArgMsg, new ArgumentException(invalidArgMsg));
             }
@@ -74,7 +74,7 @@ namespace Azure.DigitalTwins.Resolver
             {
                 if (!IsValidDtmi(dtmi))
                 {
-                    string invalidArgMsg = StdStrings.InvalidDtmiFormat(dtmi);
+                    string invalidArgMsg = StandardStrings.InvalidDtmiFormat(dtmi);
                     _logger.LogError(invalidArgMsg);
                     throw new ResolverException(dtmi, invalidArgMsg, new ArgumentException(invalidArgMsg));
                 }
@@ -87,10 +87,10 @@ namespace Azure.DigitalTwins.Resolver
                 string targetDtmi = toProcessModels.Dequeue();
                 if (processedModels.ContainsKey(targetDtmi))
                 {
-                    _logger.LogInformation(StdStrings.SkippingPreProcessedDtmi(targetDtmi));
+                    _logger.LogInformation(StandardStrings.SkippingPreProcessedDtmi(targetDtmi));
                     continue;
                 }
-                _logger.LogInformation(StdStrings.ProcessingDtmi(targetDtmi));
+                _logger.LogInformation(StandardStrings.ProcessingDtmi(targetDtmi));
 
                 string definition = await this.FetchAsync(targetDtmi);
                 ModelQuery.ModelMetadata metadata = new ModelQuery(definition).GetMetadata();
@@ -100,7 +100,7 @@ namespace Azure.DigitalTwins.Resolver
                     IList<string> dependencies = metadata.Dependencies;
 
                     if (dependencies.Count > 0)
-                        _logger.LogInformation(StdStrings.DiscoveredDependencies(dependencies));
+                        _logger.LogInformation(StandardStrings.DiscoveredDependencies(dependencies));
 
                     foreach (string dep in dependencies)
                     {
@@ -111,7 +111,7 @@ namespace Azure.DigitalTwins.Resolver
                 string parsedDtmi = metadata.Id;
                 if (!parsedDtmi.Equals(targetDtmi, StringComparison.Ordinal))
                 {
-                    string formatErrorMsg = StdStrings.IncorrectDtmiCasing(targetDtmi, parsedDtmi);
+                    string formatErrorMsg = StandardStrings.IncorrectDtmiCasing(targetDtmi, parsedDtmi);
                     throw new ResolverException(targetDtmi, formatErrorMsg, new FormatException(formatErrorMsg));
                 }
 
@@ -129,7 +129,7 @@ namespace Azure.DigitalTwins.Resolver
             }
             catch (Exception ex)
             {
-                string fetchErrorMsg = StdStrings.FailedFetchingContent(this._modelFetcher.GetPath(dtmi, this.RepositoryUri));
+                string fetchErrorMsg = StandardStrings.FailedFetchingContent(this._modelFetcher.GetPath(dtmi, this.RepositoryUri));
                 throw new ResolverException(dtmi, fetchErrorMsg, ex);
             }
         }

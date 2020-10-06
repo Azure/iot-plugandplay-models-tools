@@ -29,7 +29,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
 
             client = new ResolverClient(registryUri, _logger.Object);
             Assert.AreEqual(registryUri, client.RepositoryUri);
-            _logger.ValidateLog(StdStrings.ClientInitWithFetcher(registryUri.Scheme), LogLevel.Information, Times.Once());
+            _logger.ValidateLog(StandardStrings.ClientInitWithFetcher(registryUri.Scheme), LogLevel.Information, Times.Once());
         }
 
         [Test]
@@ -38,12 +38,12 @@ namespace Azure.DigitalTwins.Resolver.Tests
             string registryUriString = "https://localhost/myregistry/";
             Uri registryUri = new Uri(registryUriString);
 
-            var client = ResolverClient.FromRemoteRepo(registryUriString);
+            var client = ResolverClient.FromRemoteRepository(registryUriString);
             Assert.AreEqual(registryUri, client.RepositoryUri);
 
-            client = ResolverClient.FromRemoteRepo(registryUriString, _logger.Object);
+            client = ResolverClient.FromRemoteRepository(registryUriString, _logger.Object);
             Assert.AreEqual(registryUri, client.RepositoryUri);
-            _logger.ValidateLog(StdStrings.ClientInitWithFetcher(registryUri.Scheme), LogLevel.Information, Times.Once());
+            _logger.ValidateLog(StandardStrings.ClientInitWithFetcher(registryUri.Scheme), LogLevel.Information, Times.Once());
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
             Uri registryUri = new Uri($"file://{testModelRegistryPath}");
 
             // Uses NullLogger
-            var client = ResolverClient.FromLocalRepo(testModelRegistryPath);
+            var client = ResolverClient.FromLocalRepository(testModelRegistryPath);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -63,10 +63,10 @@ namespace Azure.DigitalTwins.Resolver.Tests
             Assert.AreEqual(registryUri, client.RepositoryUri);
             Assert.AreEqual(testModelRegistryPath, client.RepositoryUri.AbsolutePath);
 
-            client = ResolverClient.FromLocalRepo(testModelRegistryPath, _logger.Object);
+            client = ResolverClient.FromLocalRepository(testModelRegistryPath, _logger.Object);
             Assert.AreEqual(registryUri, client.RepositoryUri);
 
-            _logger.ValidateLog(StdStrings.ClientInitWithFetcher(registryUri.Scheme), LogLevel.Information, Times.Once());
+            _logger.ValidateLog(StandardStrings.ClientInitWithFetcher(registryUri.Scheme), LogLevel.Information, Times.Once());
         }
 
         [TestCase("dtmi:com:example:Thermostat;1", true)]
@@ -84,12 +84,12 @@ namespace Azure.DigitalTwins.Resolver.Tests
         public void ClientLocalRepoGetPath(string dtmi, string expectedPath)
         {
             string testModelRegistryPath = TestHelpers.GetTestLocalModelRepo();
-            var client = ResolverClient.FromLocalRepo(testModelRegistryPath);
+            var client = ResolverClient.FromLocalRepository(testModelRegistryPath);
 
             if (string.IsNullOrEmpty(expectedPath))
             {
                 ResolverException re = Assert.Throws<ResolverException>(() => client.GetPath(dtmi));
-                Assert.AreEqual(re.Message, $"{StdStrings.GenericResolverError(dtmi)}{StdStrings.InvalidDtmiFormat(dtmi)}");
+                Assert.AreEqual(re.Message, $"{StandardStrings.GenericResolverError(dtmi)}{StandardStrings.InvalidDtmiFormat(dtmi)}");
                 return;
             }
 
@@ -108,12 +108,12 @@ namespace Azure.DigitalTwins.Resolver.Tests
         public void ClientRemoteRepoGetPath(string dtmi, string expectedPath)
         {
             string registryUriString = "https://localhost/myregistry";
-            var client = ResolverClient.FromRemoteRepo(registryUriString);
+            var client = ResolverClient.FromRemoteRepository(registryUriString);
 
             if (string.IsNullOrEmpty(expectedPath))
             {
                 ResolverException re = Assert.Throws<ResolverException>(() => client.GetPath(dtmi));
-                Assert.AreEqual(re.Message, $"{StdStrings.GenericResolverError(dtmi)}{StdStrings.InvalidDtmiFormat(dtmi)}");
+                Assert.AreEqual(re.Message, $"{StandardStrings.GenericResolverError(dtmi)}{StandardStrings.InvalidDtmiFormat(dtmi)}");
                 return;
             }
 

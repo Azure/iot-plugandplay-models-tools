@@ -14,17 +14,17 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
 
             if (!Directory.Exists(registryPath))
             {
-                string dnfError = StdStrings.ErrorAccessLocalRepository(registryPath);
+                string dnfError = StandardStrings.ErrorAccessLocalRepository(registryPath);
                 logger.LogError(dnfError);
                 throw new DirectoryNotFoundException(dnfError);
             }
 
             string dtmiFilePath = GetPath(dtmi, registryUri);
-            logger.LogInformation(StdStrings.FetchingContent(dtmiFilePath));
+            logger.LogInformation(StandardStrings.FetchingContent(dtmiFilePath));
 
             if (!File.Exists(dtmiFilePath))
             {
-                string fnfError = StdStrings.ErrorAccessLocalRepositoryModel(dtmiFilePath);
+                string fnfError = StandardStrings.ErrorAccessLocalRepositoryModel(dtmiFilePath);
                 logger.LogError(fnfError);
                 throw new FileNotFoundException(fnfError);
             }

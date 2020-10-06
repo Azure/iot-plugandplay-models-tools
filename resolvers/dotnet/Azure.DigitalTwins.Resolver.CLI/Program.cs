@@ -57,7 +57,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
         {
             ResolverClient client;
             client = Directory.Exists(repository) ?
-                ResolverClient.FromLocalRepo(repository, logger) : ResolverClient.FromRemoteRepo(repository, logger);
+                ResolverClient.FromLocalRepository(repository, logger) : ResolverClient.FromRemoteRepository(repository, logger);
             return client;
         }
 

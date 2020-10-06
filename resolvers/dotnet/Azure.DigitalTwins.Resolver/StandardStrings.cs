@@ -2,7 +2,7 @@
 
 namespace Azure.DigitalTwins.Resolver
 {
-    public class StdStrings
+    public class StandardStrings
     {
         public static string GenericResolverError(string dtmi)
         {
@@ -51,7 +51,7 @@ namespace Azure.DigitalTwins.Resolver
 
         public static string ErrorAccessLocalRepository(string repoPath)
         {
-            return $"Local registry directory '{repoPath}' not found or not accessible. ";
+            return $"Local repository directory '{repoPath}' not found or not accessible. ";
         }
 
         public static string ErrorAccessLocalRepositoryModel(string path)

@@ -24,7 +24,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
             };
 
             // Shows how to quickly integrate the resolver client with the parser.
-            ResolverClient client = ResolverClient.FromLocalRepo(TestRegistryPath);
+            ResolverClient client = ResolverClient.FromLocalRepository(TestRegistryPath);
             parser.DtmiResolver = client.ParserDtmiResolver;
 
             foreach(string modelPath in parseModelPaths) {
@@ -49,7 +49,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
             string modelPath = $"{TestRegistryPath}/dtmi/company/demodevice-1.json";
 
             // Shows how to quickly integrate the resolver client with the parser.
-            ResolverClient client = ResolverClient.FromLocalRepo(TestRegistryPath);
+            ResolverClient client = ResolverClient.FromLocalRepository(TestRegistryPath);
             parser.DtmiResolver = client.ParserDtmiResolver;
 
             // Parser will throw on validation errors
@@ -58,8 +58,8 @@ namespace Azure.DigitalTwins.Resolver.Tests
                 Assert.ThrowsAsync<ResolverException>(async () => await parser.ParseAsync(new string[] { File.ReadAllText(modelPath) }));
 
             Assert.AreEqual(e.Message,
-                $"{StdStrings.GenericResolverError("dtmi:azure:deviceManagement:DeviceInformation;1")}" +
-                $"{StdStrings.IncorrectDtmiCasing("dtmi:azure:deviceManagement:DeviceInformation;1","dtmi:azure:DeviceManagement:DeviceInformation;1")}");
+                $"{StandardStrings.GenericResolverError("dtmi:azure:deviceManagement:DeviceInformation;1")}" +
+                $"{StandardStrings.IncorrectDtmiCasing("dtmi:azure:deviceManagement:DeviceInformation;1","dtmi:azure:DeviceManagement:DeviceInformation;1")}");
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
             string testModelPath = $"{TestRepoPath}/dtmi/company/demodevice-2.json";
 
             // Shows how to quickly integrate the resolver client with the parser.
-            ResolverClient client = ResolverClient.FromRemoteRepo(TestHelpers.GetTestRemoteModelRepo());
+            ResolverClient client = ResolverClient.FromRemoteRepository(TestHelpers.GetTestRemoteModelRepo());
             parser.DtmiResolver = client.ParserDtmiResolver;
 
             // Parser will throw on validation errors
