@@ -8,49 +8,49 @@ namespace Azure.DigitalTwins.Resolver
 {
     public class ResolverClient
     {
-        readonly RegistryHandler registryHandler = null;
+        readonly RepositoryHandler repositoryHandler = null;
 
-        public static ResolverClient FromRemoteRegistry(string registryUri, ILogger logger = null)
+        public static ResolverClient FromRemoteRepository(string repositoryUri, ILogger logger = null)
         {
-            return new ResolverClient(new Uri(registryUri), logger);
+            return new ResolverClient(new Uri(repositoryUri), logger);
         }
 
-        public static ResolverClient FromLocalRegistry(string registryPath, ILogger logger = null)
+        public static ResolverClient FromLocalRepository(string repositoryPath, ILogger logger = null)
         {
-            registryPath = Path.GetFullPath(registryPath);
-            return new ResolverClient(new Uri($"file://{registryPath}"), logger);
+            repositoryPath = Path.GetFullPath(repositoryPath);
+            return new ResolverClient(new Uri($"file://{repositoryPath}"), logger);
         }
 
-        public ResolverClient(Uri registryUri, ILogger logger = null)
+        public ResolverClient(Uri repositoryUri, ILogger logger = null)
         {
-            this.registryHandler = new RegistryHandler(registryUri, logger);
+            this.repositoryHandler = new RepositoryHandler(repositoryUri, logger);
         }
 
         public async Task<IDictionary<string, string>> ResolveAsync(string dtmi)
         {
-            return await this.registryHandler.ProcessAsync(dtmi, true);
+            return await this.repositoryHandler.ProcessAsync(dtmi, true);
         }
 
         public async Task<IDictionary<string, string>> ResolveAsync(params string[] dtmis)
         {
-            return await this.registryHandler.ProcessAsync(dtmis, true);
+            return await this.repositoryHandler.ProcessAsync(dtmis, true);
         }
 
         public async Task<IDictionary<string, string>> ResolveAsync(IEnumerable<string> dtmis)
         {
-            return await this.registryHandler.ProcessAsync(dtmis, true);
+            return await this.repositoryHandler.ProcessAsync(dtmis, true);
         }
 
         public string GetPath(string dtmi)
         {
-            return this.registryHandler.ToPath(dtmi);
+            return this.repositoryHandler.ToPath(dtmi);
         }
 
         public static bool IsValidDtmi(string dtmi)
         {
-            return RegistryHandler.IsValidDtmi(dtmi);
+            return RepositoryHandler.IsValidDtmi(dtmi);
         }
 
-        public Uri RegistryUri { get { return this.registryHandler.RegistryUri; } }
+        public Uri RepositoryUri { get { return this.repositoryHandler.RepositoryUri; } }
     }
 }

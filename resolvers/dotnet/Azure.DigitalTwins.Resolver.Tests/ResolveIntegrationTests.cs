@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
@@ -9,17 +10,17 @@ namespace Azure.DigitalTwins.Resolver.Tests
 {
     public class ResolveIntegrationTests
     {
-        // TODO: Needs consistent remote registry
+        // TODO: Needs consistent remote repo
         // ResolverClient _remoteClient;
         ResolverClient _localClient;
 
         [SetUp]
         public void Setup()
         {
-            _localClient = ResolverClient.FromLocalRegistry(TestHelpers.GetTestLocalModelRegistry());
+            _localClient = ResolverClient.FromLocalRepository(TestHelpers.GetTestLocalModelRepository());
 
-            // TODO: Needs consistent remote registry
-            // _remoteClient = ResolverClient.FromRemoteRegistry(TestHelpers.GetTestRemoteModelRegistry());
+            // TODO: Needs consistent remote repo
+            // _remoteClient = ResolverClient.FromRemoteRepository(TestHelpers.GetTestRemoteModelRegistry());
         }
 
         [TestCase("dtmi:com:example:Thermostat;1")]
@@ -34,10 +35,9 @@ namespace Azure.DigitalTwins.Resolver.Tests
         [TestCase("dtmi:com:example:thermostat;1")]
         public void ResolveWithWrongCasingThrowsException(string dtmi)
         {
-            string expectedExMsg = 
-                "Unable to resolve 'dtmi:com:example:thermostat;1'. " +
-                "Retrieved model content has incorrect DTMI casing. " +
-                "Expected dtmi:com:example:thermostat;1, parsed dtmi:com:example:Thermostat;1";
+            string expectedExMsg =
+                $"{StandardStrings.GenericResolverError("dtmi:com:example:thermostat;1")}" +
+                $"{StandardStrings.IncorrectDtmiCasing("dtmi:com:example:thermostat;1","dtmi:com:example:Thermostat;1")}";
 
             ResolverException re = Assert.ThrowsAsync<ResolverException>(async () => await _localClient.ResolveAsync(dtmi));
             Assert.AreEqual(re.Message, expectedExMsg);
@@ -48,7 +48,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         [TestCase("com:example:Thermostat;1")]
         public void ResolveInvalidDtmiFormatThrowsException(string dtmi)
         {
-            string expectedExMsg = $"Unable to resolve '{dtmi}'. Input DTMI '{dtmi}' has an invalid format.";
+            string expectedExMsg = $"{StandardStrings.GenericResolverError(dtmi)}{StandardStrings.InvalidDtmiFormat(dtmi)}";
             ResolverException re = Assert.ThrowsAsync<ResolverException>(async () => await _localClient.ResolveAsync(dtmi));
             Assert.AreEqual(re.Message, expectedExMsg);
         }
@@ -81,7 +81,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         public async Task ResolveSingleModelWithDepsAndLogger(string dtmi, string expectedDeps)
         {
             Mock<ILogger> _logger = new Mock<ILogger>();
-            ResolverClient localClient = ResolverClient.FromLocalRegistry(TestHelpers.GetTestLocalModelRegistry(), _logger.Object);
+            ResolverClient localClient = ResolverClient.FromLocalRepository(TestHelpers.GetTestLocalModelRepository(), _logger.Object);
            
             var result = await localClient.ResolveAsync(dtmi);
             var expectedDtmis = $"{dtmi},{expectedDeps}".Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -95,21 +95,18 @@ namespace Azure.DigitalTwins.Resolver.Tests
 
             // Verifying log entries for a Process(...) run
 
-            _logger.ValidateLog($"Client initialized with file content fetcher.", LogLevel.Information, Times.Once());
+            _logger.ValidateLog($"{StandardStrings.ClientInitWithFetcher(localClient.RepositoryUri.Scheme)}", LogLevel.Information, Times.Once());
             
-            _logger.ValidateLog($"Processing DTMI 'dtmi:com:example:TemperatureController;1'", LogLevel.Information, Times.Once());
-            _logger.ValidateLog($"Attempting to retrieve model content from " +
-                $"{DtmiConventions.ToPath(expectedDtmis[0], localClient.RegistryUri.AbsolutePath)}", LogLevel.Information, Times.Once());
+            _logger.ValidateLog($"{StandardStrings.ProcessingDtmi("dtmi:com:example:TemperatureController;1")}", LogLevel.Information, Times.Once());
+            _logger.ValidateLog($"{StandardStrings.FetchingContent(DtmiConventions.ToPath(expectedDtmis[0], localClient.RepositoryUri.AbsolutePath))}", LogLevel.Information, Times.Once());
 
-            _logger.ValidateLog($"Discovered dependencies dtmi:com:example:Thermostat;1, dtmi:azure:DeviceManagement:DeviceInformation;1", LogLevel.Information, Times.Once());
-            
-            _logger.ValidateLog($"Processing DTMI 'dtmi:com:example:Thermostat;1'", LogLevel.Information, Times.Once());
-            _logger.ValidateLog($"Attempting to retrieve model content from " +
-                $"{DtmiConventions.ToPath(expectedDtmis[1], localClient.RegistryUri.AbsolutePath)}", LogLevel.Information, Times.Once());
+            _logger.ValidateLog($"{StandardStrings.DiscoveredDependencies(new List<string>() { "dtmi:com:example:Thermostat;1", "dtmi:azure:DeviceManagement:DeviceInformation;1" })}", LogLevel.Information, Times.Once());
 
-            _logger.ValidateLog($"Processing DTMI 'dtmi:azure:DeviceManagement:DeviceInformation;1'", LogLevel.Information, Times.Once());
-            _logger.ValidateLog($"Attempting to retrieve model content from " +
-                $"{DtmiConventions.ToPath(expectedDtmis[2], localClient.RegistryUri.AbsolutePath)}", LogLevel.Information, Times.Once());
+            _logger.ValidateLog($"{StandardStrings.ProcessingDtmi("dtmi:com:example:Thermostat;1")}", LogLevel.Information, Times.Once());
+            _logger.ValidateLog($"{StandardStrings.FetchingContent(DtmiConventions.ToPath(expectedDtmis[1], localClient.RepositoryUri.AbsolutePath))}", LogLevel.Information, Times.Once());
+
+            _logger.ValidateLog($"{StandardStrings.ProcessingDtmi("dtmi:azure:DeviceManagement:DeviceInformation;1")}", LogLevel.Information, Times.Once());
+            _logger.ValidateLog($"{StandardStrings.FetchingContent(DtmiConventions.ToPath(expectedDtmis[2], localClient.RepositoryUri.AbsolutePath))}", LogLevel.Information, Times.Once());
         }
 
         [TestCase("dtmi:com:example:Phone;2",

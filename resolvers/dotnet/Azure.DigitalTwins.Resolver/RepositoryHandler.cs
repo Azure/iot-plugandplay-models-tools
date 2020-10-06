@@ -8,42 +8,49 @@ using System.Threading.Tasks;
 
 namespace Azure.DigitalTwins.Resolver
 {
-    public class RegistryHandler
+    public class RepositoryHandler
     {
         private readonly IModelFetcher _modelFetcher;
         private readonly ILogger _logger;
 
-        public enum RegistryTypeCategory
+        public enum RepositoryTypeCategory
         {
             RemoteUri,
             LocalUri
         }
 
-        public Uri RegistryUri { get; }
-        public RegistryTypeCategory RegistryType { get; }
+        public Uri RepositoryUri { get; }
+        public RepositoryTypeCategory RepositoryType { get; }
 
-        public RegistryHandler(Uri registryUri, ILogger logger = null)
+        public RepositoryHandler(Uri repositoryUri, ILogger logger = null)
         {
             _logger = logger ?? NullLogger.Instance;
-            RegistryUri = registryUri;
+            RepositoryUri = repositoryUri;
 
-            if (registryUri.Scheme == "file")
+            _logger.LogInformation(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme));
+
+            if (repositoryUri.Scheme == "file")
             {
-                _logger.LogInformation("Client initialized with file content fetcher.");
-                RegistryType = RegistryTypeCategory.LocalUri;
+                RepositoryType = RepositoryTypeCategory.LocalUri;
                 _modelFetcher = new LocalModelFetcher();
             }
             else
             {
-                _logger.LogInformation("Client initialized with http content fetcher.");
-                RegistryType = RegistryTypeCategory.RemoteUri;
+                RepositoryType = RepositoryTypeCategory.RemoteUri;
                 _modelFetcher = new RemoteModelFetcher();
             }
         }
 
         public string ToPath(string dtmi)
         {
-            return _modelFetcher.GetPath(dtmi, this.RegistryUri);
+            if (!IsValidDtmi(dtmi))
+            {
+                string invalidArgMsg = StandardStrings.InvalidDtmiFormat(dtmi);
+                _logger.LogError(invalidArgMsg);
+                throw new ResolverException(dtmi, invalidArgMsg, new ArgumentException(invalidArgMsg));
+            }
+
+            return _modelFetcher.GetPath(dtmi, this.RepositoryUri);
         }
 
         public static bool IsValidDtmi(string dtmi)
@@ -67,7 +74,7 @@ namespace Azure.DigitalTwins.Resolver
             {
                 if (!IsValidDtmi(dtmi))
                 {
-                    string invalidArgMsg = $"Input DTMI '{dtmi}' has an invalid format.";
+                    string invalidArgMsg = StandardStrings.InvalidDtmiFormat(dtmi);
                     _logger.LogError(invalidArgMsg);
                     throw new ResolverException(dtmi, invalidArgMsg, new ArgumentException(invalidArgMsg));
                 }
@@ -80,10 +87,10 @@ namespace Azure.DigitalTwins.Resolver
                 string targetDtmi = toProcessModels.Dequeue();
                 if (processedModels.ContainsKey(targetDtmi))
                 {
-                    _logger.LogInformation($"Already processed DTMI {targetDtmi}. Skipping...");
+                    _logger.LogInformation(StandardStrings.SkippingPreProcessedDtmi(targetDtmi));
                     continue;
                 }
-                _logger.LogInformation($"Processing DTMI '{targetDtmi}'");
+                _logger.LogInformation(StandardStrings.ProcessingDtmi(targetDtmi));
 
                 string definition = await this.FetchAsync(targetDtmi);
                 ModelQuery.ModelMetadata metadata = new ModelQuery(definition).GetMetadata();
@@ -93,7 +100,7 @@ namespace Azure.DigitalTwins.Resolver
                     IList<string> dependencies = metadata.Dependencies;
 
                     if (dependencies.Count > 0)
-                        _logger.LogInformation($"Discovered dependencies {string.Join(", ", dependencies)}");
+                        _logger.LogInformation(StandardStrings.DiscoveredDependencies(dependencies));
 
                     foreach (string dep in dependencies)
                     {
@@ -104,8 +111,7 @@ namespace Azure.DigitalTwins.Resolver
                 string parsedDtmi = metadata.Id;
                 if (!parsedDtmi.Equals(targetDtmi, StringComparison.Ordinal))
                 {
-                    string formatErrorMsg =
-                        $"Retrieved model content has incorrect DTMI casing. Expected {targetDtmi}, parsed {parsedDtmi}";
+                    string formatErrorMsg = StandardStrings.IncorrectDtmiCasing(targetDtmi, parsedDtmi);
                     throw new ResolverException(targetDtmi, formatErrorMsg, new FormatException(formatErrorMsg));
                 }
 
@@ -119,11 +125,11 @@ namespace Azure.DigitalTwins.Resolver
         {
             try
             {
-                return await this._modelFetcher.FetchAsync(dtmi, this.RegistryUri, this._logger);
+                return await this._modelFetcher.FetchAsync(dtmi, this.RepositoryUri, this._logger);
             }
             catch (Exception ex)
             {
-                string fetchErrorMsg = $"Failed retrieving content from '{this.RegistryUri.AbsoluteUri}'.";
+                string fetchErrorMsg = StandardStrings.FailedFetchingContent(this._modelFetcher.GetPath(dtmi, this.RepositoryUri));
                 throw new ResolverException(dtmi, fetchErrorMsg, ex);
             }
         }

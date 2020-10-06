@@ -14,19 +14,19 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
 
             if (!Directory.Exists(registryPath))
             {
-                string dnfError = $"Local registry directory '{registryPath}' not found or not accessible.";
+                string dnfError = StandardStrings.ErrorAccessLocalRepository(registryPath);
                 logger.LogError(dnfError);
-                throw new DirectoryNotFoundException($"Local registry directory '{registryPath}' not found or not accessible.");
+                throw new DirectoryNotFoundException(dnfError);
             }
 
             string dtmiFilePath = GetPath(dtmi, registryUri);
-            logger.LogInformation($"Attempting to retrieve model content from {dtmiFilePath}");
+            logger.LogInformation(StandardStrings.FetchingContent(dtmiFilePath));
 
             if (!File.Exists(dtmiFilePath))
             {
-                string fnfError = $"Model file '{dtmiFilePath}' not found or not accessible in local registry directory '{registryPath}'";
+                string fnfError = StandardStrings.ErrorAccessLocalRepositoryModel(dtmiFilePath);
                 logger.LogError(fnfError);
-                throw new FileNotFoundException($"Model file '{dtmiFilePath}' not found or not accessible in local registry directory '{registryPath}'");
+                throw new FileNotFoundException(fnfError);
             }
 
             return await File.ReadAllTextAsync(dtmiFilePath, Encoding.UTF8);

@@ -5,25 +5,25 @@
 
 ## Overview
 
-The model resolution client `ResolverClient` provides functionality for retrieving Digital Twin Definition Language (`DTDL`) models and related dependencies via a configured model registry.  
+The model resolution client `ResolverClient` provides functionality for retrieving Digital Twin Definition Language (`DTDL`) models and related dependencies via a configured model repository.  
 
 ## Usage
 
-The following code block shows initializing a `ResolverClient` with a **remote endpoint** model registry and retrieving a desired model (specified by `DTMI`) and its dependencies.
+The following code block shows initializing a `ResolverClient` with a **remote endpoint** model repository and retrieving a desired model (specified by `DTMI`) and its dependencies.
 
 ```csharp
 using Azure.DigitalTwins.Resolver;
 
-ResolverClient client = ResolverClient.FromRemoteRegistry("https://iotmodels.github.io/registry/");
+ResolverClient client = ResolverClient.FromRemoteRepository("https://iotmodels.github.io/registry/");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
 ```
 
-You are also able to initialize the `ResolverClient` with a **local directory** model registry.
+You are also able to initialize the `ResolverClient` with a **local directory** model repository.
 
 ```csharp
 using Azure.DigitalTwins.Resolver;
 
-ResolverClient client = ResolverClient.FromLocalRegistry(@"C:\Me\MyLocalRegistry");
+ResolverClient client = ResolverClient.FromLocalRepository(@"C:\Me\MyModelRepo");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
 ```
 
@@ -32,7 +32,7 @@ The client `ResolveAsync()` function has overloads to look up multiple models at
 ```csharp
 using Azure.DigitalTwins.Resolver;
 
-ResolverClient client = ResolverClient.FromRemoteRegistry("https://iotmodels.github.io/registry/");
+ResolverClient client = ResolverClient.FromRemoteRepository("https://iotmodels.github.io/registry/");
 
 // Id's for reuse
 string dtmiToResolve1 = "dtmi:com:example:thermostat;1";
@@ -62,8 +62,8 @@ using Azure.DigitalTwins.Resolver.Extensions;
 // Instantiate the parser as usual
 ModelParser parser = new ModelParser()
 
-// Make a resolver client using the desired registry
-ResolverClient client = ResolverClient.FromRemoteRegistry("https://iotmodels.github.io/registry/");
+// Make a resolver client using the desired repo
+ResolverClient client = ResolverClient.FromRemoteRepository("https://iotmodels.github.io/registry/");
 
 // Assign the ResolverClient.ParserDtmiResolver delegate
 parser.DtmiResolver = client.ParserDtmiResolver;
@@ -83,10 +83,10 @@ IServiceProvider serviceProvider = host.Services;
 ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
 ILogger logger = loggerFactory.CreateLogger(typeof(Program));
 
-logger.LogInformation($"Using registry location {registry}");
+logger.LogInformation($"Using repository location {repository}");
 
 // ResolverClient will use the logger.
-client = ResolverClient.FromRemoteRegistry(registry, logger);
+client = ResolverClient.FromRemoteRepository(repository, logger);
 ```
 
 Logging configuration is done with the standard `Microsoft.Extensions.Hosting` pattern using configuration appsettings or via environment variables.
@@ -112,8 +112,8 @@ This snippet from the `CLI` shows a way to use `ResolverException`.
 ```csharp
 try
 {
-    logger.LogInformation($"Using registry location {registry}");
-    result = await InitializeClient(registry, logger).ResolveAsync(dtmi);
+    logger.LogInformation($"Using repository location {repository}");
+    result = await InitializeClient(repository, logger).ResolveAsync(dtmi);
 }
 catch (ResolverException resolverEx)
 {

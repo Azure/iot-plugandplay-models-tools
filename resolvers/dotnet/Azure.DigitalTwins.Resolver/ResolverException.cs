@@ -5,17 +5,17 @@ namespace Azure.DigitalTwins.Resolver
     public class ResolverException : Exception
     {
         public ResolverException(string dtmi) : 
-            base($"Unable to resolve '{dtmi}'. ")
+            base(StandardStrings.GenericResolverError(dtmi))
         {
         }
 
         public ResolverException(string dtmi, string message) : 
-            base($"Unable to resolve '{dtmi}'. {message}")
+            base($"{StandardStrings.GenericResolverError(dtmi)}{message}")
         {
         }
 
         public ResolverException(string dtmi, string message, Exception innerException) : 
-            base($"Unable to resolve '{dtmi}'. {message}", innerException)
+            base($"{StandardStrings.GenericResolverError(dtmi)}{message}", innerException)
         {
         }
     }
