@@ -123,7 +123,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 //check that we have eithe model file or dtmi
                 if (string.IsNullOrWhiteSpace(dtmi) && modelFile == null)
                 {
-                    logger.LogError("Either dtmi or modelfile must be specified");
+                    logger.LogError("Either dtmi or model-file must be specified");
                     return ReturnCodes.InvalidArguments;
                 }
                 try
