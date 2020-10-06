@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Runtime.InteropServices;
 
 namespace Azure.DigitalTwins.Resolver.Tests
 {
@@ -47,21 +48,22 @@ namespace Azure.DigitalTwins.Resolver.Tests
         [Test]
         public void ClientInitLocalRegistryHelper()
         {
-            string registryPathWindows = @"C:\Users\me\path\to\registy";
+            string testModelRegistryPath = TestHelpers.GetTestLocalModelRegistry();
+            Uri registryUri = new Uri($"file://{testModelRegistryPath}");
 
-            Uri registryUriWindows = new Uri($"file://{registryPathWindows}");
-            var clientWindows = ResolverClient.FromLocalRegistry(registryPathWindows);
+            // Uses NullLogger
+            var client = ResolverClient.FromLocalRegistry(testModelRegistryPath);
 
-            Assert.AreEqual(registryUriWindows, clientWindows.RegistryUri);
-            Assert.AreEqual(registryPathWindows.Replace('\\', '/'), clientWindows.RegistryUri.AbsolutePath);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                testModelRegistryPath = testModelRegistryPath.Replace("\\", "/");
+            }
 
-            string registryPathLinux = "/me/path/to/registry";
+            Assert.AreEqual(registryUri, client.RegistryUri);
+            Assert.AreEqual(testModelRegistryPath, client.RegistryUri.AbsolutePath);
 
-            Uri registryUriLinux = new Uri($"file://{registryPathLinux}");
-            var clientLinux = ResolverClient.FromLocalRegistry(registryPathLinux, _logger.Object);
-
-            Assert.AreEqual(registryUriLinux, clientLinux.RegistryUri);
-            Assert.AreEqual(registryPathLinux, clientLinux.RegistryUri.AbsolutePath);
+            client = ResolverClient.FromLocalRegistry(testModelRegistryPath, _logger.Object);
+            Assert.AreEqual(registryUri, client.RegistryUri);
 
             _logger.ValidateLog("Client initialized with file content fetcher.", LogLevel.Information, Times.Once());
         }
