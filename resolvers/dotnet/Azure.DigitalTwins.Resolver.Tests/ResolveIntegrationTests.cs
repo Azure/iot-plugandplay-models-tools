@@ -17,10 +17,10 @@ namespace Azure.DigitalTwins.Resolver.Tests
         [SetUp]
         public void Setup()
         {
-            _localClient = ResolverClient.FromLocalRepository(TestHelpers.GetTestLocalModelRepo());
+            _localClient = ResolverClient.FromLocalRepository(TestHelpers.GetTestLocalModelRepository());
 
             // TODO: Needs consistent remote repo
-            // _remoteClient = ResolverClient.FromRemoteRepo(TestHelpers.GetTestRemoteModelRegistry());
+            // _remoteClient = ResolverClient.FromRemoteRepository(TestHelpers.GetTestRemoteModelRegistry());
         }
 
         [TestCase("dtmi:com:example:Thermostat;1")]
@@ -81,7 +81,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         public async Task ResolveSingleModelWithDepsAndLogger(string dtmi, string expectedDeps)
         {
             Mock<ILogger> _logger = new Mock<ILogger>();
-            ResolverClient localClient = ResolverClient.FromLocalRepository(TestHelpers.GetTestLocalModelRepo(), _logger.Object);
+            ResolverClient localClient = ResolverClient.FromLocalRepository(TestHelpers.GetTestLocalModelRepository(), _logger.Object);
            
             var result = await localClient.ResolveAsync(dtmi);
             var expectedDtmis = $"{dtmi},{expectedDeps}".Split(',', StringSplitOptions.RemoveEmptyEntries);

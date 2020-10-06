@@ -11,10 +11,10 @@ namespace Azure.DigitalTwins.Resolver.Tests
     public class ParserIntegrationTests
     {
         [Test]
-        public async Task ParserValidationResolveFromLocalRepo()
+        public async Task ParserValidationResolveFromLocalRepository()
         {
             ModelParser parser = new ModelParser();
-            string TestRegistryPath = TestHelpers.GetTestLocalModelRepo();
+            string TestRegistryPath = TestHelpers.GetTestLocalModelRepository();
 
             List<string> parseModelPaths = new List<string>()
             {
@@ -43,7 +43,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         public void ParserValidationResolveFromLocalRepoErrorOnParserCallbackDtmiCasing()
         {
             ModelParser parser = new ModelParser();
-            string TestRegistryPath = TestHelpers.GetTestLocalModelRepo();
+            string TestRegistryPath = TestHelpers.GetTestLocalModelRepository();
 
             // This model references another model with invalid casing.
             string modelPath = $"{TestRegistryPath}/dtmi/company/demodevice-1.json";
@@ -63,16 +63,16 @@ namespace Azure.DigitalTwins.Resolver.Tests
         }
 
         [Test]
-        public async Task ParserValidationResolveFromRemoteRepo()
+        public async Task ParserValidationResolveFromRemoteRepository()
         {
             ModelParser parser = new ModelParser();
 
             // TODO: One off model -- need consistent remote model repo for IT's
-            string TestRepoPath = TestHelpers.GetTestLocalModelRepo();
+            string TestRepoPath = TestHelpers.GetTestLocalModelRepository();
             string testModelPath = $"{TestRepoPath}/dtmi/company/demodevice-2.json";
 
             // Shows how to quickly integrate the resolver client with the parser.
-            ResolverClient client = ResolverClient.FromRemoteRepository(TestHelpers.GetTestRemoteModelRepo());
+            ResolverClient client = ResolverClient.FromRemoteRepository(TestHelpers.GetTestRemoteModelRepository());
             parser.DtmiResolver = client.ParserDtmiResolver;
 
             // Parser will throw on validation errors

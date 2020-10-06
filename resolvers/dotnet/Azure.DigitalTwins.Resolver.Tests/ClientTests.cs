@@ -49,7 +49,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         [Test]
         public void ClientInitLocalRepoHelper()
         {
-            string testModelRegistryPath = TestHelpers.GetTestLocalModelRepo();
+            string testModelRegistryPath = TestHelpers.GetTestLocalModelRepository();
             Uri registryUri = new Uri($"file://{testModelRegistryPath}");
 
             // Uses NullLogger
@@ -83,7 +83,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         [TestCase("dtmi:com:example:Thermostat:1", null)]
         public void ClientLocalRepoGetPath(string dtmi, string expectedPath)
         {
-            string testModelRegistryPath = TestHelpers.GetTestLocalModelRepo();
+            string testModelRegistryPath = TestHelpers.GetTestLocalModelRepository();
             var client = ResolverClient.FromLocalRepository(testModelRegistryPath);
 
             if (string.IsNullOrEmpty(expectedPath))

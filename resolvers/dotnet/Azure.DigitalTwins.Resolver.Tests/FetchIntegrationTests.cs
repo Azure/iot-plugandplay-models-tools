@@ -11,8 +11,8 @@ namespace Azure.DigitalTwins.Resolver.Tests
 {
     public class FetchIntegrationTests
     {
-        readonly Uri _remoteUri = new Uri(TestHelpers.GetTestRemoteModelRepo());
-        readonly Uri _localUri = new Uri($"file://{TestHelpers.GetTestLocalModelRepo()}");
+        readonly Uri _remoteUri = new Uri(TestHelpers.GetTestRemoteModelRepository());
+        readonly Uri _localUri = new Uri($"file://{TestHelpers.GetTestLocalModelRepository()}");
         Mock<ILogger> _logger;
         IModelFetcher _localFetcher;
         IModelFetcher _remoteFetcher;
@@ -26,7 +26,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         }
 
         [Test]
-        public async Task FetchLocalRepo()
+        public async Task FetchLocalRepository()
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
 
@@ -42,7 +42,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         }
 
         [Test]
-        public void FetchLocalRepoDoesNotExist()
+        public void FetchLocalRepositoryDoesNotExist()
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
 
@@ -53,7 +53,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         }
 
         [Test]
-        public void FetchLocalRepoModelDoesNotExist()
+        public void FetchLocalRepositoryModelDoesNotExist()
         {
             string targetDtmi = "dtmi:com:example:thermojax;1";
             Assert.ThrowsAsync<FileNotFoundException>(async () => await _localFetcher.FetchAsync(targetDtmi, _localUri, _logger.Object));
@@ -63,7 +63,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         }
 
         [Test]
-        public async Task FetchRemoteRepo()
+        public async Task FetchRemoteRepository()
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
 
@@ -79,7 +79,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         }
 
         [Test]
-        public void FetchRemoteRepoDoesNotExist()
+        public void FetchRemoteRepositoryDoesNotExist()
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
             Uri invalidRemoteUri = new Uri("http://localhost/fakeRepo/");
@@ -90,7 +90,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         }
 
         [Test]
-        public void FetchRemoteRepoModelDoesNotExist()
+        public void FetchRemoteRepositoryModelDoesNotExist()
         {
             string targetDtmi = "dtmi:com:example:thermojax;1";
             HttpRequestException re = Assert.ThrowsAsync<HttpRequestException>(async () => await _remoteFetcher.FetchAsync(targetDtmi, _remoteUri, _logger.Object));

@@ -27,12 +27,12 @@ namespace Azure.DigitalTwins.Resolver.Tests
             return Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(TestContext.CurrentContext.TestDirectory)));
         }
 
-        public static string GetTestLocalModelRepo()
+        public static string GetTestLocalModelRepository()
         {
             return Path.Combine(GetTestDirectoryPath(), "TestModelRepo");
         }
 
-        public static string GetTestRemoteModelRepo()
+        public static string GetTestRemoteModelRepository()
         {
             return Environment.GetEnvironmentVariable("PNP_TEST_REMOTE_REPO") ?? _fallbackTestRemoteRepo;
         }
