@@ -139,7 +139,7 @@ Out of the box, the `ResolverClient` has default settings with common options so
 This solution includes a CLI project `Azure.DigitalTwins.Resolver.CLI` to jumpstart scenarios. You are able to invoke commands via `dotnet run` or as the compiled executable `dmr-client`.
 
 ```bash
-dmrclient:
+dmr-client:
   Microsoft IoT Plug and Play Device Model Repository CLI
 
 Usage:
