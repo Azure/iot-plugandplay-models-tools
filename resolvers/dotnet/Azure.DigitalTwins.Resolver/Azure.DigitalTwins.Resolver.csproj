@@ -9,6 +9,7 @@
     <Copyright>Microsoft</Copyright>
     <AssemblyName>Azure.DigitalTwins.Resolver</AssemblyName>
     <RootNamespace>Azure.DigitalTwins.Resolver</RootNamespace>
+    <RepositoryUrl>https://github.com/Azure/device-models-tools</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,18 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-
     <IsPackable>false</IsPackable>
-
     <Version>0.0.1</Version>
-
     <Authors>Microsoft</Authors>
-
     <Company>Microsoft</Company>
-
     <Copyright>Microsoft</Copyright>
-
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/Azure/device-models-tools</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

@@ -22,12 +22,12 @@ jobs:
         run: dotnet pack --verbosity normal resolvers/dotnet
 
       - name: Configure GitHub feed
-        run: dotnet nuget add source https://nuget.pkg.github.com/Azure/index.json -n github -u Azure -p GH_TOKEN --store-password-in-clear-text
+        run: dotnet nuget add source https://nuget.pkg.github.com/Azure/index.json -n github -u Azure -p ${{ github.token }} --store-password-in-clear-text
 
       - name: Push to Nuget
         run: |
           for f in resolvers/dotnet/**/*.nupkg
           do
-              dotnet nuget push $f --source "github" --skip-duplicate
+              dotnet nuget push $f --source github --skip-duplicate
           done
         shell: bash
