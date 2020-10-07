@@ -1,3 +1,25 @@
+# Azure/device-models-tools
+
+This repository contains tools to manage [DTDL](https://aka.ms) models submitted to the 
+Azure IoT Device model repository [Azure/device-models](https://github.com/Azure/device-models)
+
+## Repo structure
+
+### Wiki Spec
+
+You can find the specs and design documents in the [Wiki](wiki)
+
+
+### Samples
+
+The folder [samples](samples) contains sample code for .NET and Node to *resolve* models from any model repository
+
+### Resolvers (Work in Progress)
+
+The folder [resolvers](resolvers) contains the model repo client implementation, as a .NET library with a CLI. 
+
+More languages coming soon !!
+
 
 # Contributing
 
