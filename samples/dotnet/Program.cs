@@ -12,7 +12,7 @@ namespace ResolutionSample
 {
     class Program
     {
-        const string _repositoryEndpoint = "https://devicemodeltest.azureedge.net";
+        const string _repositoryEndpoint = "https://devicemodels.azure.com";
         static readonly HttpClient _httpClient;
 
         static Program()
