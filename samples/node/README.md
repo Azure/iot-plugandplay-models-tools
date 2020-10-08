@@ -19,7 +19,7 @@ node main.js
 
 > :exclamation: Note there are no external dependencies, so there is no need to `npm install` any additional packages.
 
-This sample uses the DMR endpoint `https://devicemodeltest.azureedge.net` by default.
+This sample uses the DMR endpoint `https://devicemodels.azure.com` by default.
 
 ## Code Walktrough
 
@@ -50,7 +50,7 @@ With the resulting path and the base URL for the repository we can obtain the in
 
 ```javascript
 const https = require('https')
-const repositoryEndpoint = 'devicemodeltest.azureedge.net'
+const repositoryEndpoint = 'devicemodels.azure.com'
 const dtmi = process.argv[2] || 'dtmi:azure:DeviceManagement:DeviceInformation;1'
 const path = dtmiToPath(dtmi)
 console.log(repositoryEndpoint, path)

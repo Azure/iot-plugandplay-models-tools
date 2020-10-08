@@ -24,7 +24,7 @@ const dtmiToPath = dtmi => {
   return `/${dtmi.toLowerCase().replace(/:/g, '/').replace(';', '-')}.json`
 }
 
-const repositoryEndpoint = 'devicemodeltest.azureedge.net'
+const repositoryEndpoint = 'devicemodels.azure.com'
 const dtmi = process.argv[2] || 'dtmi:azure:DeviceManagement:DeviceInformation;1'
 const path = dtmiToPath(dtmi)
 console.log(repositoryEndpoint, path)

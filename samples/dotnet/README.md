@@ -18,7 +18,7 @@ Alternatively you can execute `dotnet run` and use the default `DTMI` arg of `dt
 
 > :exclamation: Note be aware of shell rules for argument input. For example in powershell quote the dtmi input i.e. `dotnet run -- "<dtmiString>"`
 
-This sample uses the DMR endpoint `https://devicemodeltest.azureedge.net` by default.
+This sample uses the DMR endpoint `https://devicemodels.azure.com` by default.
 
 ## Code walkthrough
 
@@ -46,7 +46,7 @@ static bool IsValidDtmi(string dtmi)
 With the resulting path and the base URL for the repository we can obtain the interface:
 
 ```cs
-const string _repositoryEndpoint = "https://devicemodeltest.azureedge.net";
+const string _repositoryEndpoint = "https://devicemodels.azure.com";
 
 string dtmiPath = DtmiToPath(dtmi.ToString());
 string fullyQualifiedPath = $"{_repositoryEndpoint}{dtmiPath}";
