@@ -13,7 +13,7 @@
     <ToolCommandName>dmr-client</ToolCommandName>
     <PackageId>dmr-client</PackageId>
     <Product>Azure.DigitalTwins.Resolver.CLI</Product>
-    <RepositoryUrl>https://github.com/Azure/device-models-tools</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Azure/iot-plugandplay-models-tools</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

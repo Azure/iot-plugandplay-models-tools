@@ -8,7 +8,7 @@
     <Company>Microsoft</Company>
     <Copyright>Microsoft</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/Azure/device-models-tools</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Azure/iot-plugandplay-models-tools</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
