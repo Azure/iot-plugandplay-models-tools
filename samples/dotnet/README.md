@@ -1,12 +1,12 @@
 # Dotnet Resolution Sample
 
-This example project shows a minimum implementation of the [DMR resolution convention](https://github.com/Azure/device-models-tools/wiki/Resolution-Convention) for `dotnet` using `C#`.
+This example project shows a minimum implementation of the [DMR resolution convention](https://github.com/Azure/iot-plugandplay-models-tools/wiki/Resolution-Convention) for `dotnet` using `C#`.
 
 The sample achieves the following points:
 
 - Takes a `DTMI` argument or uses a default for resolution.
 - Validates the `DTMI` format using RegEx predefined in the [DTMI specification document](https://github.com/Azure/digital-twin-model-identifier#validation-regular-expressions).
-- Transforms the `DTMI` to a path using an implementation of the [DMR resolution convention](https://github.com/Azure/device-models-tools/wiki/Resolution-Convention).
+- Transforms the `DTMI` to a path using an implementation of the [DMR resolution convention](https://github.com/Azure/iot-plugandplay-models-tools/wiki/Resolution-Convention).
 - Retrieves string content via http request to a fully qualified path combining the DMR endpoint and transformed `DTMI`.
 - Implements a resolver callback for the  [.NET DTDL Parser](https://www.nuget.org/packages/Microsoft.Azure.DigitalTwins.Parser)
 

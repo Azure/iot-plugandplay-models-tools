@@ -1,21 +1,21 @@
-# Azure/device-models-tools
+# Azure/iot-plugandplay-models-tools
 
 This repository contains tools to manage [DTDL](https://aka.ms) models submitted to the 
-Azure IoT Device model repository [Azure/device-models](https://github.com/Azure/device-models)
+Azure IoT Device model repository [Azure/iot-plugandplay-models](https://github.com/Azure/iot-plugandplay-models)
 
 ## Repo structure
 
 ### Wiki Spec
 
-You can find the specs and design documents in the [Wiki](https://github.com/Azure/device-models-tools/wiki)
+You can find the specs and design documents in the [Wiki](https://github.com/Azure/iot-plugandplay-models-tools/wiki)
 
 ### Samples
 
-The folder [samples](https://github.com/Azure/device-models-tools/tree/dev/samples) contains sample code for .NET and Node to *resolve* models from any model repository.
+The folder [samples](https://github.com/Azure/iot-plugandplay-models-tools/tree/dev/samples) contains sample code for .NET and Node to *resolve* models from any model repository.
 
 ### Resolvers (Work in Progress)
 
-The folder [resolvers](https://github.com/Azure/device-models-tools/tree/dev/resolvers) contains the model repo client implementation, as a .NET library with a CLI.
+The folder [resolvers](https://github.com/Azure/iot-plugandplay-models-tools/tree/dev/resolvers) contains the model repo client implementation, as a .NET library with a CLI.
 
 More languages coming soon !!
 

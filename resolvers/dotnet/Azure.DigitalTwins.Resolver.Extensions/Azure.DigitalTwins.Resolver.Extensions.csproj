@@ -7,7 +7,7 @@
     <Authors>Microsoft</Authors>
     <Copyright>Microsoft</Copyright>
     <Company>Microsoft</Company>
-    <RepositoryUrl>https://github.com/Azure/device-models-tools</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Azure/iot-plugandplay-models-tools</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
