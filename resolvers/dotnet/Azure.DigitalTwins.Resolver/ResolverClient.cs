@@ -10,35 +10,35 @@ namespace Azure.DigitalTwins.Resolver
     {
         readonly RepositoryHandler repositoryHandler = null;
 
-        public static ResolverClient FromRemoteRepository(string repositoryUri, ILogger logger = null)
+        public static ResolverClient FromRemoteRepository(string repositoryUri, ILogger logger = null, ResolutionSettings settings = null)
         {
-            return new ResolverClient(new Uri(repositoryUri), logger);
+            return new ResolverClient(new Uri(repositoryUri), logger, settings);
         }
 
-        public static ResolverClient FromLocalRepository(string repositoryPath, ILogger logger = null)
+        public static ResolverClient FromLocalRepository(string repositoryPath, ILogger logger = null, ResolutionSettings settings = null)
         {
             repositoryPath = Path.GetFullPath(repositoryPath);
-            return new ResolverClient(new Uri($"file://{repositoryPath}"), logger);
+            return new ResolverClient(new Uri($"file://{repositoryPath}"), logger, settings);
         }
 
-        public ResolverClient(Uri repositoryUri, ILogger logger = null)
+        public ResolverClient(Uri repositoryUri, ILogger logger = null, ResolutionSettings settings = null)
         {
-            this.repositoryHandler = new RepositoryHandler(repositoryUri, logger);
+            this.repositoryHandler = new RepositoryHandler(repositoryUri, logger, settings);
         }
 
         public async Task<IDictionary<string, string>> ResolveAsync(string dtmi)
         {
-            return await this.repositoryHandler.ProcessAsync(dtmi, true);
+            return await this.repositoryHandler.ProcessAsync(dtmi);
         }
 
         public async Task<IDictionary<string, string>> ResolveAsync(params string[] dtmis)
         {
-            return await this.repositoryHandler.ProcessAsync(dtmis, true);
+            return await this.repositoryHandler.ProcessAsync(dtmis);
         }
 
         public async Task<IDictionary<string, string>> ResolveAsync(IEnumerable<string> dtmis)
         {
-            return await this.repositoryHandler.ProcessAsync(dtmis, true);
+            return await this.repositoryHandler.ProcessAsync(dtmis);
         }
 
         public string GetPath(string dtmi)
@@ -52,5 +52,7 @@ namespace Azure.DigitalTwins.Resolver
         }
 
         public Uri RepositoryUri { get { return this.repositoryHandler.RepositoryUri; } }
+
+        public ResolutionSettings Settings { get { return this.repositoryHandler.Settings; } }
     }
 }

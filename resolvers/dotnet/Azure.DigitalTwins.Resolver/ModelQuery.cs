@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Azure.DigitalTwins.Resolver
 {
@@ -78,7 +80,7 @@ namespace Azure.DigitalTwins.Resolver
             {
                 if (contents.ValueKind == JsonValueKind.Array)
                 {
-                    foreach (var element in contents.EnumerateArray())
+                    foreach (JsonElement element in contents.EnumerateArray())
                     {
                         if (element.TryGetProperty("@type", out JsonElement type))
                         {
@@ -98,6 +100,34 @@ namespace Azure.DigitalTwins.Resolver
             }
 
             return componentSchemas;
+        }
+
+        public async Task<Dictionary<string, string>> ListToDictAsync()
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            using JsonDocument document = JsonDocument.Parse(_content, _parseOptions);
+            JsonElement _root = document.RootElement;
+
+            if (_root.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement element in _root.EnumerateArray())
+                {
+                    if (element.ValueKind == JsonValueKind.Object)
+                    {
+                        using MemoryStream stream = new MemoryStream();
+                        await JsonSerializer.SerializeAsync(stream, element);
+                        stream.Position = 0;
+
+                        using StreamReader streamReader = new StreamReader(stream);
+                        string serialized = await streamReader.ReadToEndAsync();
+
+                        string id = new ModelQuery(serialized).GetId();
+                        result.Add(id, serialized);
+                    }
+                }
+            }
+
+            return result;
         }
 
         public class ModelMetadata {
