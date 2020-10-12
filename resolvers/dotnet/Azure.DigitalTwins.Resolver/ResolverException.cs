@@ -14,6 +14,11 @@ namespace Azure.DigitalTwins.Resolver
         {
         }
 
+        public ResolverException(string dtmi, Exception innerException) :
+            base(StandardStrings.GenericResolverError(dtmi), innerException)
+        {
+        }
+
         public ResolverException(string dtmi, string message, Exception innerException) : 
             base($"{StandardStrings.GenericResolverError(dtmi)}{message}", innerException)
         {

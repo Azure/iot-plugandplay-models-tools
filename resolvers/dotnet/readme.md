@@ -14,7 +14,7 @@ The following code block shows initializing a `ResolverClient` with a **remote e
 ```csharp
 using Azure.DigitalTwins.Resolver;
 
-ResolverClient client = ResolverClient.FromRemoteRepository("https://iotmodels.github.io/registry/");
+ResolverClient client = ResolverClient.FromRemoteRepository("https://devicemodels.azure.com/");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
 ```
 
@@ -32,7 +32,7 @@ The client `ResolveAsync()` function has overloads to look up multiple models at
 ```csharp
 using Azure.DigitalTwins.Resolver;
 
-ResolverClient client = ResolverClient.FromRemoteRepository("https://iotmodels.github.io/registry/");
+ResolverClient client = ResolverClient.FromRemoteRepository("https://devicemodels.azure.com/");
 
 // Id's for reuse
 string dtmiToResolve1 = "dtmi:com:example:thermostat;1";
@@ -63,7 +63,7 @@ using Azure.DigitalTwins.Resolver.Extensions;
 ModelParser parser = new ModelParser()
 
 // Make a resolver client using the desired repo
-ResolverClient client = ResolverClient.FromRemoteRepository("https://iotmodels.github.io/registry/");
+ResolverClient client = ResolverClient.FromRemoteRepository("https://devicemodels.azure.com/");
 
 // Assign the ResolverClient.ParserDtmiResolver delegate
 parser.DtmiResolver = client.ParserDtmiResolver;
@@ -122,13 +122,32 @@ catch (ResolverException resolverEx)
 }
 ```
 
-## Settings
+## Client Settings
 
-Out of the box, the `ResolverClient` has default settings with common options so it is not strictly necessary for you to provide one.
+Out of the box, the `ResolverClient` has default settings with sensible options so it is not strictly necessary for you to provide one.
 
-### General Settings
+### Resolution Settings
 
-- Dependency resolution
+The `ResolverClient` initializers support an optional `ResolutionSettings` parameter. To provide custom settings, create a `ResolutionSettings` object, set options to the desired values then pass it as an argument to the respective settings parameter.
+
+Currently the following resolution settings are supported:
+
+- `CalculateDependencies` [default: `true`] - Indicates desire to resolve all `DTMI`'s referenced in the to be resolved model document(s).
+- `UsePreComputedDependencies` [default: `false`] - Indicates the desire to use pre-calculated dependency payloads stored in the model repo **if they exist**.
+
+Here is an example using custom settings:
+
+```csharp
+using Azure.DigitalTwins.Resolver;
+
+ResolutionSettings customSettings =
+  new ResolutionSettings(usePreComputedDependencies: true, calculateDependencies: false);
+
+ResolverClient client = ResolverClient.FromRemoteRepository("https://devicemodels.azure.com/", settings: customSettings);
+
+// Resolution will adhere to custom settings
+Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
+```
 
 ### Caching Settings
 

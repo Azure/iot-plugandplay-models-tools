@@ -20,11 +20,13 @@ namespace Azure.DigitalTwins.Resolver
         }
 
         public Uri RepositoryUri { get; }
+        public ResolutionSettings Settings { get; }
         public RepositoryTypeCategory RepositoryType { get; }
 
-        public RepositoryHandler(Uri repositoryUri, ILogger logger = null)
+        public RepositoryHandler(Uri repositoryUri, ILogger logger = null, ResolutionSettings settings = null)
         {
             _logger = logger ?? NullLogger.Instance;
+            Settings = settings ?? new ResolutionSettings();
             RepositoryUri = repositoryUri;
 
             _logger.LogInformation(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme));
@@ -32,12 +34,12 @@ namespace Azure.DigitalTwins.Resolver
             if (repositoryUri.Scheme == "file")
             {
                 RepositoryType = RepositoryTypeCategory.LocalUri;
-                _modelFetcher = new LocalModelFetcher();
+                _modelFetcher = new LocalModelFetcher(_logger);
             }
             else
             {
                 RepositoryType = RepositoryTypeCategory.RemoteUri;
-                _modelFetcher = new RemoteModelFetcher();
+                _modelFetcher = new RemoteModelFetcher(_logger);
             }
         }
 
@@ -60,12 +62,12 @@ namespace Azure.DigitalTwins.Resolver
             return rx.IsMatch(dtmi);
         }
 
-        public async Task<IDictionary<string, string>> ProcessAsync(string dtmi, bool includeDepencies = true)
+        public async Task<IDictionary<string, string>> ProcessAsync(string dtmi)
         {
-            return await this.ProcessAsync(new List<string>() { dtmi }, includeDepencies);
+            return await this.ProcessAsync(new List<string>() { dtmi });
         }
 
-        public async Task<IDictionary<string, string>> ProcessAsync(IEnumerable<string> dtmis, bool includeDependencies = true)
+        public async Task<IDictionary<string, string>> ProcessAsync(IEnumerable<string> dtmis)
         {
             Dictionary<string, string> processedModels = new Dictionary<string, string>();
             Queue<string> toProcessModels = new Queue<string>();
@@ -92,10 +94,22 @@ namespace Azure.DigitalTwins.Resolver
                 }
                 _logger.LogInformation(StandardStrings.ProcessingDtmi(targetDtmi));
 
-                string definition = await this.FetchAsync(targetDtmi);
-                ModelQuery.ModelMetadata metadata = new ModelQuery(definition).GetMetadata();
+                FetchResult result = await this.FetchAsync(targetDtmi);
+                if (result.PreCalculated)
+                {
+                    Dictionary<string, string> expanded = await new ModelQuery(result.Definition).ListToDictAsync();
+                    foreach (KeyValuePair<string, string> kvp in expanded)
+                    {
+                        if (!processedModels.ContainsKey(kvp.Key))
+                            processedModels.Add(kvp.Key, kvp.Value);
+                    }
 
-                if (includeDependencies)
+                    continue;
+                }
+
+                ModelQuery.ModelMetadata metadata = new ModelQuery(result.Definition).GetMetadata();
+
+                if (Settings.CalculateDependencies)
                 {
                     IList<string> dependencies = metadata.Dependencies;
 
@@ -115,22 +129,21 @@ namespace Azure.DigitalTwins.Resolver
                     throw new ResolverException(targetDtmi, formatErrorMsg, new FormatException(formatErrorMsg));
                 }
 
-                processedModels.Add(targetDtmi, definition);
+                processedModels.Add(targetDtmi, result.Definition);
             }
 
             return processedModels;
         }
 
-        private async Task<string> FetchAsync(string dtmi)
+        private async Task<FetchResult> FetchAsync(string dtmi)
         {
             try
             {
-                return await this._modelFetcher.FetchAsync(dtmi, this.RepositoryUri, this._logger);
+                return await this._modelFetcher.FetchAsync(dtmi, this.RepositoryUri, Settings.UsePreCalculatedDependencies);
             }
             catch (Exception ex)
             {
-                string fetchErrorMsg = StandardStrings.FailedFetchingContent(this._modelFetcher.GetPath(dtmi, this.RepositoryUri));
-                throw new ResolverException(dtmi, fetchErrorMsg, ex);
+                throw new ResolverException(dtmi, ex.Message, ex);
             }
         }
     }

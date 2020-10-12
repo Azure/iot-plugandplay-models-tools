@@ -6,8 +6,8 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
 {
     public interface IModelFetcher
     {
-        Task<string> FetchAsync(string dtmi, Uri registryUri, ILogger logger);
+        Task<FetchResult> FetchAsync(string dtmi, Uri repositoryUri, bool expanded = false);
 
-        string GetPath(string dtmi, Uri registryUri);
+        string GetPath(string dtmi, Uri repositoryUri, bool expanded = false);
     }
 }

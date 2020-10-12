@@ -120,5 +120,24 @@ namespace Azure.DigitalTwins.Resolver.Tests
             string modelPath = client.GetPath(dtmi);
             Assert.AreEqual(modelPath, $"{registryUriString}{expectedPath}");
         }
+
+        [Test]
+        public void ClientSettings()
+        {
+            ResolutionSettings defaultSettings = new ResolutionSettings();
+            ResolutionSettings customSettings = 
+                new ResolutionSettings(usePreComputedDependencies: true, calculateDependencies: false);
+
+            string registryUriString = "https://localhost/myregistry/";
+            Uri registryUri = new Uri(registryUriString);
+
+            var defaultClient = new ResolverClient(registryUri);
+            Assert.AreEqual(defaultClient.Settings.CalculateDependencies, defaultSettings.CalculateDependencies);
+            Assert.AreEqual(defaultClient.Settings.UsePreCalculatedDependencies, defaultSettings.UsePreCalculatedDependencies);
+
+            var customClient = new ResolverClient(registryUri, settings: customSettings);
+            Assert.AreEqual(customClient.Settings.CalculateDependencies, customSettings.CalculateDependencies);
+            Assert.AreEqual(customClient.Settings.UsePreCalculatedDependencies, customSettings.UsePreCalculatedDependencies);
+        }
     }
 }

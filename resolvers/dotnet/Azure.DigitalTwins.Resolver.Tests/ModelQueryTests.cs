@@ -1,5 +1,9 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Text.Unicode;
+using System.Threading.Tasks;
 
 namespace Azure.DigitalTwins.Resolver.Tests
 {
@@ -126,6 +130,31 @@ namespace Azure.DigitalTwins.Resolver.Tests
             foreach (string dtmi in dependencies)
             {
                 Assert.Contains(dtmi, expectedDtmis);
+            }
+        }
+
+        [Test]
+        public async Task ListToDictAsync()
+        {
+            string testRepoPath = TestHelpers.GetTestLocalModelRepository();
+            string expandedContent = await File.ReadAllTextAsync(
+                $"{testRepoPath}/dtmi/com/example/temperaturecontroller-1.expanded.json", Encoding.UTF8);
+            ModelQuery query = new ModelQuery(expandedContent);
+            Dictionary<string, string> transformResult = await query.ListToDictAsync();
+
+            // Assert KPI's for TemperatureController;1.
+            // Ensure transform of expanded content to dictionary is what we'd expect.
+            string[] expectedIds = new string[] { 
+                "dtmi:azure:DeviceManagement:DeviceInformation;1",
+                "dtmi:com:example:Thermostat;1",
+                "dtmi:com:example:TemperatureController;1" };
+
+            Assert.True(transformResult.Keys.Count == expectedIds.Length);
+
+            foreach (string id in expectedIds)
+            {
+                Assert.True(transformResult.ContainsKey(id));
+                Assert.True(TestHelpers.ParseRootDtmiFromJson(transformResult[id]).Equals(id, System.StringComparison.Ordinal));
             }
         }
     }

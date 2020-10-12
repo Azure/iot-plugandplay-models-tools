@@ -39,11 +39,6 @@ namespace Azure.DigitalTwins.Resolver
             return $"Retrieved model content has incorrect DTMI casing. Expected {expectedDtmi}, parsed {parsedDtmi}. ";
         }
 
-        public static string FailedFetchingContent(string path)
-        {
-            return $"Failed fetching model content from '{path}'. ";
-        }
-
         public static string FetchingContent(string path)
         {
             return $"Attempting to retrieve model content from '{path}'. ";
@@ -57,6 +52,11 @@ namespace Azure.DigitalTwins.Resolver
         public static string ErrorAccessLocalRepositoryModel(string path)
         {
             return $"Model file '{path}' not found or not accessible in local repository. ";
+        }
+
+        public static string ErrorAccessRemoteRepositoryModel(string path)
+        {
+            return $"Model uri '{path}' not found or not accessible in remote repository. ";
         }
     }
 }
