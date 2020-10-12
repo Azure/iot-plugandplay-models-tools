@@ -7,7 +7,7 @@
     <Copyright>Microsoft</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>0.0.10</Version>
+    <Version>0.0.11</Version>
     <AssemblyName>dmr-client</AssemblyName>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dmr-client</ToolCommandName>
@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Azure.DigitalTwins.Resolver.Extensions\Azure.DigitalTwins.Resolver.Extensions.csproj" />
+    <ProjectReference Include="..\Azure.DigitalTwins.Validator\Azure.DigitalTwins.Validator.csproj" />
   </ItemGroup>
 
   <ItemGroup>

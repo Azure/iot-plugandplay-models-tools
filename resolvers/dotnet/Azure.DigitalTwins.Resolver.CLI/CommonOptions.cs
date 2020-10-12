@@ -73,6 +73,17 @@ namespace Azure.DigitalTwins.Resolver.CLI
             }
         }
 
+        public static Option<bool> Strict
+        {
+            get{
+                return new Option<bool>(
+                    "--strict",
+                    description: "Runs additional validation of file paths, DTMI scoping, and searches for reserved words.",
+                    getDefaultValue: () => false
+                );
+            }
+        }
+
         public static JsonDocumentOptions DefaultJsonParseOptions
         {
             get
