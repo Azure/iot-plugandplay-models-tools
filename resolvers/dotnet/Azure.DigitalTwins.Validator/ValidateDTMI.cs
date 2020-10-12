@@ -25,9 +25,7 @@ namespace Azure.DigitalTwins.Validator
 
             var model = JsonDocument.Parse(fileText).RootElement;
             JsonElement rootId;
-            if(model.TryGetProperty("@id", out rootId)){
-
-            } else {
+            if(!model.TryGetProperty("@id", out rootId)){
                 throw new MissingDTMIException(fileName);
             }
 
@@ -39,7 +37,7 @@ namespace Azure.DigitalTwins.Validator
                     exceptions.Add(new InvalidDTMIException(id));
                     return false;
                 }
-                if(!id.Contains(dtmiNamespace)) {
+                if(!id.StartsWith(dtmiNamespace)) {
                     exceptions.Add(new InvalidSubDTMIException(id));
                     return false;
                 }

@@ -222,6 +222,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
                     {
                         modelFile.ValidateFilePath();
                         await modelFile.ScanForReservedWords();
+                        await modelFile.ValidateContext();
                         await modelFile.ValidateDTMI();
                     }
                 }
