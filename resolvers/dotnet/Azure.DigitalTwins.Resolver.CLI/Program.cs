@@ -133,7 +133,8 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 }
                 try
                 {
-                    if(string.IsNullOrWhiteSpace(dtmi)) {
+                    if (string.IsNullOrWhiteSpace(dtmi))
+                    {
                         dtmi = GetRootDtmiFromFile(modelFile);
                     }
                     logger.LogInformation($"Using repository location: {repository}");
@@ -191,11 +192,12 @@ namespace Azure.DigitalTwins.Resolver.CLI
             Command validateModel = new Command("validate")
             {
                 modelFileOption,
-                CommonOptions.Repo
+                CommonOptions.Repo,
+                CommonOptions.Strict
             };
 
             validateModel.Description = "Validates a model using the Digital Twins model parser. Uses the target repository for model resolution.";
-            validateModel.Handler = CommandHandler.Create<FileInfo, string, IHost>(async (modelFile, repository, host) =>
+            validateModel.Handler = CommandHandler.Create<FileInfo, string, IHost, bool>(async (modelFile, repository, host, strict) =>
             {
                 // TODO: DRY
                 IServiceProvider serviceProvider = host.Services;
@@ -216,9 +218,12 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 {
                     logger.LogInformation($"Repository location: {repository}");
                     await parser.ParseAsync(new string[] { File.ReadAllText(modelFile.FullName) });
-                    modelFile.ValidateFilePath();
-                    await modelFile.ScanForReservedWords();
-                    await modelFile.ValidateDTMI();
+                    if (strict)
+                    {
+                        modelFile.ValidateFilePath();
+                        await modelFile.ScanForReservedWords();
+                        await modelFile.ValidateDTMI();
+                    }
                 }
                 catch (ResolutionException resolutionEx)
                 {

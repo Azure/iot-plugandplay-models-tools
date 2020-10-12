@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,9 +11,13 @@ namespace Azure.DigitalTwins.Validator
 
         public async static Task<bool> ScanForReservedWords(this FileInfo fileInfo)
         {
-            var reservedRegEx = new Regex("Microsoft|Azure", RegexOptions.IgnoreCase);
-
             var fileText = await File.ReadAllTextAsync(fileInfo.FullName);
+            return ScanForReservedWords(fileText);
+        }
+
+        public static bool ScanForReservedWords(string fileText)
+        {
+            var reservedRegEx = new Regex("Microsoft|Azure", RegexOptions.IgnoreCase);
             var ids = FindAllIds(fileText, (id) =>
             {
                 if (reservedRegEx.IsMatch(id))
@@ -30,15 +32,6 @@ namespace Azure.DigitalTwins.Validator
                 throw new ReservedWordException(invalidIds.Select(id => id.Key));
             }
             return true;
-        }
-
-        public static IEnumerable<KeyValuePair<string, bool>> FindAllIds(string fileText, Func<string, bool> validation)
-        {
-            var idRegex = new Regex("\\\"@id\\\":\\s?\\\"[^\\\"]*\\\",?");
-            foreach (Match id in idRegex.Matches(fileText))
-            {
-                yield return new KeyValuePair<string, bool>(id.Value, validation(id.Value));
-            }
         }
     }
 }

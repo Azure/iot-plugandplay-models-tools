@@ -15,22 +15,26 @@ namespace Azure.DigitalTwins.Validator
 
         public async static Task<bool> ValidateDTMI(this FileInfo fileInfo)
         {
+            var fileText = await File.ReadAllTextAsync(fileInfo.FullName);
+            return ValidateDTMI(fileText, fileInfo.FullName);
+        }
+        public static bool ValidateDTMI(string fileText, string fileName = "")
+        {
             var dtmiRegex = new Regex("^dtmi:(?:_+[A-Za-z0-9]|[A-Za-z])(?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::(?:_+[A-Za-z0-9]|[A-Za-z])(?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$");
             var versionRegex = new Regex(";[1-9][0-9]{0,8}$");
 
-            var fileText = await File.ReadAllTextAsync(fileInfo.FullName);
             var model = JsonDocument.Parse(fileText).RootElement;
             JsonElement rootId;
             if(model.TryGetProperty("@id", out rootId)){
 
             } else {
-                throw new MissingDTMIException(fileInfo);
+                throw new MissingDTMIException(fileName);
             }
 
             var dtmiNamespace = versionRegex.Replace(rootId.GetString(), "");
             var exceptions = new List<Exception>();
 
-            var ids = FindAllIds(fileText, (id) => {
+            FindAllIds(fileText, (id) => {
                 if(!dtmiRegex.IsMatch(id)) {
                     exceptions.Add(new InvalidDTMIException(id));
                     return false;
@@ -40,11 +44,14 @@ namespace Azure.DigitalTwins.Validator
                     return false;
                 }
                 return true;
+            }).ToList();
+
+            exceptions.ForEach(ex => {
+                if (ex is InvalidDTMIException)
+                    throw new InvalidDTMIException(ex.Message, ex);
+                if (ex is InvalidSubDTMIException)
+                    throw new InvalidSubDTMIException(ex.Message, ex);
             });
-            var invalidIds = ids.Where(id => !id.Value);
-            if(invalidIds.Any()) {
-                throw new InvalidDTMIException(invalidIds.Select(id => id.Key));
-            }
             return true;
         }
     }
