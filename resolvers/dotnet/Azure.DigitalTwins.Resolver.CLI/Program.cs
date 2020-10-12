@@ -1,4 +1,6 @@
 ﻿using Azure.DigitalTwins.Resolver.Extensions;
+using Azure.DigitalTwins.Validator;
+using Azure.DigitalTwins.Validator.Exceptions;
 using Microsoft.Azure.DigitalTwins.Parser;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,6 +32,8 @@ namespace Azure.DigitalTwins.Resolver.CLI
             public const int ResolutionError = 1;
             public const int ParserError = 2;
             public const int InvalidArguments = 3;
+
+            public const int ValidationError = 4;
         }
 
         static async Task<int> Main(string[] args) => await BuildCommandLine()
@@ -212,6 +216,9 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 {
                     logger.LogInformation($"Repository location: {repository}");
                     await parser.ParseAsync(new string[] { File.ReadAllText(modelFile.FullName) });
+                    modelFile.ValidateFilePath();
+                    await modelFile.ScanForReservedWords();
+                    await modelFile.ValidateDTMI();
                 }
                 catch (ResolutionException resolutionEx)
                 {
@@ -235,6 +242,11 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 {
                     logger.LogError(resolverEx.Message);
                     return ReturnCodes.ResolutionError;
+                }
+                catch (ValidationException validationEx)
+                {
+                    logger.LogError(validationEx.Message);
+                    return ReturnCodes.ValidationError;
                 }
 
                 return ReturnCodes.Success;

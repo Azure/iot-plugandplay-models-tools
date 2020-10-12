@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Azure.DigitalTwins.Resolver.Extensions\Azure.DigitalTwins.Resolver.Extensions.csproj" />
+    <ProjectReference Include="..\Azure.DigitalTwins.Validator\Azure.DigitalTwins.Validator.csproj" />
   </ItemGroup>
 
   <ItemGroup>
