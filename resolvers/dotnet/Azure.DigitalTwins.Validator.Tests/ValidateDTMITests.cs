@@ -8,26 +8,26 @@ namespace Azure.DigitalTwins.Validator.Tests
     public class ValidateDTMITests
     {
         [Test]
-        public void should_fail_if_empty_file()
+        public void FailsOnEmptyFile()
         {
             Assert.That(() => Validations.ValidateDTMI(""), Throws.Exception);
         }
 
         [Test]
-        public void should_fail_on_missing_id_field()
+        public void FailsOnMissingRootId()
         {
             Assert.Throws<MissingDTMIException>(
                 () => Validations.ValidateDTMI("{\"something\": \"dtmi:com:example:ThermoStat;1\"}")
             );
         }
         [Test]
-        public void should_pass_valid_DTMI()
+        public void ValidatesRootId()
         {
             Validations.ValidateDTMI("{\"@id\": \"dtmi:com:example:ThermoStat;1\"}");
         }
 
         [Test]
-        public void should_fail_invalid_DTMI_missing_semicolon()
+        public void FailsOnRootIdMissingSemicolon()
         {
             Assert.Throws<InvalidDTMIException>(
                 () => Validations.ValidateDTMI("{\"@id\": \"dtmi:com:example:ThermoStat-1\"}")
@@ -35,7 +35,7 @@ namespace Azure.DigitalTwins.Validator.Tests
         }
 
         [Test]
-        public void should_fail_invalid_DTMI_missing_dtmi()
+        public void FailsOnMissingDTMIPortionOfRootId()
         {
             Assert.Throws<InvalidDTMIException>(
                 () => Validations.ValidateDTMI("{\"@id\": \"com:example:ThermoStat;1\"}")
@@ -43,7 +43,7 @@ namespace Azure.DigitalTwins.Validator.Tests
         }
 
         [Test]
-        public void should_pass_valid_sub_DTMI()
+        public void ValidatesSubDTMI()
         {
              Validations.ValidateDTMI("{\"@context\": \"dtmi:dtdl:context;2\"," +
                         "\"@id\": \"dtmi:com:test:device;1\"," +
@@ -56,7 +56,7 @@ namespace Azure.DigitalTwins.Validator.Tests
         }
 
         [Test]
-        public void should_fail_invalid_sub_DTMI_not_namespaced()
+        public void FailsOnSubDTMIThatArenNotNamespaced()
         {
             Assert.Throws<InvalidSubDTMIException>(
                 () => Validations.ValidateDTMI("{\"@context\": \"dtmi:dtdl:context;2\"," +
@@ -70,7 +70,7 @@ namespace Azure.DigitalTwins.Validator.Tests
         }
 
         [Test]
-        public void should_fail_invalid_sub_DTMI_missing_semicolon()
+        public void FailsOnSubDTMIWithInvalidFormats()
         {
             Assert.Throws<InvalidDTMIException>(
                 () => Validations.ValidateDTMI("{\"@context\": \"dtmi:dtdl:context;2\", " +

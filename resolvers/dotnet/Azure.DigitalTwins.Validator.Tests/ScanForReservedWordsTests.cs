@@ -6,7 +6,7 @@ namespace Azure.DigitalTwins.Validator.Tests
     public class ScanForReservedWordsTests
     {
         [Test]
-        public void should_pass_if_root_id_contains_no_reserved_words()
+        public void ValidateRootIdWithoutReservedWords()
         {
             Validations.ScanForReservedWords("{\"@context\": \"dtmi:dtdl:context;2\", " +
                 "\"@id\": \"dtmi:com:example:device;1\", " +
@@ -19,7 +19,7 @@ namespace Azure.DigitalTwins.Validator.Tests
         }
 
         [Test]
-        public void should_pass_if_sub_id_contains_no_reserved_words()
+        public void ValidateSubIdWithoutReservedWords()
         {
                 Validations.ScanForReservedWords("{\"@context\": \"dtmi:dtdl:context;2\", " +
                         "\"@id\": \"dtmi:com:example:device;1\", " +
@@ -32,7 +32,7 @@ namespace Azure.DigitalTwins.Validator.Tests
         }
 
         [Test]
-        public void should_fail_if_root_id_contains_Azure()
+        public void ValidationFailsWhenRootIdContainsAzure()
         {
             Assert.Throws<ReservedWordException>(
                 () => Validations.ScanForReservedWords("{\"@context\": \"dtmi:dtdl:context;2\", " +
@@ -45,7 +45,7 @@ namespace Azure.DigitalTwins.Validator.Tests
         }
 
         [Test]
-        public void should_fail_if_sub_id_contains_Azure()
+        public void ValidationFailsWhenSubIdContainsAzure()
         {
             Assert.Throws<ReservedWordException>(
                 () => Validations.ScanForReservedWords("{\"@context\": \"dtmi:dtdl:context;2\", " +
@@ -59,7 +59,7 @@ namespace Azure.DigitalTwins.Validator.Tests
         }
 
         [Test]
-        public void should_fail_if_root_id_contains_Microsoft()
+        public void ValidationFailsWhenRootIdContainsMicrosoft()
         {
             Assert.Throws<ReservedWordException>(
                 () => Validations.ScanForReservedWords("{\"@context\": \"dtmi:dtdl:context;2\", " +
@@ -72,7 +72,7 @@ namespace Azure.DigitalTwins.Validator.Tests
         }
 
         [Test]
-        public void should_fail_if_sub_id_contains_Microsoft()
+        public void ValidationFailsWhenSubIdContainsMicrosoft()
         {
             Assert.Throws<ReservedWordException>(
                 () => Validations.ScanForReservedWords("{\"@context\": \"dtmi:dtdl:context;2\"," +

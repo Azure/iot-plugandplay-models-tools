@@ -1,31 +1,57 @@
 ﻿using NUnit.Framework;
+using Azure.DigitalTwins.Validator;
+using Azure.DigitalTwins.Validator.Exceptions;
 
 namespace Azure.DigitalTwins.Validator.Tests
 {
     public class ValidateFilePathTests
     {
         [Test]
-        public void should_pass_valid_filename() {
-/*'dtmi/com/example/thermostat-1.json',
-            'dtmi/azure/devicemanagement/deviceinformation-1.json'*/
+        public void ValidatesFilename()
+        {
+            Validations.ValidateFilePath("dtmi/com/example/thermostat-1.json");
+            Validations.ValidateFilePath("dtmi\\azure\\devicemanagement\\deviceinformation-1.json");
         }
 
         [Test]
-        public void should_fail_upper_casing() {
-/*'dtmi/com/example/Thermostat-1.json',
-            'dtmi/azure/devicemanagement/Deviceinformation-1.json'*/
+        public void ValidatesFileInfo()
+        {
+            var fileInfo = new System.IO.FileInfo("./TestModelRepo/dtmi/azure/devicemanagment/deviceinformation-1.json");
+            Validations.ValidateFilePath(fileInfo);
         }
 
         [Test]
-        public void should_fail_missing_version() {
-/*'dtmi/com/example/thermostat.json',
-            'dtmi/azure/devicemanagement/deviceinformation.json'*/
+        public void ValidatesFileInfoWindowsSlashes()
+        {
+            var fileInfo = new System.IO.FileInfo(".\\TestModelRepo\\dtmi\\azure\\devicemanagement\\deviceinformation-1.json");
+            Validations.ValidateFilePath(fileInfo);
+        }
+        [Test]
+        public void FailsOnImproperFolderStructure()
+        {
+            var fileInfo = new System.IO.FileInfo(".\\badfile\\deviceinformation-1.json");
+            Assert.Throws<FilePathValidationException>(() => Validations.ValidateFilePath(fileInfo));
         }
 
         [Test]
-        public void should_fail_missing_dtmi_folder() {
-/*'com/example/thermostat-1.json',
-            'azure/devicemanagement/deviceinformation-1.json'*/
+        public void FailsOnUppercasing()
+        {
+            Assert.Throws<FilePathValidationException>(() => Validations.ValidateFilePath("dtmi\\com\\example\\Thermostat-1.json"));
+            Assert.Throws<FilePathValidationException>(() => Validations.ValidateFilePath("dtmi/azure/devicemanagement/Deviceinformation-1.json"));
+        }
+
+        [Test]
+        public void FailsOnMissingVersion()
+        {
+            Assert.Throws<FilePathValidationException>(() => Validations.ValidateFilePath("dtmi/com/example/thermostat.json"));
+            Assert.Throws<FilePathValidationException>(() => Validations.ValidateFilePath("dtmi/azure/devicemanagement/deviceinformation.json"));
+        }
+
+        [Test]
+        public void FailsOnMissingDTMIFolder()
+        {
+            Assert.Throws<FilePathValidationException>(() => Validations.ValidateFilePath("com/example/thermostat-1.json"));
+            Assert.Throws<FilePathValidationException>(() => Validations.ValidateFilePath("azure/devicemanagement/deviceinformation-1.json"));
         }
     }
 }
