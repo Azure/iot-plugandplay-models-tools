@@ -5,7 +5,8 @@ using System.Runtime.Serialization;
 namespace Azure.DigitalTwins.Validator.Exceptions
 {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
-    public abstract class ValidationException: Exception {
+    public abstract class ValidationException : Exception
+    {
         protected ValidationException()
         {
         }

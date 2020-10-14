@@ -10,8 +10,9 @@ using Azure.DigitalTwins.Validator.Exceptions;
 
 namespace Azure.DigitalTwins.Validator
 {
-    public static partial class Validations{
-         public async static Task<bool> ValidateContext(this FileInfo fileInfo)
+    public static partial class Validations
+    {
+        public async static Task<bool> ValidateContext(this FileInfo fileInfo)
         {
             var fileText = await File.ReadAllTextAsync(fileInfo.FullName);
             return ValidateContext(fileText, fileInfo.FullName);
@@ -20,11 +21,13 @@ namespace Azure.DigitalTwins.Validator
         {
             var model = JsonDocument.Parse(fileText).RootElement;
             JsonElement rootId;
-            if(!model.TryGetProperty("@context", out rootId)){
+            if (!model.TryGetProperty("@context", out rootId))
+            {
                 throw new MissingContextException(fileName);
             }
 
-            if(!rootId.GetString().Equals("dtmi:dtdl:context;2", StringComparison.InvariantCulture)){
+            if (!rootId.GetString().Equals("dtmi:dtdl:context;2", StringComparison.InvariantCulture))
+            {
                 throw new InvalidContextException(fileName);
             }
             return true;

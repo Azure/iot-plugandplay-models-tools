@@ -10,12 +10,12 @@ namespace Azure.DigitalTwins.Validator.Exceptions
             return $"File '{filePath}' does not adhere to naming rules.";
         }
 
-        public FilePathValidationException(string filePath):
+        public FilePathValidationException(string filePath) :
         base(GenericError(filePath))
-        {}
-        public FilePathValidationException(FileInfo fileInfo):
+        { }
+        public FilePathValidationException(FileInfo fileInfo) :
         base(GenericError(fileInfo.FullName))
-        {}
+        { }
         public FilePathValidationException(FileInfo fileInfo, string message) :
             base($"{GenericError(fileInfo.FullName)}{message}")
         {

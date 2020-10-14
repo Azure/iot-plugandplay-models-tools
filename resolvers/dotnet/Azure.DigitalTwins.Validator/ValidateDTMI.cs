@@ -25,26 +25,31 @@ namespace Azure.DigitalTwins.Validator
 
             var model = JsonDocument.Parse(fileText).RootElement;
             JsonElement rootId;
-            if(!model.TryGetProperty("@id", out rootId)){
+            if (!model.TryGetProperty("@id", out rootId))
+            {
                 throw new MissingDTMIException(fileName);
             }
 
             var dtmiNamespace = versionRegex.Replace(rootId.GetString(), "");
             var exceptions = new List<Exception>();
 
-            FindAllIds(fileText, (id) => {
-                if(!dtmiRegex.IsMatch(id)) {
+            FindAllIds(fileText, (id) =>
+            {
+                if (!dtmiRegex.IsMatch(id))
+                {
                     exceptions.Add(new InvalidDTMIException(id));
                     return false;
                 }
-                if(!id.StartsWith(dtmiNamespace)) {
+                if (!id.StartsWith(dtmiNamespace))
+                {
                     exceptions.Add(new InvalidSubDTMIException(id));
                     return false;
                 }
                 return true;
             }).ToList();
 
-            exceptions.ForEach(ex => {
+            exceptions.ForEach(ex =>
+            {
                 if (ex is InvalidDTMIException)
                     throw new InvalidDTMIException(ex.Message, ex);
                 if (ex is InvalidSubDTMIException)
