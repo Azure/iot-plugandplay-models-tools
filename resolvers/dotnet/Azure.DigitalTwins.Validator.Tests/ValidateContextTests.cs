@@ -17,20 +17,28 @@ namespace Azure.DigitalTwins.Validator.Tests
         public void FailsOnMissingRootContext()
         {
             Assert.Throws<MissingContextException>(
-                () => Validations.ValidateContext("{\"something\": \"dtmi:com:example:ThermoStat;1\"}")
+                () => Validations.ValidateContext(@"{
+                    ""something"": ""dtmi:com:example:ThermoStat;1""
+                }")
             );
         }
         [Test]
         public void ValidatesRootContext()
         {
-            Validations.ValidateContext("{\"@context\": \"dtmi:dtdl:context;2\", \"@id\": \"dtmi:com:example:ThermoStat;1\"}");
+            Validations.ValidateContext(@"{
+                ""@context"": ""dtmi:dtdl:context;2"",
+                ""@id"": ""dtmi:com:example:ThermoStat;1""
+            }");
         }
 
         [Test]
         public void FailsOnContextMissingSemicolon()
         {
             Assert.Throws<InvalidContextException>(
-                () => Validations.ValidateContext("{\"@context\": \"dtmi:dtdl:context-2\", \"@id\": \"dtmi:com:example:ThermoStat;1\"}")
+                () => Validations.ValidateContext(@"{
+                    ""@context"": ""dtmi:dtdl:context-2"",
+                    ""@id"": ""dtmi:com:example:ThermoStat;1""
+                }")
             );
         }
 
@@ -38,7 +46,10 @@ namespace Azure.DigitalTwins.Validator.Tests
         public void FailsOnMissingDTMIPortionOfContext()
         {
             Assert.Throws<InvalidContextException>(
-                () => Validations.ValidateContext("{\"@context\": \"dtdl:context;2\", \"@id\": \"dtmi:com:example:ThermoStat;1\"}")
+                () => Validations.ValidateContext(@"{
+                    ""@context"": ""dtdl:context;2"",
+                    ""@id"": ""dtmi:com:example:ThermoStat;1""
+                }")
             );
         }
     }
