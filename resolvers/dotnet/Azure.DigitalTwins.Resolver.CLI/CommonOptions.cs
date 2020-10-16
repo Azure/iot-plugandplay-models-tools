@@ -36,6 +36,18 @@ namespace Azure.DigitalTwins.Resolver.CLI
             }
         }
 
+        public static Option<DirectoryInfo> LocalRepo
+        {
+            get
+            {
+                return new Option<DirectoryInfo>(
+                  "--repository",
+                  description: "Local Model Repository location path.",
+                  getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory())
+                  );
+            }
+        }
+
         public static Option<string> Output
         {
             get

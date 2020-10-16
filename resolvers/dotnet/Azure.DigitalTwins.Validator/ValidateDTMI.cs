@@ -10,6 +10,7 @@ using Azure.DigitalTwins.Validator.Exceptions;
 
 namespace Azure.DigitalTwins.Validator
 {
+    //TODO: remove partial classes. Move to single bool Validator.Validate that reads the file once, logs all the validation failures and returns true/false
     public static partial class Validations
     {
 

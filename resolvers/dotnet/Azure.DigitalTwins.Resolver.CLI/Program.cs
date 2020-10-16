@@ -25,6 +25,8 @@ namespace Azure.DigitalTwins.Resolver.CLI
         private static readonly string _parserVersion = typeof(ModelParser).Assembly.GetName().Version.ToString();
         private static readonly string _resolverVersion = typeof(ResolverClient).Assembly.GetName().Version.ToString();
 
+        private static readonly string _cliVersion = typeof(Program).Assembly.GetName().Version.ToString();
+
         // Alternative to enum to avoid casting.
         public static class ReturnCodes
         {
@@ -49,11 +51,18 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 Description = "Microsoft IoT Plug and Play Device Model Repository CLI"
             };
 
-            root.Add(BuildShowCommand());
-            root.Add(BuildResolveCommand());
+            root.Add(BuildExportCommand());
             root.Add(BuildValidateCommand());
+            root.Add(BuildImportModelCommand());
 
             return new CommandLineBuilder(root);
+        }
+
+        private static ILogger GetLogger(IHost host)
+        {
+            IServiceProvider serviceProvider = host.Services;
+            ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+            return loggerFactory.CreateLogger(typeof(Program));
         }
 
 
@@ -65,48 +74,9 @@ namespace Azure.DigitalTwins.Resolver.CLI
             return client;
         }
 
-        private static Command BuildShowCommand()
+        private static Command BuildExportCommand()
         {
-            // DTMI is required for this command
-            var dtmiOption = CommonOptions.Dtmi;
-            dtmiOption.IsRequired = true;
-
-            Command showModel = new Command("show")
-            {
-                dtmiOption,
-                CommonOptions.Repo,
-                CommonOptions.Output
-            };
-
-            showModel.Description = "Shows the fully qualified path of an input dtmi. Does not evaluate existence of content.";
-            showModel.Handler = CommandHandler.Create<string, string, IHost, string>(async (dtmi, repository, host, output) =>
-            {
-                IServiceProvider serviceProvider = host.Services;
-                ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-                ILogger logger = loggerFactory.CreateLogger(typeof(Program));
-
-                logger.LogInformation($"Resolver client version: {_resolverVersion}");
-                logger.LogInformation($"Using repository location: {repository}");
-
-                ResolverClient client = InitializeClient(repository, logger);
-                string qualifiedPath = client.GetPath(dtmi);
-                await Console.Out.WriteLineAsync(qualifiedPath);
-
-                if (!string.IsNullOrEmpty(output))
-                {
-                    logger.LogInformation($"Writing result to file '{output}'");
-                    await File.WriteAllTextAsync(output, qualifiedPath, Encoding.UTF8);
-                }
-
-                return ReturnCodes.Success;
-            });
-
-            return showModel;
-        }
-
-        private static Command BuildResolveCommand()
-        {
-            Command resolveModel = new Command("resolve")
+            Command resolveModel = new Command("export")
             {
                 CommonOptions.Dtmi,
                 CommonOptions.Repo,
@@ -118,14 +88,12 @@ namespace Azure.DigitalTwins.Resolver.CLI
             resolveModel.Description = "Retrieve a model and its dependencies by dtmi or model file using the target repository for model resolution.";
             resolveModel.Handler = CommandHandler.Create<string, string, IHost, string, bool, FileInfo>(async (dtmi, repository, host, output, silent, modelFile) =>
             {
-                IServiceProvider serviceProvider = host.Services;
-                ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-                ILogger logger = loggerFactory.CreateLogger(typeof(Program));
+                ILogger logger = GetLogger(host);
 
                 logger.LogInformation($"Resolver client version: {_resolverVersion}");
                 IDictionary<string, string> result;
 
-                //check that we have eithe model file or dtmi
+                //check that we have either model file or dtmi
                 if (string.IsNullOrWhiteSpace(dtmi) && modelFile == null)
                 {
                     logger.LogError("Either dtmi or model-file must be specified");
@@ -199,10 +167,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
             validateModel.Description = "Validates a model using the Digital Twins model parser. Uses the target repository for model resolution.";
             validateModel.Handler = CommandHandler.Create<FileInfo, string, IHost, bool>(async (modelFile, repository, host, strict) =>
             {
-                // TODO: DRY
-                IServiceProvider serviceProvider = host.Services;
-                ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-                ILogger logger = loggerFactory.CreateLogger(typeof(Program));
+                ILogger logger = GetLogger(host);
 
                 ResolverClient client = InitializeClient(repository, logger);
 
@@ -216,15 +181,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
 
                 try
                 {
-                    logger.LogInformation($"Repository location: {repository}");
-                    await parser.ParseAsync(new string[] { File.ReadAllText(modelFile.FullName) });
-                    if (strict)
-                    {
-                        modelFile.ValidateFilePath();
-                        await modelFile.ScanForReservedWords();
-                        await modelFile.ValidateContext();
-                        await modelFile.ValidateDTMI();
-                    }
+                    await validateFile(modelFile, repository, strict, logger, parser);
                 }
                 catch (ResolutionException resolutionEx)
                 {
@@ -259,6 +216,90 @@ namespace Azure.DigitalTwins.Resolver.CLI
             });
 
             return validateModel;
+        }
+
+        private static async Task validateFile(FileInfo modelFile, string repository, bool strict, ILogger logger, ModelParser parser)
+        {
+            logger.LogInformation($"Repository location: {repository}");
+            await parser.ParseAsync(new string[] { File.ReadAllText(modelFile.FullName) });
+            if (strict)
+            {
+                modelFile.ValidateFilePath();
+                await modelFile.ScanForReservedWords();
+                await modelFile.ValidateContext();
+                await modelFile.ValidateDTMI();
+            }
+        }
+
+        private static Command BuildImportModelCommand()
+        {
+            var modelFileOption = CommonOptions.ModelFile;
+            modelFileOption.IsRequired = true; // Option is required for this command
+
+            Command addModel = new Command("import")
+            {
+                modelFileOption,
+                CommonOptions.LocalRepo,
+                CommonOptions.Strict
+            };
+            addModel.Description = "Adds a model to the repo. Validates ids, dependencies and set the right folder/file name";
+            addModel.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, bool, IHost>(async (modelFile, repository, strict, host) =>
+            {
+                ILogger logger = GetLogger(host);
+                try
+                {
+                    IEnumerable<FileInfo> importedFiles = await importModels(modelFile, repository, logger);
+                }
+                catch (ValidationException validationEx)
+                {
+                    logger.LogError(validationEx.Message);
+                    return ReturnCodes.ValidationError;
+                }
+                return ReturnCodes.Success;
+
+
+            });
+
+            return addModel;
+        }
+
+        private static async Task<IEnumerable<FileInfo>> importModels(FileInfo modelFile, DirectoryInfo repository, ILogger logger)
+        {
+            var fileText = await File.ReadAllTextAsync(modelFile.FullName);
+            var model = JsonDocument.Parse(fileText);
+
+            return importModels(model, modelFile.FullName, repository, logger);
+        }
+
+        private static IEnumerable<FileInfo> importModels(JsonDocument document, string fileName, DirectoryInfo repository, ILogger logger)
+        {
+            var root = document.RootElement;
+            if (root.ValueKind == JsonValueKind.Array)
+            {
+                logger.LogInformation($"Array found in {fileName}")
+                var enumerable = root.EnumerateArray();
+                foreach (var modelItem in enumerable)
+                {
+
+                    yield return importModel(modelItem, repository, logger);
+                }
+            }
+            else
+            {
+                logger.LogInformation($"Single item found in {fileName}");
+                yield return importModel(root, repository, logger);
+
+            }
+        }
+
+        private static FileInfo importModel(JsonElement modelItem, DirectoryInfo repository, ILogger logger)
+        {
+            // check for @id
+            // validate root id is dtmi
+            // check sub dtmis
+            // create new file location
+
+            throw new NotImplementedException();
         }
     }
 }
