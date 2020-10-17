@@ -181,7 +181,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
 
                 try
                 {
-                    await validateFile(modelFile, repository, strict, logger, parser);
+                    return await validateFile(modelFile, repository, strict, logger, parser);
                 }
                 catch (ResolutionException resolutionEx)
                 {
@@ -211,24 +211,20 @@ namespace Azure.DigitalTwins.Resolver.CLI
                     logger.LogError(validationEx.Message);
                     return ReturnCodes.ValidationError;
                 }
-
-                return ReturnCodes.Success;
             });
 
             return validateModel;
         }
 
-        private static async Task validateFile(FileInfo modelFile, string repository, bool strict, ILogger logger, ModelParser parser)
+        private static async Task<int> validateFile(FileInfo modelFile, string repository, bool strict, ILogger logger, ModelParser parser)
         {
             logger.LogInformation($"Repository location: {repository}");
             await parser.ParseAsync(new string[] { File.ReadAllText(modelFile.FullName) });
             if (strict)
             {
-                modelFile.ValidateFilePath();
-                await modelFile.ScanForReservedWords();
-                await modelFile.ValidateContext();
-                await modelFile.ValidateDTMI();
+                return await modelFile.Validate() ? ReturnCodes.Success : ReturnCodes.ValidationError;
             }
+            return ReturnCodes.Success;
         }
 
         private static Command BuildImportModelCommand()
@@ -276,30 +272,42 @@ namespace Azure.DigitalTwins.Resolver.CLI
             var root = document.RootElement;
             if (root.ValueKind == JsonValueKind.Array)
             {
-                logger.LogInformation($"Array found in {fileName}")
+                logger.LogInformation($"Array found in {fileName}");
                 var enumerable = root.EnumerateArray();
                 foreach (var modelItem in enumerable)
                 {
 
-                    yield return importModel(modelItem, repository, logger);
+                    yield return importModel(modelItem, fileName, repository, logger);
                 }
             }
             else
             {
                 logger.LogInformation($"Single item found in {fileName}");
-                yield return importModel(root, repository, logger);
+                yield return importModel(root, fileName, repository, logger);
 
             }
         }
 
-        private static FileInfo importModel(JsonElement modelItem, DirectoryInfo repository, ILogger logger)
+        private static FileInfo importModel(JsonElement modelItem, string fileName, DirectoryInfo repository, ILogger logger)
         {
-            // check for @id
-            // validate root id is dtmi
-            // check sub dtmis
-            // create new file location
+            //Do file verification
+            var rootId = Validations.GetRootId(modelItem, fileName);
+            if (!Validations.IsDtmi(rootId.GetString()))
+            {
+                throw new InvalidDTMIException(rootId);
+            }
+            if (!Validations.ValidateDTMIs(modelItem, fileName, logger))
+            {
+                throw new InvalidDTMIException(fileName);
+            }
 
-            throw new NotImplementedException();
+            // write file to repository location
+            var newFile = rootId.GetString().Replace(';', '-').Replace(':', Path.PathSeparator);
+            var newPath = Path.Join(repository.FullName, newFile);
+            File.WriteAllText(newPath, modelItem.ToString());
+
+            //return file info
+            return new FileInfo(newPath);
         }
     }
 }

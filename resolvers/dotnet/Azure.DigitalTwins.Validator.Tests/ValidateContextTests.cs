@@ -8,49 +8,43 @@ namespace Azure.DigitalTwins.Validator.Tests
     public class ValidateContextTests
     {
         [Test]
-        public void FailsOnEmptyFile()
-        {
-            Assert.That(() => Validations.ValidateContext(""), Throws.Exception);
-        }
-
-        [Test]
         public void FailsOnMissingRootContext()
         {
-            Assert.Throws<MissingContextException>(
-                () => Validations.ValidateContext(@"{
+             var doc = JsonDocument.Parse(@"{
                     ""something"": ""dtmi:com:example:ThermoStat;1""
-                }")
+                }"
             );
+            Assert.False(Validations.ValidateContext(doc.RootElement));
         }
         [Test]
         public void ValidatesRootContext()
         {
-            Validations.ValidateContext(@"{
+             var doc = JsonDocument.Parse(@"{
                 ""@context"": ""dtmi:dtdl:context;2"",
                 ""@id"": ""dtmi:com:example:ThermoStat;1""
             }");
+            Assert.True(Validations.ValidateContext(doc.RootElement));
         }
 
         [Test]
         public void FailsOnContextMissingSemicolon()
         {
-            Assert.Throws<InvalidContextException>(
-                () => Validations.ValidateContext(@"{
+             var doc = JsonDocument.Parse(@"{
                     ""@context"": ""dtmi:dtdl:context-2"",
                     ""@id"": ""dtmi:com:example:ThermoStat;1""
-                }")
+                }"
             );
+            Assert.False(Validations.ValidateContext(doc.RootElement));
         }
 
         [Test]
         public void FailsOnMissingDTMIPortionOfContext()
         {
-            Assert.Throws<InvalidContextException>(
-                () => Validations.ValidateContext(@"{
-                    ""@context"": ""dtdl:context;2"",
-                    ""@id"": ""dtmi:com:example:ThermoStat;1""
-                }")
-            );
+            var doc = JsonDocument.Parse(@"{
+                ""@context"": ""dtdl:context;2"",
+                ""@id"": ""dtmi:com:example:ThermoStat;1""
+            }");
+            Assert.False(Validations.ValidateContext(doc.RootElement));
         }
     }
 }

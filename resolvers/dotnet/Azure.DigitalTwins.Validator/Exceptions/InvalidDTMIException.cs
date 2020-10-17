@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace Azure.DigitalTwins.Validator.Exceptions
 {
@@ -12,7 +13,10 @@ namespace Azure.DigitalTwins.Validator.Exceptions
         public InvalidDTMIException(IEnumerable<string> dtmi) : base($"Invalid DTMI format in the following:\n{string.Join(",\n", dtmi)}")
         {
         }
-        public InvalidDTMIException(string dtmi) : base($"Invalid DTMI format:\n{dtmi}")
+        public InvalidDTMIException(JsonElement dtmi) : base($"Invalid DTMI format:\n{dtmi.GetString()}")
+        {
+        }
+        public InvalidDTMIException(string fileName) : base($"Invalid DTMI format in file:\n{fileName}")
         {
         }
     }
