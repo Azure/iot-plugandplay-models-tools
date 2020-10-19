@@ -14,7 +14,7 @@ namespace Azure.DigitalTwins.Validator.Tests
         {
             var mockLogger = new Mock<ILogger>();
             var logger = mockLogger.Object;
-            var fileInfo = new FileInfo("..\\..\\..\\TestModelRepo\\badfile\\AllBad.json");
+            var fileInfo = new FileInfo("../../../TestModelRepo/badfile/AllBad.json");
             var fileName = fileInfo.FullName;
             var validationResult = await Validations.Validate(fileInfo, logger);
             Assert.False(validationResult);
