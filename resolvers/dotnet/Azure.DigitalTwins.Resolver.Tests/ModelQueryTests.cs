@@ -121,7 +121,7 @@ namespace Azure.DigitalTwins.Resolver.Tests
         {
             string[] expectedDtmis = expected.Split(",", System.StringSplitOptions.RemoveEmptyEntries);
             string modelContent = string.Format(_modelTemplate, id, extends, contents);
-            ModelQuery.ModelMetadata metadata = new ModelQuery(modelContent).GetMetadata();
+            ModelMetadata metadata = new ModelQuery(modelContent).GetMetadata();
 
             IList<string> dependencies = metadata.Dependencies;
 

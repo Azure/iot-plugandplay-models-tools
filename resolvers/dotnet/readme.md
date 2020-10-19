@@ -122,26 +122,25 @@ catch (ResolverException resolverEx)
 }
 ```
 
-## Client Settings
+## ResolverClient Settings
 
 Out of the box, the `ResolverClient` has default settings with sensible options so it is not strictly necessary for you to provide one.
 
-### Resolution Settings
+The `ResolverClient` initializers support an optional `ResolverClientSettings` parameter. To provide custom settings, create a `ResolverClientSettings` object, set options to the desired values then pass it as an argument to the respective settings parameter.
 
-The `ResolverClient` initializers support an optional `ResolutionSettings` parameter. To provide custom settings, create a `ResolutionSettings` object, set options to the desired values then pass it as an argument to the respective settings parameter.
+Currently the following client settings and their options are supported:
 
-Currently the following resolution settings are supported:
-
-- `CalculateDependencies` [default: `true`] - Indicates desire to resolve all `DTMI`'s referenced in the to be resolved model document(s).
-- `UsePreComputedDependencies` [default: `false`] - Indicates the desire to use pre-calculated dependency payloads stored in the model repo **if they exist**.
+- `DependencyResolution` [default: `DependencyResolutionOption.Enabled`] - Indicates if and how the client should resolve model dependencies.
+  - `DependencyResolutionOption.Disabled` - Do not resolve dependencies. Result will contains only the root/target `DTMI` content.
+  - `DependencyResolutionOption.Enabled` - Resolve model dependencies by calculating and retrieving dependent model content and include the entire dependency chain in the result.
+  - `DependencyResolutionOption.FromExpanded` - Same as `Enabled` but first try retrieving model and dependent model content from pre-calculated `*.expanded.json`. If an expanded document exists, it will short-circuit further processing for the target `DTMI`.
 
 Here is an example using custom settings:
 
 ```csharp
 using Azure.DigitalTwins.Resolver;
 
-ResolutionSettings customSettings =
-  new ResolutionSettings(usePreComputedDependencies: true, calculateDependencies: false);
+ResolverClientSettings settings = new ResolverClientSettings(DependencyResolutionOption.FromExpanded);
 
 ResolverClient client = ResolverClient.FromRemoteRepository("https://devicemodels.azure.com/", settings: customSettings);
 
