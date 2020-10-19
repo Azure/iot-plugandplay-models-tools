@@ -236,15 +236,15 @@ namespace Azure.DigitalTwins.Resolver.CLI
             {
                 modelFileOption,
                 CommonOptions.LocalRepo,
-                CommonOptions.Strict
+                CommonOptions.Force
             };
             addModel.Description = "Adds a model to the repo. Validates ids, dependencies and set the right folder/file name";
-            addModel.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, bool, IHost>(async (modelFile, repository, strict, host) =>
+            addModel.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, bool, IHost>(async (modelFile, repository, force, host) =>
             {
                 ILogger logger = GetLogger(host);
                 try
                 {
-                    IEnumerable<FileInfo> importedFiles = await importModels(modelFile, repository, logger);
+                    IEnumerable<FileInfo> importedFiles = await importModels(modelFile, repository, force, logger);
                 }
                 catch (ValidationException validationEx)
                 {
@@ -259,15 +259,15 @@ namespace Azure.DigitalTwins.Resolver.CLI
             return addModel;
         }
 
-        private static async Task<IEnumerable<FileInfo>> importModels(FileInfo modelFile, DirectoryInfo repository, ILogger logger)
+        private static async Task<IEnumerable<FileInfo>> importModels(FileInfo modelFile, DirectoryInfo repository, bool force, ILogger logger)
         {
             var fileText = await File.ReadAllTextAsync(modelFile.FullName);
             var model = JsonDocument.Parse(fileText);
 
-            return importModels(model, modelFile.FullName, repository, logger);
+            return importModels(model, modelFile.FullName, repository, force, logger);
         }
 
-        private static IEnumerable<FileInfo> importModels(JsonDocument document, string fileName, DirectoryInfo repository, ILogger logger)
+        private static IEnumerable<FileInfo> importModels(JsonDocument document, string fileName, DirectoryInfo repository, bool force, ILogger logger)
         {
             var root = document.RootElement;
             if (root.ValueKind == JsonValueKind.Array)
@@ -277,18 +277,18 @@ namespace Azure.DigitalTwins.Resolver.CLI
                 foreach (var modelItem in enumerable)
                 {
 
-                    yield return importModel(modelItem, fileName, repository, logger);
+                    yield return importModel(modelItem, fileName, repository, logger, force);
                 }
             }
             else
             {
                 logger.LogInformation($"Single item found in {fileName}");
-                yield return importModel(root, fileName, repository, logger);
+                yield return importModel(root, fileName, repository, logger, force);
 
             }
         }
 
-        private static FileInfo importModel(JsonElement modelItem, string fileName, DirectoryInfo repository, ILogger logger)
+        private static FileInfo importModel(JsonElement modelItem, string fileName, DirectoryInfo repository, ILogger logger, bool force)
         {
             //Do file verification
             var rootId = Validations.GetRootId(modelItem, fileName);
@@ -304,7 +304,16 @@ namespace Azure.DigitalTwins.Resolver.CLI
             // write file to repository location
             var newFile = rootId.GetString().Replace(';', '-').Replace(':', Path.PathSeparator);
             var newPath = Path.Join(repository.FullName, newFile);
-            File.WriteAllText(newPath, modelItem.ToString());
+            if (!File.Exists(newPath))
+            {
+                logger.LogInformation($"Writing new file to '${newPath}'.");
+                File.WriteAllText(newPath, modelItem.ToString(), System.Text.Encoding.UTF8);
+            } else if (force) {
+                logger.LogWarning($"File '{newPath} already exists. Overwriting...");
+                File.WriteAllText(newPath, modelItem.ToString(), System.Text.Encoding.UTF8);
+            } else {
+                throw new IOException($"File '{newPath} already exists. Remove or use '--force' to overwrite.");
+            }
 
             //return file info
             return new FileInfo(newPath);

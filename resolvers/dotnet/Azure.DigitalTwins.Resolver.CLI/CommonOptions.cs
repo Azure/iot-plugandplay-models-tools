@@ -96,6 +96,18 @@ namespace Azure.DigitalTwins.Resolver.CLI
             }
         }
 
+        public static Option<bool> Force
+        {
+            get
+            {
+                return new Option<bool>(
+                  "--force",
+                  description: "Determines whether overwriting existing files will occur.",
+                  getDefaultValue: () => false
+                  );
+            }
+        }
+
         public static JsonDocumentOptions DefaultJsonParseOptions
         {
             get
