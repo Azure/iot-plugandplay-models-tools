@@ -6,7 +6,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
 {
     class CommonOptions
     {
-        private const string _defaultRepository = "https://devicemodels.azure.com/";
+        private const string _defaultRepository = "https://devicemodels.azure.com";
 
         public static Option<string> Dtmi
         {
