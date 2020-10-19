@@ -2,39 +2,39 @@
   "profiles": {
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowRemote": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --dtmi dtmi:com:example:Thermostat;1"
+      "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowLocal": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --dtmi dtmi:com:example:Thermostat;1 --repository ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/"
+      "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1 --repository ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveBasic": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --dtmi dtmi:com:example:Thermostat;1"
+      "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveBasicSilent": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --dtmi dtmi:com:example:TemperatureController;1 --silent"
+      "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 --silent"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveBasicOutFile1": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --dtmi dtmi:com:example:Thermostat;1 -o mytestmodel.json"
+      "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1 -o mytestmodel.json"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveBasicOutFile2": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --dtmi dtmi:com:example:TemperatureController;1 -o mytestmodel.json"
+      "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 -o mytestmodel.json"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveFail": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --dtmi dtmi:com:example:Thermojax;999"
+      "commandLineArgs": "export --dtmi dtmi:com:example:Thermojax;999"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveFromFile": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/dtmi/com/example/temperaturecontroller-1.json --repository ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
+      "commandLineArgs": "export --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/dtmi/com/example/temperaturecontroller-1.json --repository ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveFromFileFail": {
       "commandName": "Project",
-      "commandLineArgs": "resolve --repository ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
+      "commandLineArgs": "export --repository ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ValidateBasic": {
       "commandName": "Project",
@@ -47,6 +47,14 @@
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ValidateFail2": {
       "commandName": "Project",
       "commandLineArgs": "validate --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json"
+    },
+    "Azure.DigitalTwins.Resolver.CLI.AddModel" : {
+      "commandName": "Project",
+      "commandLineArgs": "import --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/dtmi/com/example/thermostat-1.json --repository ../../../../../../.localRepository/ --force"
+    },
+    "Azure.DigitalTwins.Resolver.CLI.AddModelInvalid" : {
+      "commandName": "Project",
+      "commandLineArgs": "import --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json --repository ../../../../../../.localRepository/ --force"
     }
   }
 }

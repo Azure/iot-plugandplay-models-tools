@@ -36,6 +36,18 @@ namespace Azure.DigitalTwins.Resolver.CLI
             }
         }
 
+        public static Option<DirectoryInfo> LocalRepo
+        {
+            get
+            {
+                return new Option<DirectoryInfo>(
+                  "--repository",
+                  description: "Local Model Repository location path.",
+                  getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory())
+                  );
+            }
+        }
+
         public static Option<string> Output
         {
             get
@@ -81,6 +93,18 @@ namespace Azure.DigitalTwins.Resolver.CLI
                     description: "Runs additional validation of file paths, DTMI scoping, and searches for reserved words.",
                     getDefaultValue: () => false
                 );
+            }
+        }
+
+        public static Option<bool> Force
+        {
+            get
+            {
+                return new Option<bool>(
+                  "--force",
+                  description: "Determines whether overwriting existing files will occur.",
+                  getDefaultValue: () => false
+                  );
             }
         }
 
