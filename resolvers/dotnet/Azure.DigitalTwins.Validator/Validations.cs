@@ -20,7 +20,6 @@ namespace Azure.DigitalTwins.Validator
 
             return ValidateFilePath(fileName, logger) &
                 ScanForReservedWords(fileText, logger) &
-                ValidateContext(model, fileName, logger) &
                 ValidateDTMIs(model,fileName, logger);
         }
         public static bool FindAllIds(string fileText, Func<string, bool> validation)
@@ -66,23 +65,6 @@ namespace Azure.DigitalTwins.Validator
             });
         }
 
-        public static bool ValidateContext(JsonElement model, string fileName = "", ILogger logger = null)
-        {
-            logger = logger ?? NullLogger.Instance;
-            JsonElement contextElement;
-            if (!model.TryGetProperty("@context", out contextElement))
-            {
-                logger.LogError("File '{fileName}' does not have a root \"@context\" element");
-                return false;
-            }
-
-            if (!contextElement.GetString().Equals("dtmi:dtdl:context;2", StringComparison.InvariantCulture))
-            {
-                logger.LogError($"File '{fileName}' has an invalid \"@context\" element");
-                return false;
-            }
-            return true;
-        }
         public static bool ValidateDTMIs(JsonElement model, string fileName = "", ILogger logger = null)
         {
             logger = logger ?? NullLogger.Instance;

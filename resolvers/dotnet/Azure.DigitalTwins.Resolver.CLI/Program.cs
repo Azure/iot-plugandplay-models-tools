@@ -214,10 +214,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
             ResolverClient client = InitializeClient(repository, logger);
 
             logger.LogInformation($"Parser version: {_parserVersion}, Resolver client version: {_resolverVersion}");
-            ModelParser parser = new ModelParser
-            {
-                Options = new HashSet<ModelParsingOption>() { ModelParsingOption.StrictPartitionEnforcement }
-            };
+            ModelParser parser = new ModelParser();
 
             parser.DtmiResolver = client.ParserDtmiResolver;
             return parser;

@@ -23,7 +23,7 @@ namespace Azure.DigitalTwins.Validator.Tests
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<Exception>(),
-                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Exactly(8));
+                It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true)), Times.Exactly(7));
         }
     }
 }

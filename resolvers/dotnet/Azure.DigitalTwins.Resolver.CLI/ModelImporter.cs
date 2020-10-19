@@ -55,10 +55,6 @@ namespace Azure.DigitalTwins.Resolver.CLI
             {
                 throw new ValidationException($"File '{fileName}' contains reserved words.");
             }
-            if(!Validations.ValidateContext(modelItem, fileName, logger))
-            {
-                throw new ValidationException($"File '{fileName}' is missing @context element");
-            }
 
             // write file to repository location
             var newFile = $"{rootId.GetString().Replace(';', '-').Replace(':', Path.DirectorySeparatorChar).ToLower(CultureInfo.InvariantCulture)}.json";
