@@ -35,7 +35,7 @@ namespace Azure.DigitalTwins.Resolver.Fetchers
             while (work.Count != 0)
             {
                 string tryContentPath = work.Dequeue();
-                _logger.LogInformation(StandardStrings.FetchingContent(tryContentPath));
+                _logger.LogTrace(StandardStrings.FetchingContent(tryContentPath));
 
                 string content = await EvaluatePathAsync(tryContentPath);
                 if (!string.IsNullOrEmpty(content))

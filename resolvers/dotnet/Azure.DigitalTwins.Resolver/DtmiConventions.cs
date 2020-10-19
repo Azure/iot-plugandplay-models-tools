@@ -2,18 +2,22 @@
 {
     public class DtmiConventions
     {
-        public static string ToPath(string dtmi, string basePath, bool expanded = false)
+        public static string ToPath(string dtmi)
         {
             // Lookups are case insensitive
-            dtmi = dtmi.ToLowerInvariant();
-            string dtmiPath = $"{dtmi.Replace(":", "/").Replace(";", "-")}.json";
+            return $"{dtmi.ToLowerInvariant().Replace(":", "/").Replace(";", "-")}.json";
+        }
+
+        public static string ToPath(string dtmi, string basePath, bool fromExpanded = false)
+        {
+            string dtmiPath = ToPath(dtmi);
 
             if (!basePath.EndsWith("/"))
                 basePath += "/";
 
             string fullyQualifiedPath = $"{basePath}{dtmiPath}";
 
-            if (expanded)
+            if (fromExpanded)
                 fullyQualifiedPath = fullyQualifiedPath.Replace(".json", ".expanded.json");
 
             return fullyQualifiedPath;

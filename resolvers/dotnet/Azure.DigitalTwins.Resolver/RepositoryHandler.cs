@@ -20,16 +20,16 @@ namespace Azure.DigitalTwins.Resolver
         }
 
         public Uri RepositoryUri { get; }
-        public ResolutionSettings Settings { get; }
+        public ResolverClientSettings Settings { get; }
         public RepositoryTypeCategory RepositoryType { get; }
 
-        public RepositoryHandler(Uri repositoryUri, ILogger logger = null, ResolutionSettings settings = null)
+        public RepositoryHandler(Uri repositoryUri, ILogger logger = null, ResolverClientSettings settings = null)
         {
             _logger = logger ?? NullLogger.Instance;
-            Settings = settings ?? new ResolutionSettings();
+            Settings = settings ?? new ResolverClientSettings();
             RepositoryUri = repositoryUri;
 
-            _logger.LogInformation(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme));
+            _logger.LogTrace(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme));
 
             if (repositoryUri.Scheme == "file")
             {
@@ -89,13 +89,13 @@ namespace Azure.DigitalTwins.Resolver
                 string targetDtmi = toProcessModels.Dequeue();
                 if (processedModels.ContainsKey(targetDtmi))
                 {
-                    _logger.LogInformation(StandardStrings.SkippingPreProcessedDtmi(targetDtmi));
+                    _logger.LogTrace(StandardStrings.SkippingPreProcessedDtmi(targetDtmi));
                     continue;
                 }
-                _logger.LogInformation(StandardStrings.ProcessingDtmi(targetDtmi));
+                _logger.LogTrace(StandardStrings.ProcessingDtmi(targetDtmi));
 
                 FetchResult result = await this.FetchAsync(targetDtmi);
-                if (result.PreCalculated)
+                if (result.FromExpanded)
                 {
                     Dictionary<string, string> expanded = await new ModelQuery(result.Definition).ListToDictAsync();
                     foreach (KeyValuePair<string, string> kvp in expanded)
@@ -107,14 +107,14 @@ namespace Azure.DigitalTwins.Resolver
                     continue;
                 }
 
-                ModelQuery.ModelMetadata metadata = new ModelQuery(result.Definition).GetMetadata();
+                ModelMetadata metadata = new ModelQuery(result.Definition).GetMetadata();
 
-                if (Settings.CalculateDependencies)
+                if (Settings.DependencyResolution >= DependencyResolutionOption.Enabled)
                 {
                     IList<string> dependencies = metadata.Dependencies;
 
                     if (dependencies.Count > 0)
-                        _logger.LogInformation(StandardStrings.DiscoveredDependencies(dependencies));
+                        _logger.LogTrace(StandardStrings.DiscoveredDependencies(dependencies));
 
                     foreach (string dep in dependencies)
                     {
@@ -139,7 +139,9 @@ namespace Azure.DigitalTwins.Resolver
         {
             try
             {
-                return await this._modelFetcher.FetchAsync(dtmi, this.RepositoryUri, Settings.UsePreCalculatedDependencies);
+                return await this._modelFetcher.FetchAsync(
+                    dtmi, this.RepositoryUri,
+                    Settings.DependencyResolution == DependencyResolutionOption.FromExpanded);
             }
             catch (Exception ex)
             {

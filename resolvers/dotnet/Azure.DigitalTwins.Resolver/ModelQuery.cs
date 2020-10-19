@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -128,20 +127,6 @@ namespace Azure.DigitalTwins.Resolver
             }
 
             return result;
-        }
-
-        public class ModelMetadata {
-            public string Id { get; }
-            public IList<string> Extends { get; }
-            public IList<string> ComponentSchemas { get; }
-            public IList<string> Dependencies { get { return Extends.Union(ComponentSchemas).ToList();  } }
-
-            public ModelMetadata(string id, IList<string> extends, IList<string> componentSchemas)
-            {
-                this.Id = id;
-                this.Extends = extends;
-                this.ComponentSchemas = componentSchemas;
-            }
         }
     }
 }
