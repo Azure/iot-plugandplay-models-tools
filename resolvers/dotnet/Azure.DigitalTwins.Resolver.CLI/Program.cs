@@ -12,6 +12,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -169,15 +170,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
             {
                 ILogger logger = GetLogger(host);
 
-                ResolverClient client = InitializeClient(repository, logger);
-
-                logger.LogInformation($"Parser version: {_parserVersion}, Resolver client version: {_resolverVersion}");
-                ModelParser parser = new ModelParser
-                {
-                    Options = new HashSet<ModelParsingOption>() { ModelParsingOption.StrictPartitionEnforcement }
-                };
-
-                parser.DtmiResolver = client.ParserDtmiResolver;
+                ModelParser parser = GetParser(repository, logger);
 
                 try
                 {
@@ -216,6 +209,20 @@ namespace Azure.DigitalTwins.Resolver.CLI
             return validateModel;
         }
 
+        private static ModelParser GetParser(string repository, ILogger logger)
+        {
+            ResolverClient client = InitializeClient(repository, logger);
+
+            logger.LogInformation($"Parser version: {_parserVersion}, Resolver client version: {_resolverVersion}");
+            ModelParser parser = new ModelParser
+            {
+                Options = new HashSet<ModelParsingOption>() { ModelParsingOption.StrictPartitionEnforcement }
+            };
+
+            parser.DtmiResolver = client.ParserDtmiResolver;
+            return parser;
+        }
+
         private static async Task<int> validateFile(FileInfo modelFile, string repository, bool strict, ILogger logger, ModelParser parser)
         {
             logger.LogInformation($"Repository location: {repository}");
@@ -241,17 +248,27 @@ namespace Azure.DigitalTwins.Resolver.CLI
             addModel.Description = "Adds a model to the repo. Validates ids, dependencies and set the right folder/file name";
             addModel.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, bool, IHost>(async (modelFile, repository, force, host) =>
             {
+                var returnCode = ReturnCodes.Success;
                 ILogger logger = GetLogger(host);
+                var parser = GetParser(repository.FullName, logger);
                 try
                 {
-                    IEnumerable<FileInfo> importedFiles = await importModels(modelFile, repository, force, logger);
+                    var newModels = await importModels(modelFile, repository, force, logger);
+                    foreach(var model in newModels)
+                    {
+                        var validationResult = await validateFile(model, repository.FullName, true, logger, parser);
+                        if (validationResult != ReturnCodes.Success)
+                        {
+                            returnCode = validationResult;
+                        }
+                    }
                 }
                 catch (ValidationException validationEx)
                 {
                     logger.LogError(validationEx.Message);
                     return ReturnCodes.ValidationError;
                 }
-                return ReturnCodes.Success;
+                return returnCode;
 
 
             });
@@ -290,7 +307,7 @@ namespace Azure.DigitalTwins.Resolver.CLI
 
         private static FileInfo importModel(JsonElement modelItem, string fileName, DirectoryInfo repository, ILogger logger, bool force)
         {
-            //Do file verification
+            //Do DTMI verification
             var rootId = Validations.GetRootId(modelItem, fileName);
             if (!Validations.IsDtmi(rootId.GetString()))
             {
@@ -300,23 +317,42 @@ namespace Azure.DigitalTwins.Resolver.CLI
             {
                 throw new InvalidDTMIException(fileName);
             }
-
+            if(!Validations.ScanForReservedWords(modelItem.ToString(), logger))
+            {
+                throw new ValidationException($"File '{fileName}' contains reserved words.");
+            }
+            if(!Validations.ValidateContext(modelItem, fileName, logger))
+            {
+                throw new ValidationException($"File '{fileName}' is missing @context element");
+            }
+            
             // write file to repository location
-            var newFile = rootId.GetString().Replace(';', '-').Replace(':', Path.PathSeparator);
+            var newFile = $"{rootId.GetString().Replace(';', '-').Replace(':', Path.DirectorySeparatorChar).ToLower(CultureInfo.InvariantCulture)}.json";
             var newPath = Path.Join(repository.FullName, newFile);
             if (!File.Exists(newPath))
             {
-                logger.LogInformation($"Writing new file to '${newPath}'.");
-                File.WriteAllText(newPath, modelItem.ToString(), System.Text.Encoding.UTF8);
+                CheckCreateDirectory(newPath);
+                logger.LogInformation($"Writing new file to '{newPath}'.");
+                File.WriteAllText(newPath, modelItem.ToString(), Encoding.UTF8);
             } else if (force) {
                 logger.LogWarning($"File '{newPath} already exists. Overwriting...");
-                File.WriteAllText(newPath, modelItem.ToString(), System.Text.Encoding.UTF8);
+                File.WriteAllText(newPath, modelItem.ToString(), Encoding.UTF8);
             } else {
                 throw new IOException($"File '{newPath} already exists. Remove or use '--force' to overwrite.");
             }
 
             //return file info
             return new FileInfo(newPath);
+        }
+
+        private static void CheckCreateDirectory(string filePath)
+        {
+            var lastDirectoryIndex = filePath.LastIndexOf(Path.DirectorySeparatorChar);
+            var directory = filePath.Substring(0, lastDirectoryIndex);
+            if(!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
         }
     }
 }
