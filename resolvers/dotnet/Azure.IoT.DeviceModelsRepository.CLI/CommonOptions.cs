@@ -6,8 +6,6 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
 {
     class CommonOptions
     {
-        private const string _defaultRepository = "https://devicemodels.azure.com";
-
         public static Option<string> Dtmi
         {
             get
@@ -31,7 +29,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 return new Option<string>(
                   "--repository",
                   description: "Model Repository location. Can be remote endpoint or local directory.",
-                  getDefaultValue: () => _defaultRepository
+                  getDefaultValue: () => Resolver.ResolverClient.DefaultRepository
                   );
             }
         }

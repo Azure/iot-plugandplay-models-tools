@@ -8,6 +8,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
 {
     public class ResolverClient
     {
+        public const string DefaultRepository = "https://devicemodels.azure.com";
         readonly RepositoryHandler repositoryHandler = null;
 
         public static ResolverClient FromRemoteRepository(string repositoryUri, ILogger logger = null, ResolverClientSettings settings = null)
@@ -19,6 +20,14 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
         {
             repositoryPath = Path.GetFullPath(repositoryPath);
             return new ResolverClient(new Uri($"file://{repositoryPath}"), logger, settings);
+        }
+
+        public ResolverClient() : this(new Uri(DefaultRepository))
+        {
+        }
+
+        public ResolverClient(ILogger logger = null, ResolverClientSettings settings = null) : this(new Uri(DefaultRepository), logger, settings)
+        {
         }
 
         public ResolverClient(Uri repositoryUri, ILogger logger = null, ResolverClientSettings settings = null)
