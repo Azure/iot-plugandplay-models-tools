@@ -43,7 +43,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
         {
             //Do DTMI verification
             var rootId = Validations.GetRootId(modelItem, fileName);
-            if (!RepositoryHandler.IsValidDtmi(rootId.GetString()))
+            if (!ResolverClient.IsValidDtmi(rootId.GetString()))
             {
                 throw new InvalidDTMIException(rootId);
             }
@@ -51,7 +51,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             {
                 throw new InvalidDTMIException(fileName);
             }
-            if(!Validations.ScanForReservedWords(modelItem.ToString(), logger))
+            if (!Validations.ScanForReservedWords(modelItem.ToString(), logger))
             {
                 throw new ValidationException($"File '{fileName}' contains reserved words.");
             }
@@ -63,10 +63,14 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 CheckCreateDirectory(newPath);
                 logger.LogTrace($"Writing new file to '{newPath}'.");
                 File.WriteAllText(newPath, modelItem.ToString(), Encoding.UTF8);
-            } else if (force) {
+            }
+            else if (force)
+            {
                 logger.LogWarning($"File '{newPath} already exists. Overwriting...");
                 File.WriteAllText(newPath, modelItem.ToString(), Encoding.UTF8);
-            } else {
+            }
+            else
+            {
                 throw new IOException($"File '{newPath} already exists. Remove or use '--force' to overwrite.");
             }
 
@@ -78,7 +82,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
         {
             var lastDirectoryIndex = filePath.LastIndexOf(Path.DirectorySeparatorChar);
             var directory = filePath.Substring(0, lastDirectoryIndex);
-            if(!Directory.Exists(directory))
+            if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
             }

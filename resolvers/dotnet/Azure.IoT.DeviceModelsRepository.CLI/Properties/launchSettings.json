@@ -6,7 +6,7 @@
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ShowLocal": {
       "commandName": "Project",
-      "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1 --repository ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/"
+      "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1 --repository ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveBasic": {
       "commandName": "Project",
@@ -30,31 +30,31 @@
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveFromFile": {
       "commandName": "Project",
-      "commandLineArgs": "export --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/dtmi/com/example/temperaturecontroller-1.json --repository ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
+      "commandLineArgs": "export --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/temperaturecontroller-1.json --repository ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ResolveFromFileFail": {
       "commandName": "Project",
-      "commandLineArgs": "export --repository ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
+      "commandLineArgs": "export --repository ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ValidateBasic": {
       "commandName": "Project",
-      "commandLineArgs": "validate --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/dtmi/com/example/thermostat-1.json"
+      "commandLineArgs": "validate --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/thermostat-1.json"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ValidateFail1": {
       "commandName": "Project",
-      "commandLineArgs": "validate --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-1.json"
+      "commandLineArgs": "validate --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-1.json"
     },
     "Azure.DigitalTwins.Resolver.CLI.SmokeTests.ValidateFail2": {
       "commandName": "Project",
-      "commandLineArgs": "validate --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json"
+      "commandLineArgs": "validate --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json"
     },
     "Azure.DigitalTwins.Resolver.CLI.AddModel" : {
       "commandName": "Project",
-      "commandLineArgs": "import --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/dtmi/com/example/thermostat-1.json --repository ../../../../../../.localRepository/ --force"
+      "commandLineArgs": "import --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/thermostat-1.json --repository ../../../../../../.localRepository/ --force"
     },
     "Azure.DigitalTwins.Resolver.CLI.AddModelInvalid" : {
       "commandName": "Project",
-      "commandLineArgs": "import --model-file ../../../../Azure.DigitalTwins.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json --repository ../../../../../../.localRepository/ --force"
+      "commandLineArgs": "import --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json --repository ../../../../../../.localRepository/ --force"
     }
   }
 }
