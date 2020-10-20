@@ -12,7 +12,7 @@ The model resolution client `ResolverClient` provides functionality for retrievi
 The following code block shows initializing a `ResolverClient` with a **remote endpoint** model repository and retrieving a desired model (specified by `DTMI`) and its dependencies.
 
 ```csharp
-using Azure.DigitalTwins.Resolver;
+using Azure.IoT.DeviceModelsRepository.Resolver;
 
 ResolverClient client = ResolverClient.FromRemoteRepository("https://devicemodels.azure.com/");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
@@ -21,7 +21,7 @@ Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:
 You are also able to initialize the `ResolverClient` with a **local directory** model repository.
 
 ```csharp
-using Azure.DigitalTwins.Resolver;
+using Azure.IoT.DeviceModelsRepository.Resolver;
 
 ResolverClient client = ResolverClient.FromLocalRepository(@"C:\Me\MyModelRepo");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
@@ -30,7 +30,7 @@ Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:
 The client `ResolveAsync()` function has overloads to look up multiple models at once. This is achieved by passing in comma delimited `DTMI`'s **or** passing in an `IEnumerable<string>` of `DTMI`'s.
 
 ```csharp
-using Azure.DigitalTwins.Resolver;
+using Azure.IoT.DeviceModelsRepository.Resolver;
 
 ResolverClient client = ResolverClient.FromRemoteRepository("https://devicemodels.azure.com/");
 
@@ -49,14 +49,14 @@ Dictionary<string, string> models = await client.ResolveAsync(targetDtmis);
 ## Integration with the DigitalTwins Model Parser
 
 The `ResolverClient` is designed to work independently of the Digital Twins `ModelParser`. However this solution includes a sister package
-`Azure.DigitalTwins.Resolver.Extensions` to support integration.
+`Azure.IoT.DeviceModelsRepository.Resolver.Extensions` to support integration.
 
 Here is an example to show how this works.
 
 ```csharp
 using Microsoft.Azure.DigitalTwins.Parser;
-using Azure.DigitalTwins.Resolver;
-using Azure.DigitalTwins.Resolver.Extensions;
+using Azure.IoT.DeviceModelsRepository.Resolver;
+using Azure.IoT.DeviceModelsRepository.Resolver.Extensions;
 
 
 // Instantiate the parser as usual
@@ -138,7 +138,7 @@ Currently the following client settings and their options are supported:
 Here is an example using custom settings:
 
 ```csharp
-using Azure.DigitalTwins.Resolver;
+using Azure.IoT.DeviceModelsRepository.Resolver;
 
 ResolverClientSettings settings = new ResolverClientSettings(DependencyResolutionOption.FromExpanded);
 
@@ -154,7 +154,7 @@ Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:
 
 ## Device Model Repository CLI
 
-This solution includes a CLI project `Azure.DigitalTwins.Resolver.CLI` to jumpstart scenarios. You are able to invoke commands via `dotnet run` or as the compiled executable `dmr-client`.
+This solution includes a CLI project `Azure.IoT.DeviceModelsRepository.CLI` to jumpstart scenarios. You are able to invoke commands via `dotnet run` or as the compiled executable `dmr-client`.
 
 ```bash
 dmr-client:

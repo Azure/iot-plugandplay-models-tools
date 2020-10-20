@@ -1,7 +1,3 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-
 namespace Azure.DigitalTwins.Validator.Exceptions
 {
     public class MissingDTMIException : ValidationException
