@@ -1,5 +1,4 @@
-﻿using Azure.DigitalTwins.Validator;
-using Azure.DigitalTwins.Validator.Exceptions;
+﻿using Azure.IoT.DeviceModelsRepository.CLI.Exceptions;
 using Azure.IoT.DeviceModelsRepository.Resolver;
 using Azure.IoT.DeviceModelsRepository.Resolver.Extensions;
 using Microsoft.Azure.DigitalTwins.Parser;
@@ -249,7 +248,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 var parser = GetParser(repository.FullName, logger);
                 try
                 {
-                    var newModels = await ModelImporter.importModels(modelFile, repository, force, logger);
+                    var newModels = await ModelImporter.ImportModels(modelFile, repository, force, logger);
                     foreach(var model in newModels)
                     {
                         var validationResult = await validateFile(model, repository.FullName, true, logger, parser);

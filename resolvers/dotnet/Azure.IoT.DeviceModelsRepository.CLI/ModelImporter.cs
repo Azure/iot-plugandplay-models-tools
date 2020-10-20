@@ -4,15 +4,15 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Azure.DigitalTwins.Validator;
-using Azure.DigitalTwins.Validator.Exceptions;
+using Azure.IoT.DeviceModelsRepository.CLI.Exceptions;
+using Azure.IoT.DeviceModelsRepository.Resolver;
 using Microsoft.Extensions.Logging;
 
 namespace Azure.IoT.DeviceModelsRepository.CLI
 {
     internal static class ModelImporter
     {
-        internal static async Task<IEnumerable<FileInfo>> importModels(FileInfo modelFile, DirectoryInfo repository, bool force, ILogger logger)
+        internal static async Task<IEnumerable<FileInfo>> ImportModels(FileInfo modelFile, DirectoryInfo repository, bool force, ILogger logger)
         {
             var fileText = await File.ReadAllTextAsync(modelFile.FullName);
             var model = JsonDocument.Parse(fileText);
@@ -43,7 +43,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
         {
             //Do DTMI verification
             var rootId = Validations.GetRootId(modelItem, fileName);
-            if (!Validations.IsDtmi(rootId.GetString()))
+            if (!ResolverClient.IsValidDtmi(rootId.GetString()))
             {
                 throw new InvalidDTMIException(rootId);
             }
@@ -51,23 +51,26 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             {
                 throw new InvalidDTMIException(fileName);
             }
-            if(!Validations.ScanForReservedWords(modelItem.ToString(), logger))
+            if (!Validations.ScanForReservedWords(modelItem.ToString(), logger))
             {
                 throw new ValidationException($"File '{fileName}' contains reserved words.");
             }
 
             // write file to repository location
-            var newFile = $"{rootId.GetString().Replace(';', '-').Replace(':', Path.DirectorySeparatorChar).ToLower(CultureInfo.InvariantCulture)}.json";
-            var newPath = Path.Join(repository.FullName, newFile);
+            var newPath = DtmiConventions.ToPath(rootId.GetString(), repository.FullName);
             if (!File.Exists(newPath))
             {
                 CheckCreateDirectory(newPath);
                 logger.LogTrace($"Writing new file to '{newPath}'.");
                 File.WriteAllText(newPath, modelItem.ToString(), Encoding.UTF8);
-            } else if (force) {
+            }
+            else if (force)
+            {
                 logger.LogWarning($"File '{newPath} already exists. Overwriting...");
                 File.WriteAllText(newPath, modelItem.ToString(), Encoding.UTF8);
-            } else {
+            }
+            else
+            {
                 throw new IOException($"File '{newPath} already exists. Remove or use '--force' to overwrite.");
             }
 
@@ -79,7 +82,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
         {
             var lastDirectoryIndex = filePath.LastIndexOf(Path.DirectorySeparatorChar);
             var directory = filePath.Substring(0, lastDirectoryIndex);
-            if(!Directory.Exists(directory))
+            if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
             }

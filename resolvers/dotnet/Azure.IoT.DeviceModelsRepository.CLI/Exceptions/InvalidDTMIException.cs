@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
 
-namespace Azure.DigitalTwins.Validator.Exceptions
+namespace Azure.IoT.DeviceModelsRepository.CLI.Exceptions
 {
     public class InvalidDTMIException : ValidationException
     {

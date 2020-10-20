@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Azure.DigitalTwins.Validator\Azure.DigitalTwins.Validator.csproj" />
     <ProjectReference Include="..\Azure.IoT.DeviceModelsRepository.Resolver.Extensions\Azure.IoT.DeviceModelsRepository.Resolver.Extensions.csproj" />
     <ProjectReference Include="..\Azure.IoT.DeviceModelsRepository.Resolver\Azure.IoT.DeviceModelsRepository.Resolver.csproj" />
   </ItemGroup>

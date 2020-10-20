@@ -4,8 +4,9 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Threading.Tasks;
 using System;
+using Azure.IoT.DeviceModelsRepository.CLI;
 
-namespace Azure.DigitalTwins.Validator.Tests
+namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
 {
     public class ValidateTests
     {

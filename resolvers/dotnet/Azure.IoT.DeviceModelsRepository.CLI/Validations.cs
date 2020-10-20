@@ -1,13 +1,13 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Azure.DigitalTwins.Validator.Exceptions;
+using Azure.IoT.DeviceModelsRepository.CLI.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Azure.DigitalTwins.Validator
+namespace Azure.IoT.DeviceModelsRepository.CLI
 {
     public static class Validations
     {
@@ -20,7 +20,7 @@ namespace Azure.DigitalTwins.Validator
 
             return ValidateFilePath(fileName, logger) &
                 ScanForReservedWords(fileText, logger) &
-                ValidateDTMIs(model,fileName, logger);
+                ValidateDTMIs(model, fileName, logger);
         }
         public static bool FindAllIds(string fileText, Func<string, bool> validation)
         {
@@ -43,13 +43,13 @@ namespace Azure.DigitalTwins.Validator
 
             if (!filePathRegex.IsMatch(fullPath))
             {
-                logger.LogError( $"File '{fullPath}' does not adhere to naming rules.");
+                logger.LogError($"File '{fullPath}' does not adhere to naming rules.");
                 return false;
             }
             return true;
         }
 
-         public static bool ScanForReservedWords(string fileText, ILogger logger = null)
+        public static bool ScanForReservedWords(string fileText, ILogger logger = null)
         {
             logger = logger ?? NullLogger.Instance;
 

@@ -16,9 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.IoT.DeviceModelsRepos
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.IoT.DeviceModelsRepository.CLI", "Azure.IoT.DeviceModelsRepository.CLI\Azure.IoT.DeviceModelsRepository.CLI.csproj", "{BF561D19-CAF1-47F4-93EE-9B9E88C013EC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.DigitalTwins.Validator.Tests", "Azure.DigitalTwins.Validator.Tests\Azure.DigitalTwins.Validator.Tests.csproj", "{B1F1EF89-BECB-4F03-BE19-5C04CFEE6065}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.DigitalTwins.Validator", "Azure.DigitalTwins.Validator\Azure.DigitalTwins.Validator.csproj", "{1F56FE53-359E-4D1D-834E-5538F44B5C6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.IoT.DeviceModelsRepository.Validation.Tests", "Azure.IoT.DeviceModelsRepository.Validation.Tests\Azure.IoT.DeviceModelsRepository.Validation.Tests.csproj", "{7C437255-6ABD-446D-AB22-A2569B85CB43}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,14 +40,10 @@ Global
 		{BF561D19-CAF1-47F4-93EE-9B9E88C013EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF561D19-CAF1-47F4-93EE-9B9E88C013EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF561D19-CAF1-47F4-93EE-9B9E88C013EC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B1F1EF89-BECB-4F03-BE19-5C04CFEE6065}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B1F1EF89-BECB-4F03-BE19-5C04CFEE6065}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B1F1EF89-BECB-4F03-BE19-5C04CFEE6065}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B1F1EF89-BECB-4F03-BE19-5C04CFEE6065}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1F56FE53-359E-4D1D-834E-5538F44B5C6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1F56FE53-359E-4D1D-834E-5538F44B5C6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1F56FE53-359E-4D1D-834E-5538F44B5C6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1F56FE53-359E-4D1D-834E-5538F44B5C6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C437255-6ABD-446D-AB22-A2569B85CB43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C437255-6ABD-446D-AB22-A2569B85CB43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C437255-6ABD-446D-AB22-A2569B85CB43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C437255-6ABD-446D-AB22-A2569B85CB43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
