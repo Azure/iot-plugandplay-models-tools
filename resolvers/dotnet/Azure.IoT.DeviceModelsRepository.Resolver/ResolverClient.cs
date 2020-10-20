@@ -26,6 +26,10 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
         {
         }
 
+        public ResolverClient(string url) : this(new Uri(url))
+        {
+        }
+
         public ResolverClient(ILogger logger = null, ResolverClientSettings settings = null) : this(new Uri(DefaultRepository), logger, settings)
         {
         }

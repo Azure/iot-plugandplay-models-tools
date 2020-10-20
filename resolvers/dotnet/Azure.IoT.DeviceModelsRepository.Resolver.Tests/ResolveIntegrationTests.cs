@@ -23,6 +23,18 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             // _remoteClient = ResolverClient.FromRemoteRepository(TestHelpers.GetTestRemoteModelRegistry());
         }
 
+        [TestCase]
+        public void DefaultCtors()
+        {
+            ResolverClient rc1 = new ResolverClient();
+            Assert.AreEqual(new Uri(ResolverClient.DefaultRepository), rc1.RepositoryUri);
+
+            ResolverClient rc2 = new ResolverClient(@"c:\");
+            Assert.AreEqual(new Uri(@"c:\"), rc2.RepositoryUri);
+
+
+        }
+
         [TestCase("dtmi:com:example:Thermostat;1")]
         public async Task ResolveSingleModelNoDeps(string dtmi)
         {

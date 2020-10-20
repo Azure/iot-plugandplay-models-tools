@@ -14,8 +14,8 @@ The following code block shows initializing a `ResolverClient` with a **remote e
 ```csharp
 using Azure.IoT.DeviceModelsRepository.Resolver;
 
-ResolverClient client = ResolverClient.FromRemoteRepository("https://devicemodels.azure.com/");
-Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
+ResolverClient client = new ResolverClient(); //defaults to https://devicemodels.azure.com
+IDictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:Thermostat;1");
 ```
 
 You are also able to initialize the `ResolverClient` with a **local directory** model repository.
@@ -23,8 +23,8 @@ You are also able to initialize the `ResolverClient` with a **local directory** 
 ```csharp
 using Azure.IoT.DeviceModelsRepository.Resolver;
 
-ResolverClient client = ResolverClient.FromLocalRepository(@"C:\Me\MyModelRepo");
-Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:thermostat;1");
+ResolverClient client = new ResolverClient(@"C:\Me\MyModelRepo");
+Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:Thermostat;1");
 ```
 
 The client `ResolveAsync()` function has overloads to look up multiple models at once. This is achieved by passing in comma delimited `DTMI`'s **or** passing in an `IEnumerable<string>` of `DTMI`'s.
@@ -32,24 +32,44 @@ The client `ResolveAsync()` function has overloads to look up multiple models at
 ```csharp
 using Azure.IoT.DeviceModelsRepository.Resolver;
 
-ResolverClient client = ResolverClient.FromRemoteRepository("https://devicemodels.azure.com/");
+ResolverClient client = new ResolverClient();
 
 // Id's for reuse
-string dtmiToResolve1 = "dtmi:com:example:thermostat;1";
-string dtmiToResolve2 = "dtmi:com:example:sensor;1";
+string dtmiToResolve1 = "dtmi:com:example:Thermostat;1";
+string dtmiToResolve2 = "dtmi:com:example:Sensor;1";
 
 // Multi resolution path 1
-Dictionary<string, string> models = await client.ResolveAsync(dtmiToResolve1, dtmiToResolve2);
+IDictionary<string, string> models = await client.ResolveAsync(dtmiToResolve1, dtmiToResolve2);
 
 // Multi resolution path 2
 string[] targetDtmis = new string[] {dtmiToResolve1, dtmiToResolve2};
-Dictionary<string, string> models = await client.ResolveAsync(targetDtmis);
+IDictionary<string, string> models = await client.ResolveAsync(targetDtmis);
 ```
 
 ## Integration with the DigitalTwins Model Parser
 
-The `ResolverClient` is designed to work independently of the Digital Twins `ModelParser`. However this solution includes a sister package
-`Azure.IoT.DeviceModelsRepository.Resolver.Extensions` to support integration.
+The `ResolverClient` is designed to work independently of the Digital Twins `ModelParser`, once the `ResolverClient` returns the model dictionary, you can use the values to parse all the interfaces in the model:
+
+```csharp
+using Microsoft.Azure.DigitalTwins.Parser;
+using Azure.IoT.DeviceModelsRepository.Resolver;
+using Azure.IoT.DeviceModelsRepository.Resolver.Extensions;
+
+
+// Instantiate the parser as usual
+ModelParser parser = new ModelParser()
+
+// Make a resolver client using the desired repo
+ResolverClient client = new ResolverClient();
+IDictionary<string, string> models = await client.ResolverAsync("dtmi:com:example:TemperatureController;1");
+
+// Use ParseAsync() with all the required interfaces
+var parserResult = await parser.ParseAsync(modesl.Values.ToArray();
+
+```
+
+Additionally the `ResolverClient` can be configured to resolve the required models *while parsing* thanks to the sister package
+`Azure.IoT.DeviceModelsRepository.Resolver.Extensions`.
 
 Here is an example to show how this works.
 
@@ -63,7 +83,7 @@ using Azure.IoT.DeviceModelsRepository.Resolver.Extensions;
 ModelParser parser = new ModelParser()
 
 // Make a resolver client using the desired repo
-ResolverClient client = ResolverClient.FromRemoteRepository("https://devicemodels.azure.com/");
+ResolverClient client = new ResolverClient();
 
 // Assign the ResolverClient.ParserDtmiResolver delegate
 parser.DtmiResolver = client.ParserDtmiResolver;
@@ -112,8 +132,7 @@ This snippet from the `CLI` shows a way to use `ResolverException`.
 ```csharp
 try
 {
-    logger.LogInformation($"Using repository location {repository}");
-    result = await InitializeClient(repository, logger).ResolveAsync(dtmi);
+    result = await new ResolverClient().ResolveAsync(dtmi);
 }
 catch (ResolverException resolverEx)
 {
