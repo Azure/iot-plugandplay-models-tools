@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text.Json;
 
 namespace Azure.DigitalTwins.Validator.Exceptions
