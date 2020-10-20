@@ -4,14 +4,14 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Azure.IoT.DeviceModelsRepository.CLI.Exceptions;
+using Azure.DigitalTwins.Resolver.CLI.Exceptions;
 using Microsoft.Extensions.Logging;
 
-namespace Azure.IoT.DeviceModelsRepository.CLI
+namespace Azure.DigitalTwins.Resolver.CLI
 {
     internal static class ModelImporter
     {
-        internal static async Task<IEnumerable<FileInfo>> importModels(FileInfo modelFile, DirectoryInfo repository, bool force, ILogger logger)
+        internal static async Task<IEnumerable<FileInfo>> ImportModels(FileInfo modelFile, DirectoryInfo repository, bool force, ILogger logger)
         {
             var fileText = await File.ReadAllTextAsync(modelFile.FullName);
             var model = JsonDocument.Parse(fileText);
@@ -42,7 +42,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
         {
             //Do DTMI verification
             var rootId = Validations.GetRootId(modelItem, fileName);
-            if (!Validations.IsDtmi(rootId.GetString()))
+            if (!RepositoryHandler.IsValidDtmi(rootId.GetString()))
             {
                 throw new InvalidDTMIException(rootId);
             }
@@ -56,7 +56,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             }
 
             // write file to repository location
-            var newFile = $"{rootId.GetString().Replace(';', '-').Replace(':', Path.DirectorySeparatorChar).ToLower(CultureInfo.InvariantCulture)}.json";
+            var newFile = DtmiConventions.ToPath(rootId.GetString());
             var newPath = Path.Join(repository.FullName, newFile);
             if (!File.Exists(newPath))
             {

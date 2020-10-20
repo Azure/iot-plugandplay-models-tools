@@ -1,6 +1,5 @@
-﻿using Azure.IoT.DeviceModelsRepository.CLI.Exceptions;
-using Azure.IoT.DeviceModelsRepository.Resolver;
-using Azure.IoT.DeviceModelsRepository.Resolver.Extensions;
+﻿using Azure.DigitalTwins.Resolver.Extensions;
+using Azure.DigitalTwins.Resolver.CLI.Exceptions;
 using Microsoft.Azure.DigitalTwins.Parser;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,12 +17,13 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Azure.IoT.DeviceModelsRepository.CLI
+namespace Azure.DigitalTwins.Resolver.CLI
 {
     class Program
     {
         private static readonly string _parserVersion = typeof(ModelParser).Assembly.GetName().Version.ToString();
         private static readonly string _resolverVersion = typeof(ResolverClient).Assembly.GetName().Version.ToString();
+
         private static readonly string _cliVersion = typeof(Program).Assembly.GetName().Version.ToString();
 
         // Alternative to enum to avoid casting.
@@ -248,7 +248,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 var parser = GetParser(repository.FullName, logger);
                 try
                 {
-                    var newModels = await ModelImporter.importModels(modelFile, repository, force, logger);
+                    var newModels = await ModelImporter.ImportModels(modelFile, repository, force, logger);
                     foreach(var model in newModels)
                     {
                         var validationResult = await validateFile(model, repository.FullName, true, logger, parser);

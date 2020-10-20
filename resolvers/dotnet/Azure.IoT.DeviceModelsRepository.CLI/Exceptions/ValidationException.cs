@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
-namespace Azure.DigitalTwins.Validator.Exceptions
+namespace Azure.IoT.DeviceModelsRepository.CLI.Exceptions
 {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class ValidationException : Exception

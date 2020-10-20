@@ -1,4 +1,4 @@
-namespace Azure.DigitalTwins.Validator.Exceptions
+﻿namespace Azure.IoT.DeviceModelsRepository.CLI.Exceptions
 {
     public class MissingDTMIException : ValidationException
     {

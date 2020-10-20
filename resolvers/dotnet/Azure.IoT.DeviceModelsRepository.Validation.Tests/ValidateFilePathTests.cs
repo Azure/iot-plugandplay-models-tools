@@ -1,8 +1,7 @@
 ﻿using NUnit.Framework;
-using Azure.DigitalTwins.Validator;
-using Azure.DigitalTwins.Validator.Exceptions;
+using Azure.IoT.DeviceModelsRepository.CLI;
 
-namespace Azure.DigitalTwins.Validator.Tests
+namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
 {
     public class ValidateFilePathTests
     {

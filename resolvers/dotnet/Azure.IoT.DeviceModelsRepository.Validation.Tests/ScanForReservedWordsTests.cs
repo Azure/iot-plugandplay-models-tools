@@ -1,8 +1,7 @@
-﻿using System.Text.Json;
-using Azure.DigitalTwins.Validator.Exceptions;
+﻿using Azure.IoT.DeviceModelsRepository.CLI;
 using NUnit.Framework;
 
-namespace Azure.DigitalTwins.Validator.Tests
+namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
 {
     public class ScanForReservedWordsTests
     {
