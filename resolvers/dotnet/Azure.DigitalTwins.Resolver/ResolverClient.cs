@@ -41,18 +41,13 @@ namespace Azure.DigitalTwins.Resolver
             return await this.repositoryHandler.ProcessAsync(dtmis);
         }
 
-        public string GetPath(string dtmi)
-        {
-            return this.repositoryHandler.ToPath(dtmi);
-        }
+        public string GetPath(string dtmi) => repositoryHandler.ToPath(dtmi);
+        
+        public static bool IsValidDtmi(string dtmi) => RepositoryHandler.IsValidDtmi(dtmi);
+        
 
-        public static bool IsValidDtmi(string dtmi)
-        {
-            return RepositoryHandler.IsValidDtmi(dtmi);
-        }
+        public Uri RepositoryUri  => repositoryHandler.RepositoryUri;
 
-        public Uri RepositoryUri { get { return this.repositoryHandler.RepositoryUri; } }
-
-        public ResolverClientSettings Settings { get { return this.repositoryHandler.Settings; } }
+        public ResolverClientSettings Settings => repositoryHandler.Settings;
     }
 }
