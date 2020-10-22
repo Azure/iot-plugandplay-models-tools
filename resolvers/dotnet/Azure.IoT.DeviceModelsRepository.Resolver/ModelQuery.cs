@@ -26,14 +26,16 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
 
         public string GetId()
         {
-            using JsonDocument document = JsonDocument.Parse(_content, _parseOptions);
-            JsonElement _root = document.RootElement;
-
-            if (_root.TryGetProperty("@id", out JsonElement id))
+            using (JsonDocument document = JsonDocument.Parse(_content, _parseOptions))
             {
-                if (id.ValueKind == JsonValueKind.String)
+                JsonElement _root = document.RootElement;
+
+                if (_root.TryGetProperty("@id", out JsonElement id))
                 {
-                    return id.GetString();
+                    if (id.ValueKind == JsonValueKind.String)
+                    {
+                        return id.GetString();
+                    }
                 }
             }
 
@@ -42,26 +44,28 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
 
         public IList<string> GetExtends()
         {
-            using JsonDocument document = JsonDocument.Parse(_content, _parseOptions);
-            JsonElement _root = document.RootElement;
-
             List<string> dependencies = new List<string>();
 
-            if (_root.TryGetProperty("extends", out JsonElement extends))
+            using (JsonDocument document = JsonDocument.Parse(_content, _parseOptions))
             {
-                if (extends.ValueKind == JsonValueKind.Array)
+                JsonElement _root = document.RootElement;
+
+                if (_root.TryGetProperty("extends", out JsonElement extends))
                 {
-                    foreach (JsonElement extendElement in extends.EnumerateArray())
+                    if (extends.ValueKind == JsonValueKind.Array)
                     {
-                        if (extendElement.ValueKind == JsonValueKind.String)
+                        foreach (JsonElement extendElement in extends.EnumerateArray())
                         {
-                            dependencies.Add(extendElement.GetString());
+                            if (extendElement.ValueKind == JsonValueKind.String)
+                            {
+                                dependencies.Add(extendElement.GetString());
+                            }
                         }
                     }
-                }
-                else if (extends.ValueKind == JsonValueKind.String)
-                {
-                    dependencies.Add(extends.GetString());
+                    else if (extends.ValueKind == JsonValueKind.String)
+                    {
+                        dependencies.Add(extends.GetString());
+                    }
                 }
             }
 
@@ -70,26 +74,28 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
 
         public IList<string> GetComponentSchemas()
         {
-            using JsonDocument document = JsonDocument.Parse(_content, _parseOptions);
-            JsonElement _root = document.RootElement;
-
             List<string> componentSchemas = new List<string>();
 
-            if (_root.TryGetProperty("contents", out JsonElement contents))
+            using (JsonDocument document = JsonDocument.Parse(_content, _parseOptions))
             {
-                if (contents.ValueKind == JsonValueKind.Array)
+                JsonElement _root = document.RootElement;
+
+                if (_root.TryGetProperty("contents", out JsonElement contents))
                 {
-                    foreach (JsonElement element in contents.EnumerateArray())
+                    if (contents.ValueKind == JsonValueKind.Array)
                     {
-                        if (element.TryGetProperty("@type", out JsonElement type))
+                        foreach (JsonElement element in contents.EnumerateArray())
                         {
-                            if (type.ValueKind == JsonValueKind.String && type.GetString() == "Component")
+                            if (element.TryGetProperty("@type", out JsonElement type))
                             {
-                                if (element.TryGetProperty("schema", out JsonElement schema))
+                                if (type.ValueKind == JsonValueKind.String && type.GetString() == "Component")
                                 {
-                                    if (schema.ValueKind == JsonValueKind.String)
+                                    if (element.TryGetProperty("schema", out JsonElement schema))
                                     {
-                                        componentSchemas.Add(schema.GetString());
+                                        if (schema.ValueKind == JsonValueKind.String)
+                                        {
+                                            componentSchemas.Add(schema.GetString());
+                                        }
                                     }
                                 }
                             }
@@ -104,24 +110,31 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
         public async Task<Dictionary<string, string>> ListToDictAsync()
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
-            using JsonDocument document = JsonDocument.Parse(_content, _parseOptions);
-            JsonElement _root = document.RootElement;
 
-            if (_root.ValueKind == JsonValueKind.Array)
+            using (JsonDocument document = JsonDocument.Parse(_content, _parseOptions))
             {
-                foreach (JsonElement element in _root.EnumerateArray())
+                JsonElement _root = document.RootElement;
+
+                if (_root.ValueKind == JsonValueKind.Array)
                 {
-                    if (element.ValueKind == JsonValueKind.Object)
+                    foreach (JsonElement element in _root.EnumerateArray())
                     {
-                        using MemoryStream stream = new MemoryStream();
-                        await JsonSerializer.SerializeAsync(stream, element);
-                        stream.Position = 0;
+                        if (element.ValueKind == JsonValueKind.Object)
+                        {
+                            using (MemoryStream stream = new MemoryStream())
+                            {
+                                await JsonSerializer.SerializeAsync(stream, element);
+                                stream.Position = 0;
 
-                        using StreamReader streamReader = new StreamReader(stream);
-                        string serialized = await streamReader.ReadToEndAsync();
+                                using (StreamReader streamReader = new StreamReader(stream))
+                                {
+                                    string serialized = await streamReader.ReadToEndAsync();
 
-                        string id = new ModelQuery(serialized).GetId();
-                        result.Add(id, serialized);
+                                    string id = new ModelQuery(serialized).GetId();
+                                    result.Add(id, serialized);
+                                }
+                            }
+                        }
                     }
                 }
             }
