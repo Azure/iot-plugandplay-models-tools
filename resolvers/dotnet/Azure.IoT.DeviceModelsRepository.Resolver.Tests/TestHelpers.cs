@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 
 namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
@@ -17,24 +16,18 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
                 AllowTrailingCommas = true
             };
 
-            using JsonDocument document = JsonDocument.Parse(json, options);
-            var dtmi = document.RootElement.EnumerateObject().Single(x => x.Name == "@id").Value.GetString();
+            string dtmi = string.Empty;
+            using (JsonDocument document = JsonDocument.Parse(json, options))
+            {
+                dtmi = document.RootElement.GetProperty("@id").GetString();
+            }
             return dtmi;
         }
 
-        public static string GetTestDirectoryPath()
-        {
-            return Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(TestContext.CurrentContext.TestDirectory)));
-        }
+        public static string TestDirectoryPath => Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(TestContext.CurrentContext.TestDirectory)));
 
-        public static string GetTestLocalModelRepository()
-        {
-            return Path.Combine(GetTestDirectoryPath(), "TestModelRepo");
-        }
+        public static string TestLocalModelRepository => Path.Combine(TestDirectoryPath, "TestModelRepo");
 
-        public static string GetTestRemoteModelRepository()
-        {
-            return Environment.GetEnvironmentVariable("PNP_TEST_REMOTE_REPO") ?? _fallbackTestRemoteRepo;
-        }
+        public static string TestRemoteModelRepository => Environment.GetEnvironmentVariable("PNP_TEST_REMOTE_REPO") ?? _fallbackTestRemoteRepo;
     }
 }

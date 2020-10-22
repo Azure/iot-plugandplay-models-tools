@@ -19,13 +19,13 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
         }
 
         public Uri RepositoryUri { get; }
-        public ResolverClientSettings Settings { get; }
+        public ResolverClientOptions Settings { get; }
         public RepositoryTypeCategory RepositoryType { get; }
 
-        public RepositoryHandler(Uri repositoryUri, ILogger logger = null, ResolverClientSettings settings = null)
+        public RepositoryHandler(Uri repositoryUri, ResolverClientOptions settings = null, ILogger logger = null)
         {
             _logger = logger ?? NullLogger.Instance;
-            Settings = settings ?? new ResolverClientSettings();
+            Settings = settings ?? new ResolverClientOptions();
             RepositoryUri = repositoryUri;
 
             _logger.LogTrace(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme));
@@ -44,7 +44,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
 
         public string ToPath(string dtmi)
         {
-            if (!IsValidDtmi(dtmi))
+            if (!DtmiConventions.IsDtmi(dtmi))
             {
                 string invalidArgMsg = StandardStrings.InvalidDtmiFormat(dtmi);
                 _logger.LogError(invalidArgMsg);
@@ -52,11 +52,6 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
             }
 
             return _modelFetcher.GetPath(dtmi, this.RepositoryUri);
-        }
-
-        public static bool IsValidDtmi(string dtmi)
-        {
-            return DtmiConventions.IsDtmi(dtmi);
         }
 
         public async Task<IDictionary<string, string>> ProcessAsync(string dtmi)
@@ -71,7 +66,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
 
             foreach (string dtmi in dtmis)
             {
-                if (!IsValidDtmi(dtmi))
+                if (!DtmiConventions.IsDtmi(dtmi))
                 {
                     string invalidArgMsg = StandardStrings.InvalidDtmiFormat(dtmi);
                     _logger.LogError(invalidArgMsg);

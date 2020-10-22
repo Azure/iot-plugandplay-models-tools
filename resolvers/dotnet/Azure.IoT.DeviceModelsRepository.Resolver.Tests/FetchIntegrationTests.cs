@@ -11,8 +11,8 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
 {
     public class FetchIntegrationTests
     {
-        readonly Uri _remoteUri = new Uri(TestHelpers.GetTestRemoteModelRepository());
-        readonly Uri _localUri = new Uri($"file://{TestHelpers.GetTestLocalModelRepository()}");
+        readonly Uri _remoteUri = new Uri(TestHelpers.TestRemoteModelRepository);
+        readonly Uri _localUri = new Uri($"file://{TestHelpers.TestLocalModelRepository}");
         Mock<ILogger> _logger;
         IModelFetcher _localFetcher;
         IModelFetcher _remoteFetcher;
