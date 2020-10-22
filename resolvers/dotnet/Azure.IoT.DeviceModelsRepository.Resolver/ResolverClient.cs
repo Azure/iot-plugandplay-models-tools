@@ -14,6 +14,12 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
 
         public ResolverClient(Uri repositoryUri): this(repositoryUri, null, null) { }
 
+        public ResolverClient(ILogger logger) : this(new Uri(DefaultRepository), null, logger) { }
+
+        public ResolverClient(ResolverClientOptions options) : this(new Uri(DefaultRepository), options, null) { }
+
+        public ResolverClient(ResolverClientOptions options, ILogger logger) : this(new Uri(DefaultRepository), options, logger) { }
+
         public ResolverClient(Uri repositoryUri, ResolverClientOptions options): this(repositoryUri, options, null) { }
 
         public ResolverClient(Uri repositoryUri, ResolverClientOptions options = null, ILogger logger = null)
