@@ -14,7 +14,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         public async Task ParserValidationResolveFromLocalRepository()
         {
             ModelParser parser = new ModelParser();
-            string TestRegistryPath = TestHelpers.GetTestLocalModelRepository();
+            string TestRegistryPath = TestHelpers.TestLocalModelRepository;
 
             List<string> parseModelPaths = new List<string>()
             {
@@ -24,7 +24,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             };
 
             // Shows how to quickly integrate the resolver client with the parser.
-            ResolverClient client = ResolverClient.FromLocalRepository(TestRegistryPath);
+            ResolverClient client = new ResolverClient(TestRegistryPath);
             parser.DtmiResolver = client.ParserDtmiResolver;
 
             foreach(string modelPath in parseModelPaths) {
@@ -43,13 +43,13 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         public void ParserValidationResolveFromLocalRepoErrorOnParserCallbackDtmiCasing()
         {
             ModelParser parser = new ModelParser();
-            string TestRegistryPath = TestHelpers.GetTestLocalModelRepository();
+            string TestRegistryPath = TestHelpers.TestLocalModelRepository;
 
             // This model references another model with invalid casing.
             string modelPath = $"{TestRegistryPath}/dtmi/company/demodevice-1.json";
 
             // Shows how to quickly integrate the resolver client with the parser.
-            ResolverClient client = ResolverClient.FromLocalRepository(TestRegistryPath);
+            ResolverClient client = new ResolverClient(TestRegistryPath);
             parser.DtmiResolver = client.ParserDtmiResolver;
 
             // Parser will throw on validation errors
@@ -68,11 +68,11 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             ModelParser parser = new ModelParser();
 
             // TODO: One off model -- need consistent remote model repo for IT's
-            string TestRepoPath = TestHelpers.GetTestLocalModelRepository();
+            string TestRepoPath = TestHelpers.TestLocalModelRepository;
             string testModelPath = $"{TestRepoPath}/dtmi/company/demodevice-2.json";
 
             // Shows how to quickly integrate the resolver client with the parser.
-            ResolverClient client = ResolverClient.FromRemoteRepository(TestHelpers.GetTestRemoteModelRepository());
+            ResolverClient client = new ResolverClient(TestHelpers.TestRemoteModelRepository);
             parser.DtmiResolver = client.ParserDtmiResolver;
 
             // Parser will throw on validation errors

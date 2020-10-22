@@ -63,7 +63,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         [TestCase("", "")]
         public void GetComponentSchema(string contents, string expected)
         {
-            string[] expectedDtmis = expected.Split(",", System.StringSplitOptions.RemoveEmptyEntries);
+            string[] expectedDtmis = expected.Split(new[] { "," }, System.StringSplitOptions.RemoveEmptyEntries);
             string modelContent = string.Format(_modelTemplate, "", "", contents);
             ModelQuery query = new ModelQuery(modelContent);
             IList<string> componentSchemas = query.GetComponentSchemas();
@@ -83,7 +83,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         [TestCase("", "")]
         public void GetExtends(string extends, string expected)
         {
-            string[] expectedDtmis = expected.Split(",", System.StringSplitOptions.RemoveEmptyEntries);
+            string[] expectedDtmis = expected.Split(new[] { "," }, System.StringSplitOptions.RemoveEmptyEntries);
             string modelContent = string.Format(_modelTemplate, "", extends, "");
             ModelQuery query = new ModelQuery(modelContent);
             IList<string> extendsDtmis = query.GetExtends();
@@ -118,7 +118,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         )]
         public void GetModelDependencies(string id, string extends, string contents, string expected)
         {
-            string[] expectedDtmis = expected.Split(",", System.StringSplitOptions.RemoveEmptyEntries);
+            string[] expectedDtmis = expected.Split(new[] { "," }, System.StringSplitOptions.RemoveEmptyEntries);
             string modelContent = string.Format(_modelTemplate, id, extends, contents);
             ModelMetadata metadata = new ModelQuery(modelContent).GetMetadata();
 
@@ -135,8 +135,8 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         [Test]
         public async Task ListToDictAsync()
         {
-            string testRepoPath = TestHelpers.GetTestLocalModelRepository();
-            string expandedContent = await File.ReadAllTextAsync(
+            string testRepoPath = TestHelpers.TestLocalModelRepository;
+            string expandedContent = File.ReadAllText(
                 $"{testRepoPath}/dtmi/com/example/temperaturecontroller-1.expanded.json", Encoding.UTF8);
             ModelQuery query = new ModelQuery(expandedContent);
             Dictionary<string, string> transformResult = await query.ListToDictAsync();

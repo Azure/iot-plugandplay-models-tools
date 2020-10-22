@@ -16,6 +16,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
             _logger = logger;
         }
 
+        // TODO: @digimaun - nothing Async is happening here due to the netstandard2.0 shift down.
         public async Task<FetchResult> FetchAsync(string dtmi, Uri registryUri, bool expanded = false)
         {
             string registryPath = registryUri.AbsolutePath;
@@ -44,7 +45,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
                 {
                     return new FetchResult()
                     {
-                        Definition = await File.ReadAllTextAsync(tryContentPath, Encoding.UTF8),
+                        Definition = File.ReadAllText(tryContentPath, Encoding.UTF8),
                         Path = tryContentPath
                     };
                 }

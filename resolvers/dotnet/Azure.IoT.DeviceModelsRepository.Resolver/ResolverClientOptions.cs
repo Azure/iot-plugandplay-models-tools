@@ -1,13 +1,13 @@
 ﻿namespace Azure.IoT.DeviceModelsRepository.Resolver
 {
-    public class ResolverClientSettings
+    public class ResolverClientOptions
     {
-        public ResolverClientSettings()
+        public ResolverClientOptions()
         {
             DependencyResolution = DependencyResolutionOption.Enabled;
         }
 
-        public ResolverClientSettings(DependencyResolutionOption resolutionOption)
+        public ResolverClientOptions(DependencyResolutionOption resolutionOption)
         {
             DependencyResolution = resolutionOption;
         }

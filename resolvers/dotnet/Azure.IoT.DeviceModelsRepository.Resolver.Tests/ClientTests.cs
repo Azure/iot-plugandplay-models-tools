@@ -8,64 +8,58 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
 {
     public class ClientTests
     {
-        Mock<ILogger> _logger;
-
-        [SetUp]
-        public void Setup()
+        [Test]
+        public void ClientInitRemoteRepository()
         {
-            _logger = new Mock<ILogger>();
+            Mock<ILogger> fromUriLogger = new Mock<ILogger>();
+            Mock<ILogger> fromStrLogger = new Mock<ILogger>();
+
+            string remoteRepoEndpoint = "https://localhost/repository";
+            Uri repositoryUri = new Uri(remoteRepoEndpoint);
+
+            ResolverClient clientInitUri = new ResolverClient(repositoryUri, default, fromUriLogger.Object);
+            ResolverClient clientInitStr = new ResolverClient(remoteRepoEndpoint, default, logger: fromStrLogger.Object);
+
+            Assert.AreEqual(repositoryUri, clientInitUri.RepositoryUri);
+            Assert.AreEqual(remoteRepoEndpoint, clientInitUri.RepositoryUri.AbsoluteUri);
+
+            fromUriLogger.ValidateLog(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme), LogLevel.Trace, Times.Once());
+
+            Assert.AreEqual(repositoryUri, clientInitStr.RepositoryUri);
+            Assert.AreEqual(remoteRepoEndpoint, clientInitStr.RepositoryUri.AbsoluteUri);
+
+            fromStrLogger.ValidateLog(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme), LogLevel.Trace, Times.Once());
+
+            ResolverClient clientInitDefault = new ResolverClient();
+            Assert.AreEqual($"{ResolverClient.DefaultRepository}/", clientInitDefault.RepositoryUri.AbsoluteUri);
         }
 
         [Test]
-        public void ClientInitGenericRepoUri()
+        public void ClientInitLocalRepository()
         {
-            string registryUriString = "https://localhost/myregistry/";
-            Uri registryUri = new Uri(registryUriString);
+            Mock<ILogger> fromUriLogger = new Mock<ILogger>();
+            Mock<ILogger> fromStrLogger = new Mock<ILogger>();
 
-            // Uses NullLogger
-            ResolverClient client = new ResolverClient(registryUri);
-            Assert.AreEqual(registryUri, client.RepositoryUri);
+            string localTestRepoPath = TestHelpers.TestLocalModelRepository;
+            Uri repositoryUri = new Uri($"file://{localTestRepoPath}");
 
-            client = new ResolverClient(registryUri, _logger.Object);
-            Assert.AreEqual(registryUri, client.RepositoryUri);
-            _logger.ValidateLog(StandardStrings.ClientInitWithFetcher(registryUri.Scheme), LogLevel.Trace, Times.Once());
-        }
-
-        [Test]
-        public void ClientInitRemoteRepoHelper()
-        {
-            string registryUriString = "https://localhost/myregistry/";
-            Uri registryUri = new Uri(registryUriString);
-
-            ResolverClient client = ResolverClient.FromRemoteRepository(registryUriString);
-            Assert.AreEqual(registryUri, client.RepositoryUri);
-
-            client = ResolverClient.FromRemoteRepository(registryUriString, _logger.Object);
-            Assert.AreEqual(registryUri, client.RepositoryUri);
-            _logger.ValidateLog(StandardStrings.ClientInitWithFetcher(registryUri.Scheme), LogLevel.Trace, Times.Once());
-        }
-
-        [Test]
-        public void ClientInitLocalRepoHelper()
-        {
-            string testModelRegistryPath = TestHelpers.GetTestLocalModelRepository();
-            Uri registryUri = new Uri($"file://{testModelRegistryPath}");
-
-            // Uses NullLogger
-            ResolverClient client = ResolverClient.FromLocalRepository(testModelRegistryPath);
+            ResolverClient clientInitUri = new ResolverClient(repositoryUri, default, fromUriLogger.Object) ;
+            ResolverClient clientInitStr = new ResolverClient(localTestRepoPath, default, logger: fromStrLogger.Object);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                testModelRegistryPath = testModelRegistryPath.Replace("\\", "/");
+                localTestRepoPath = localTestRepoPath.Replace("\\", "/");
             }
 
-            Assert.AreEqual(registryUri, client.RepositoryUri);
-            Assert.AreEqual(testModelRegistryPath, client.RepositoryUri.AbsolutePath);
+            Assert.AreEqual(repositoryUri, clientInitUri.RepositoryUri);
+            Assert.AreEqual(localTestRepoPath, clientInitUri.RepositoryUri.AbsolutePath);
 
-            client = ResolverClient.FromLocalRepository(testModelRegistryPath, _logger.Object);
-            Assert.AreEqual(registryUri, client.RepositoryUri);
+            fromUriLogger.ValidateLog(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme), LogLevel.Trace, Times.Once());
 
-            _logger.ValidateLog(StandardStrings.ClientInitWithFetcher(registryUri.Scheme), LogLevel.Trace, Times.Once());
+            Assert.AreEqual(repositoryUri, clientInitStr.RepositoryUri);
+            Assert.AreEqual(localTestRepoPath, clientInitStr.RepositoryUri.AbsolutePath);
+
+            fromStrLogger.ValidateLog(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme), LogLevel.Trace, Times.Once());
         }
 
         [TestCase("dtmi:com:example:Thermostat;1", true)]
@@ -78,36 +72,20 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             Assert.AreEqual(ResolverClient.IsValidDtmi(dtmi), expected);
         }
 
-        [TestCase("dtmi:com:example:Thermostat;1", "/dtmi/com/example/thermostat-1.json")]
-        [TestCase("dtmi:com:example:Thermostat:1", null)]
-        public void ClientLocalRepoGetPath(string dtmi, string expectedPath)
+        [TestCase("dtmi:com:example:Thermostat;1", "/dtmi/com/example/thermostat-1.json", "https://localhost/repository")]
+        [TestCase("dtmi:com:example:Thermostat;1", "/dtmi/com/example/thermostat-1.json", null)]
+        [TestCase("dtmi:com:example:Thermostat:1", null, "https://localhost/repository")]
+        public void ClientGetPath(string dtmi, string expectedPath, string repository)
         {
-            string testModelRegistryPath = TestHelpers.GetTestLocalModelRepository();
-            ResolverClient client = ResolverClient.FromLocalRepository(testModelRegistryPath);
+            if (repository == null)
+                repository = TestHelpers.TestLocalModelRepository;
 
-            if (string.IsNullOrEmpty(expectedPath))
-            {
-                ResolverException re = Assert.Throws<ResolverException>(() => client.GetPath(dtmi));
-                Assert.AreEqual(re.Message, $"{StandardStrings.GenericResolverError(dtmi)}{StandardStrings.InvalidDtmiFormat(dtmi)}");
-                return;
-            }
-
-            string modelPath = client.GetPath(dtmi);
+            ResolverClient client = new ResolverClient(repository);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                testModelRegistryPath = testModelRegistryPath.Replace("\\", "/");
+                repository = repository.Replace("\\", "/");
             }
-
-            Assert.AreEqual(modelPath, $"{testModelRegistryPath}{expectedPath}");
-        }
-
-        [TestCase("dtmi:com:example:Thermostat;1", "/dtmi/com/example/thermostat-1.json")]
-        [TestCase("dtmi:com:example:Thermostat:1", null)]
-        public void ClientRemoteRepoGetPath(string dtmi, string expectedPath)
-        {
-            string registryUriString = "https://localhost/myregistry";
-            ResolverClient client = ResolverClient.FromRemoteRepository(registryUriString);
 
             if (string.IsNullOrEmpty(expectedPath))
             {
@@ -117,24 +95,24 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             }
 
             string modelPath = client.GetPath(dtmi);
-            Assert.AreEqual(modelPath, $"{registryUriString}{expectedPath}");
+            Assert.AreEqual(modelPath, $"{repository}{expectedPath}");
         }
 
         [Test]
-        public void ClientSettings()
+        public void ClientOptions()
         {
             DependencyResolutionOption defaultResolutionOption = DependencyResolutionOption.Enabled;
-            ResolverClientSettings customSettings = 
-                new ResolverClientSettings(DependencyResolutionOption.FromExpanded);
+            ResolverClientOptions customOptions = 
+                new ResolverClientOptions(DependencyResolutionOption.FromExpanded);
 
-            string registryUriString = "https://localhost/myregistry/";
-            Uri registryUri = new Uri(registryUriString);
+            string repositoryUriString = "https://localhost/myregistry/";
+            Uri repositoryUri = new Uri(repositoryUriString);
 
-            ResolverClient defaultClient = new ResolverClient(registryUri);
-            Assert.AreEqual(defaultClient.Settings.DependencyResolution, defaultResolutionOption);
+            ResolverClient defaultClient = new ResolverClient(repositoryUri);
+            Assert.AreEqual(defaultClient.ClientOptions.DependencyResolution, defaultResolutionOption);
 
-            ResolverClient customClient = new ResolverClient(registryUri, settings: customSettings);
-            Assert.AreEqual(customClient.Settings.DependencyResolution, DependencyResolutionOption.FromExpanded);
+            ResolverClient customClient = new ResolverClient(repositoryUriString, customOptions);
+            Assert.AreEqual(customClient.ClientOptions.DependencyResolution, DependencyResolutionOption.FromExpanded);
         }
     }
 }

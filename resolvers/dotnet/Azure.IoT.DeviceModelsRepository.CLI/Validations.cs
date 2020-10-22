@@ -116,5 +116,12 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             var versionRegex = new Regex(";[1-9][0-9]{0,8}$");
             return versionRegex.Replace(id.GetString(), "");
         }
+
+        public static bool IsRelativePath(string repositoryPath)
+        {
+            Uri testUri;
+            bool validUri = Uri.TryCreate(repositoryPath, UriKind.Relative, out testUri);
+            return validUri && testUri != null;
+        }
     }
 }
