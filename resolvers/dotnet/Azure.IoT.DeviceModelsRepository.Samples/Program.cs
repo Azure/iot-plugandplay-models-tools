@@ -14,26 +14,31 @@ namespace Azure.IoT.DeviceModelsRepository.Samples
     {
         static async Task Main(string[] args)
         {
-            ILogger logger = LoggerFactory.Create(builder =>builder.AddDebug().SetMinimumLevel(LogLevel.Trace)).CreateLogger<Program>();
-            ResolverClient rc = new ResolverClient(new Uri("https://devicemodels.azure.com"), logger, new ResolverClientSettings(DependencyResolutionOption.FromExpanded));
-            var models = await rc.ResolveAsync("dtmi:Advantech:EIS_D150;1");
-            ModelParser parser = new ModelParser();
-            
-            await parser.ParseAsync(models.Values.ToArray());
-
-            DumpModels(models);
-
+            await ResolveAndParse();
+            await ParseAndResolve();
         }
 
-        private static void DumpModels(IDictionary<string, string> models)
+        private static async Task ResolveAndParse()
         {
-            Console.WriteLine($"Found {models.Count} interfaces:");
-            foreach (var m in models)
-            {
-                Console.WriteLine(m.Key);
-                Console.WriteLine(m.Value.Substring(0, 200) + " . . . ");
-                Console.WriteLine();
-            }
+            string dtmi = "dtmi:com:example:TemperatureController;1";
+            ILogger logger = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Trace)).CreateLogger<Program>();
+            ResolverClient rc = new ResolverClient(logger);
+            var models = await rc.ResolveAsync(dtmi);
+            ModelParser parser = new ModelParser();
+            var parseResult = await parser.ParseAsync(models.Values.ToArray());
+            Console.WriteLine($"{dtmi} resolved in {models.Count} interfaces with {parseResult.Count} entities.");
+        }
+
+        private static async Task ParseAndResolve()
+        {
+            string dtmi = "dtmi:com:example:TemperatureController;1";
+            ILogger logger = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Trace)).CreateLogger<Program>();
+            ResolverClient rc = new ResolverClient(new ResolverClientOptions(DependencyResolutionOption.Disabled), logger);
+            var models = await rc.ResolveAsync(dtmi);
+            ModelParser parser = new ModelParser();
+            parser.DtmiResolver = rc.ParserDtmiResolver;
+            var parseResult = await parser.ParseAsync(models.Values.Take(1).ToArray());
+            Console.WriteLine($"{dtmi} resolved in {models.Count} interfaces with {parseResult.Count} entities.");
         }
     }
 }

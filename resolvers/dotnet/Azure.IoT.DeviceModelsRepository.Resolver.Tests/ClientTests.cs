@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -114,5 +115,25 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             ResolverClient customClient = new ResolverClient(repositoryUriString, customOptions);
             Assert.AreEqual(customClient.ClientOptions.DependencyResolution, DependencyResolutionOption.FromExpanded);
         }
+
+        [Test]
+        public void CtorOverloads()
+        {
+            var uri = new Uri("https://dtmi.com");
+            ILogger logger = new NullLogger<ClientTests>();
+            var options = new ResolverClientOptions();
+
+            Assert.AreEqual(new Uri(ResolverClient.DefaultRepository), new ResolverClient().RepositoryUri);
+            Assert.AreEqual(new Uri(ResolverClient.DefaultRepository), new ResolverClient(logger).RepositoryUri);
+            Assert.AreEqual(new Uri(ResolverClient.DefaultRepository), new ResolverClient(options).RepositoryUri);
+            Assert.AreEqual(new Uri(ResolverClient.DefaultRepository), new ResolverClient(options,logger).RepositoryUri);
+
+            Assert.AreEqual(uri, new ResolverClient(uri).RepositoryUri);
+            Assert.AreEqual(uri, new ResolverClient(uri, options).RepositoryUri);
+            Assert.AreEqual(uri, new ResolverClient(uri, null, logger).RepositoryUri);
+            Assert.AreEqual(uri, new ResolverClient(uri, options, null).RepositoryUri);
+            Assert.AreEqual(uri, new ResolverClient(uri, options, logger).RepositoryUri);
+        }
     }
 }
+
