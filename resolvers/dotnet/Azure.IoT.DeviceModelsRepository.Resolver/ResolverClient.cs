@@ -45,6 +45,6 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
 
         public Uri RepositoryUri  => repositoryHandler.RepositoryUri;
 
-        public ResolverClientOptions Settings => repositoryHandler.Settings;
+        public ResolverClientOptions ClientOptions => repositoryHandler.ClientOptions;
     }
 }

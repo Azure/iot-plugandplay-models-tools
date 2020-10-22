@@ -19,13 +19,13 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
         }
 
         public Uri RepositoryUri { get; }
-        public ResolverClientOptions Settings { get; }
+        public ResolverClientOptions ClientOptions { get; }
         public RepositoryTypeCategory RepositoryType { get; }
 
-        public RepositoryHandler(Uri repositoryUri, ResolverClientOptions settings = null, ILogger logger = null)
+        public RepositoryHandler(Uri repositoryUri, ResolverClientOptions options = null, ILogger logger = null)
         {
             _logger = logger ?? NullLogger.Instance;
-            Settings = settings ?? new ResolverClientOptions();
+            ClientOptions = options ?? new ResolverClientOptions();
             RepositoryUri = repositoryUri;
 
             _logger.LogTrace(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme));
@@ -101,7 +101,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
 
                 ModelMetadata metadata = new ModelQuery(result.Definition).GetMetadata();
 
-                if (Settings.DependencyResolution >= DependencyResolutionOption.Enabled)
+                if (ClientOptions.DependencyResolution >= DependencyResolutionOption.Enabled)
                 {
                     IList<string> dependencies = metadata.Dependencies;
 
@@ -133,7 +133,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
             {
                 return await this._modelFetcher.FetchAsync(
                     dtmi, this.RepositoryUri,
-                    Settings.DependencyResolution == DependencyResolutionOption.FromExpanded);
+                    ClientOptions.DependencyResolution == DependencyResolutionOption.FromExpanded);
             }
             catch (Exception ex)
             {

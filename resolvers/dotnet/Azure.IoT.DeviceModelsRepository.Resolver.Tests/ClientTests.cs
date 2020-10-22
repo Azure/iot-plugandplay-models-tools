@@ -109,10 +109,10 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             Uri repositoryUri = new Uri(repositoryUriString);
 
             ResolverClient defaultClient = new ResolverClient(repositoryUri);
-            Assert.AreEqual(defaultClient.Settings.DependencyResolution, defaultResolutionOption);
+            Assert.AreEqual(defaultClient.ClientOptions.DependencyResolution, defaultResolutionOption);
 
             ResolverClient customClient = new ResolverClient(repositoryUriString, customOptions);
-            Assert.AreEqual(customClient.Settings.DependencyResolution, DependencyResolutionOption.FromExpanded);
+            Assert.AreEqual(customClient.ClientOptions.DependencyResolution, DependencyResolutionOption.FromExpanded);
         }
     }
 }
