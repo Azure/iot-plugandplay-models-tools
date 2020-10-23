@@ -1,6 +1,8 @@
-﻿namespace Azure.IoT.DeviceModelsRepository.Resolver
+﻿using Azure.Core;
+
+namespace Azure.IoT.DeviceModelsRepository.Resolver
 {
-    public class ResolverClientOptions
+    public sealed class ResolverClientOptions: ClientOptions
     {
         public ResolverClientOptions()
         {
@@ -18,16 +20,16 @@
     public enum DependencyResolutionOption
     {
         /// <summary>
-        /// Do not process external dependencies
+        /// Do not process external dependencies.
         /// </summary>
         Disabled,
         /// <summary>
-        /// Enable external dependencies
+        /// Enable external dependencies.
         /// </summary>
         Enabled,
         /// <summary>
-        /// Try to get external dependencies using .expand.json
+        /// Try to get external dependencies using .expanded.json.
         /// </summary>
-        FromExpanded
+        TryFromExpanded
     }
 }

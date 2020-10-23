@@ -98,15 +98,15 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             _logger.ValidateLog($"{StandardStrings.ClientInitWithFetcher(localClient.RepositoryUri.Scheme)}", LogLevel.Trace, Times.Once());
 
             _logger.ValidateLog($"{StandardStrings.ProcessingDtmi("dtmi:com:example:TemperatureController;1")}", LogLevel.Trace, Times.Once());
-            _logger.ValidateLog($"{StandardStrings.FetchingContent(DtmiConventions.ToPath(expectedDtmis[0], localClient.RepositoryUri.AbsolutePath))}", LogLevel.Trace, Times.Once());
+            _logger.ValidateLog($"{StandardStrings.FetchingContent(DtmiConventions.DtmiToQualifiedPath(expectedDtmis[0], localClient.RepositoryUri.AbsolutePath))}", LogLevel.Trace, Times.Once());
 
             _logger.ValidateLog($"{StandardStrings.DiscoveredDependencies(new List<string>() { "dtmi:com:example:Thermostat;1", "dtmi:azure:DeviceManagement:DeviceInformation;1" })}", LogLevel.Trace, Times.Once());
 
             _logger.ValidateLog($"{StandardStrings.ProcessingDtmi("dtmi:com:example:Thermostat;1")}", LogLevel.Trace, Times.Once());
-            _logger.ValidateLog($"{StandardStrings.FetchingContent(DtmiConventions.ToPath(expectedDtmis[1], localClient.RepositoryUri.AbsolutePath))}", LogLevel.Trace, Times.Once());
+            _logger.ValidateLog($"{StandardStrings.FetchingContent(DtmiConventions.DtmiToQualifiedPath(expectedDtmis[1], localClient.RepositoryUri.AbsolutePath))}", LogLevel.Trace, Times.Once());
 
             _logger.ValidateLog($"{StandardStrings.ProcessingDtmi("dtmi:azure:DeviceManagement:DeviceInformation;1")}", LogLevel.Trace, Times.Once());
-            _logger.ValidateLog($"{StandardStrings.FetchingContent(DtmiConventions.ToPath(expectedDtmis[2], localClient.RepositoryUri.AbsolutePath))}", LogLevel.Trace, Times.Once());
+            _logger.ValidateLog($"{StandardStrings.FetchingContent(DtmiConventions.DtmiToQualifiedPath(expectedDtmis[2], localClient.RepositoryUri.AbsolutePath))}", LogLevel.Trace, Times.Once());
         }
 
         [TestCase("dtmi:com:example:Phone;2",
@@ -224,7 +224,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             Mock<ILogger> _logger = new Mock<ILogger>();
             var expectedDtmis = $"{dtmi},{expectedDeps}".Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
 
-            ResolverClientOptions options = new ResolverClientOptions(DependencyResolutionOption.FromExpanded);
+            ResolverClientOptions options = new ResolverClientOptions(DependencyResolutionOption.TryFromExpanded);
 
             ResolverClient client = null;
             if (clientType == RepositoryHandler.RepositoryTypeCategory.LocalUri)
@@ -248,7 +248,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
                 Assert.True(TestHelpers.ParseRootDtmiFromJson(result[id]) == id);
             }
 
-            string expectedPath = DtmiConventions.ToPath(
+            string expectedPath = DtmiConventions.DtmiToQualifiedPath(
                 dtmi, 
                 clientType == RepositoryHandler.RepositoryTypeCategory.LocalUri ? client.RepositoryUri.AbsolutePath : client.RepositoryUri.AbsoluteUri,
                 fromExpanded: true);
@@ -268,7 +268,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             string[] nonExpandedDtmis = dtmisNonExpanded.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
             string[] totalDtmis = expandedDtmis.Concat(nonExpandedDtmis).ToArray();
 
-            ResolverClientOptions options = new ResolverClientOptions(DependencyResolutionOption.FromExpanded);
+            ResolverClientOptions options = new ResolverClientOptions(DependencyResolutionOption.TryFromExpanded);
 
             ResolverClient localClient = new ResolverClient(
                 TestHelpers.TestLocalModelRepository,
@@ -285,12 +285,12 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
                 Assert.True(TestHelpers.ParseRootDtmiFromJson(result[id]) == id);
             }
 
-            string expandedModelPath = DtmiConventions.ToPath(expandedDtmis[0], localClient.RepositoryUri.AbsolutePath, fromExpanded: true);
+            string expandedModelPath = DtmiConventions.DtmiToQualifiedPath(expandedDtmis[0], localClient.RepositoryUri.AbsolutePath, fromExpanded: true);
             _logger.ValidateLog(StandardStrings.FetchingContent(expandedModelPath), LogLevel.Trace, Times.Once());
 
             foreach (string dtmi in nonExpandedDtmis)
             {
-                string expectedPath = DtmiConventions.ToPath(dtmi, localClient.RepositoryUri.AbsolutePath, fromExpanded: true);
+                string expectedPath = DtmiConventions.DtmiToQualifiedPath(dtmi, localClient.RepositoryUri.AbsolutePath, fromExpanded: true);
                 _logger.ValidateLog(StandardStrings.FetchingContent(expectedPath), LogLevel.Trace, Times.Once());
                 _logger.ValidateLog(StandardStrings.ErrorAccessLocalRepositoryModel(expectedPath), LogLevel.Warning, Times.Once());
             }

@@ -73,38 +73,12 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             Assert.AreEqual(ResolverClient.IsValidDtmi(dtmi), expected);
         }
 
-        [TestCase("dtmi:com:example:Thermostat;1", "/dtmi/com/example/thermostat-1.json", "https://localhost/repository")]
-        [TestCase("dtmi:com:example:Thermostat;1", "/dtmi/com/example/thermostat-1.json", null)]
-        [TestCase("dtmi:com:example:Thermostat:1", null, "https://localhost/repository")]
-        public void ClientGetPath(string dtmi, string expectedPath, string repository)
-        {
-            if (repository == null)
-                repository = TestHelpers.TestLocalModelRepository;
-
-            ResolverClient client = new ResolverClient(repository);
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                repository = repository.Replace("\\", "/");
-            }
-
-            if (string.IsNullOrEmpty(expectedPath))
-            {
-                ResolverException re = Assert.Throws<ResolverException>(() => client.GetPath(dtmi));
-                Assert.AreEqual(re.Message, $"{StandardStrings.GenericResolverError(dtmi)}{StandardStrings.InvalidDtmiFormat(dtmi)}");
-                return;
-            }
-
-            string modelPath = client.GetPath(dtmi);
-            Assert.AreEqual(modelPath, $"{repository}{expectedPath}");
-        }
-
         [Test]
         public void ClientOptions()
         {
             DependencyResolutionOption defaultResolutionOption = DependencyResolutionOption.Enabled;
             ResolverClientOptions customOptions = 
-                new ResolverClientOptions(DependencyResolutionOption.FromExpanded);
+                new ResolverClientOptions(DependencyResolutionOption.TryFromExpanded);
 
             string repositoryUriString = "https://localhost/myregistry/";
             Uri repositoryUri = new Uri(repositoryUriString);
@@ -113,7 +87,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             Assert.AreEqual(defaultClient.ClientOptions.DependencyResolution, defaultResolutionOption);
 
             ResolverClient customClient = new ResolverClient(repositoryUriString, customOptions);
-            Assert.AreEqual(customClient.ClientOptions.DependencyResolution, DependencyResolutionOption.FromExpanded);
+            Assert.AreEqual(customClient.ClientOptions.DependencyResolution, DependencyResolutionOption.TryFromExpanded);
         }
 
         [Test]

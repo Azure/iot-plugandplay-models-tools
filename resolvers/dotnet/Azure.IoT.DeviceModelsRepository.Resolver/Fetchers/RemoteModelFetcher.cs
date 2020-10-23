@@ -1,43 +1,50 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Azure.Core;
+using Azure.Core.Pipeline;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
 {
     public class RemoteModelFetcher : IModelFetcher
     {
-        static readonly HttpClient httpClient;
         private readonly ILogger _logger;
+        private readonly HttpPipeline _pipeline;
+        private readonly bool _tryExpanded;
 
-        static RemoteModelFetcher()
-        {
-            // HttpClient is intended to be instantiated once per application, rather than per-use.
-            httpClient = new HttpClient();
-        }
-
-        public RemoteModelFetcher(ILogger logger)
+        public RemoteModelFetcher(ILogger logger, ResolverClientOptions clientOptions)
         {
             _logger = logger;
+            _pipeline = CreatePipeline(clientOptions);
+            _tryExpanded = clientOptions.DependencyResolution == DependencyResolutionOption.TryFromExpanded;
         }
 
-        public async Task<FetchResult> FetchAsync(string dtmi, Uri repositoryUri, bool expanded = false)
+        public FetchResult Fetch(string dtmi, Uri repositoryUri, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<FetchResult> FetchAsync(string dtmi, Uri repositoryUri, CancellationToken cancellationToken = default)
         {
             Queue<string> work = new Queue<string>();
 
-            if (expanded)
+            if (_tryExpanded)
                 work.Enqueue(GetPath(dtmi, repositoryUri, true));
 
             work.Enqueue(GetPath(dtmi, repositoryUri, false));
 
             string remoteFetchError = string.Empty;
-            while (work.Count != 0)
+            while (work.Count != 0 && !cancellationToken.IsCancellationRequested)
             {
                 string tryContentPath = work.Dequeue();
                 _logger.LogTrace(StandardStrings.FetchingContent(tryContentPath));
 
-                string content = await EvaluatePathAsync(tryContentPath);
+                string content = await EvaluatePathAsync(tryContentPath, cancellationToken);
                 if (!string.IsNullOrEmpty(content))
                 {
                     return new FetchResult()
@@ -54,21 +61,40 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
             throw new HttpRequestException(remoteFetchError);
         }
 
-        public string GetPath(string dtmi, Uri registryUri, bool expanded = false)
+        public string GetPath(string dtmi, Uri repositoryUri, bool expanded = false)
         {
-            string absoluteUri = registryUri.AbsoluteUri;
-            return DtmiConventions.ToPath(dtmi, absoluteUri, expanded);
+            string absoluteUri = repositoryUri.AbsoluteUri;
+            return DtmiConventions.DtmiToQualifiedPath(dtmi, absoluteUri, expanded);
         }
 
-        private async Task<string> EvaluatePathAsync(string path)
+        private async Task<string> EvaluatePathAsync(string path, CancellationToken cancellationToken)
         {
-            HttpResponseMessage response = await httpClient.GetAsync(path);
-            if (response.IsSuccessStatusCode)
+            Request request = _pipeline.CreateRequest();
+            request.Method = RequestMethod.Get;
+            request.Uri = new RequestUriBuilder();
+            request.Uri.Reset(new Uri(path));
+
+            Response response = await _pipeline.SendRequestAsync(request, cancellationToken);
+            if (response.Status >= 200 && response.Status <= 299)
             {
-                return await response.Content.ReadAsStringAsync();
+                return await GetContentAsync(response.ContentStream, cancellationToken);
             }
 
             return null;
+        }
+
+        public static async Task<string> GetContentAsync(Stream content, CancellationToken cancellationToken)
+        {
+            using (JsonDocument json = await JsonDocument.ParseAsync(content, default, cancellationToken))
+            {
+                JsonElement root = json.RootElement;
+                return root.GetRawText();
+            }
+        }
+
+        private static HttpPipeline CreatePipeline(ResolverClientOptions options)
+        {
+            return HttpPipelineBuilder.Build(options);
         }
     }
 }

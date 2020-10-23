@@ -14,15 +14,11 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         readonly Uri _remoteUri = new Uri(TestHelpers.TestRemoteModelRepository);
         readonly Uri _localUri = new Uri($"file://{TestHelpers.TestLocalModelRepository}");
         Mock<ILogger> _logger;
-        IModelFetcher _localFetcher;
-        IModelFetcher _remoteFetcher;
 
         [SetUp]
         public void Setup()
         {
             _logger = new Mock<ILogger>();
-            _localFetcher = new LocalModelFetcher(_logger.Object);
-            _remoteFetcher = new RemoteModelFetcher(_logger.Object);
         }
 
         [TestCase(false)]
@@ -34,12 +30,17 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             // and is covered by tests there.
             string targetDtmi = "dtmi:com:example:temperaturecontroller;1";
 
-            string expectedPath = DtmiConventions.ToPath(targetDtmi, _localUri.AbsolutePath, fetchExpanded);
-            string fetcherPath = _localFetcher.GetPath(targetDtmi, _localUri, fetchExpanded);
+            ResolverClientOptions options = fetchExpanded ?
+                new ResolverClientOptions(DependencyResolutionOption.TryFromExpanded) :
+                new ResolverClientOptions();
+
+            string expectedPath = DtmiConventions.DtmiToQualifiedPath(targetDtmi, _localUri.AbsolutePath, fetchExpanded);
+            LocalModelFetcher localFetcher = new LocalModelFetcher(_logger.Object, options);
+            string fetcherPath = localFetcher.GetPath(targetDtmi, _localUri, fetchExpanded);
             Assert.AreEqual(fetcherPath, expectedPath);
 
             // Resolution correctness is covered in ResolverIntegrationTests
-            FetchResult fetchResult = await _localFetcher.FetchAsync(targetDtmi, _localUri, fetchExpanded);
+            FetchResult fetchResult = await localFetcher.FetchAsync(targetDtmi, _localUri);
             Assert.True(!string.IsNullOrEmpty(fetchResult.Definition));
             Assert.True(!string.IsNullOrEmpty(fetchResult.Path));
             Assert.AreEqual(fetchResult.FromExpanded, fetchExpanded);
@@ -53,7 +54,8 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             string targetDtmi = "dtmi:com:example:thermostat;1";
 
             Uri invalidFileUri = new Uri("file://totally/fake/path/please");
-            Assert.ThrowsAsync<DirectoryNotFoundException>(async () => await _localFetcher.FetchAsync(targetDtmi, invalidFileUri));
+            LocalModelFetcher localFetcher = new LocalModelFetcher(_logger.Object, new ResolverClientOptions());
+            Assert.ThrowsAsync<DirectoryNotFoundException>(async () => await localFetcher.FetchAsync(targetDtmi, invalidFileUri));
 
             _logger.ValidateLog(StandardStrings.ErrorAccessLocalRepository(invalidFileUri.AbsolutePath), LogLevel.Error, Times.Once());
         }
@@ -62,9 +64,10 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         public void FetchLocalRepositoryModelDoesNotExist()
         {
             string targetDtmi = "dtmi:com:example:thermojax;1";
-            Assert.ThrowsAsync<FileNotFoundException>(async () => await _localFetcher.FetchAsync(targetDtmi, _localUri));
+            LocalModelFetcher localFetcher = new LocalModelFetcher(_logger.Object, new ResolverClientOptions());
+            Assert.ThrowsAsync<FileNotFoundException>(async () => await localFetcher.FetchAsync(targetDtmi, _localUri));
 
-            string expectedModelPath = DtmiConventions.ToPath(targetDtmi, _localUri.AbsolutePath);
+            string expectedModelPath = DtmiConventions.DtmiToQualifiedPath(targetDtmi, _localUri.AbsolutePath);
             _logger.ValidateLog(StandardStrings.ErrorAccessLocalRepositoryModel(expectedModelPath), LogLevel.Warning, Times.Once());
         }
 
@@ -74,12 +77,13 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         {
             string targetDtmi = "dtmi:com:example:temperaturecontroller;1";
 
-            string expectedPath = DtmiConventions.ToPath(targetDtmi, _remoteUri.AbsoluteUri, fetchExpanded);
-            string fetcherPath = _remoteFetcher.GetPath(targetDtmi, _remoteUri, fetchExpanded);
+            RemoteModelFetcher remoteFetcher = new RemoteModelFetcher(_logger.Object, new ResolverClientOptions());
+            string expectedPath = DtmiConventions.DtmiToQualifiedPath(targetDtmi, _remoteUri.AbsoluteUri, fetchExpanded);
+            string fetcherPath = remoteFetcher.GetPath(targetDtmi, _remoteUri, fetchExpanded);
             Assert.AreEqual(fetcherPath, expectedPath);
 
             // Resolution correctness is covered in ResolverIntegrationTests
-            FetchResult fetchResult = await _remoteFetcher.FetchAsync(targetDtmi, _remoteUri);
+            FetchResult fetchResult = await remoteFetcher.FetchAsync(targetDtmi, _remoteUri);
             Assert.True(!string.IsNullOrEmpty(fetchResult.Definition));
             Assert.True(!string.IsNullOrEmpty(fetchResult.Path));
             Assert.AreEqual(fetchResult.FromExpanded, fetchExpanded);
@@ -92,14 +96,16 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
             Uri invalidRemoteUri = new Uri("http://localhost/fakeRepo/");
-            Assert.ThrowsAsync<HttpRequestException>(async () => await _remoteFetcher.FetchAsync(targetDtmi, invalidRemoteUri));
+            RemoteModelFetcher remoteFetcher = new RemoteModelFetcher(_logger.Object, new ResolverClientOptions());
+            Assert.ThrowsAsync<HttpRequestException>(async () => await remoteFetcher.FetchAsync(targetDtmi, invalidRemoteUri));
         }
 
         [Test]
         public void FetchRemoteRepositoryModelDoesNotExist()
         {
             string targetDtmi = "dtmi:com:example:thermojax;1";
-            Assert.ThrowsAsync<HttpRequestException>(async () => await _remoteFetcher.FetchAsync(targetDtmi, _remoteUri));
+            RemoteModelFetcher remoteFetcher = new RemoteModelFetcher(_logger.Object, new ResolverClientOptions());
+            Assert.ThrowsAsync<HttpRequestException>(async () => await remoteFetcher.FetchAsync(targetDtmi, _remoteUri));
         }
     }
 }

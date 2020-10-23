@@ -4,22 +4,29 @@ using System.Threading.Tasks;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
 {
     public class LocalModelFetcher : IModelFetcher
     {
         private readonly ILogger _logger;
+        private readonly bool _tryExpanded;
 
-        public LocalModelFetcher(ILogger logger)
+        public LocalModelFetcher(ILogger logger, ResolverClientOptions clientOptions)
         {
             _logger = logger;
+            _tryExpanded = clientOptions.DependencyResolution == DependencyResolutionOption.TryFromExpanded;
         }
 
-        // TODO: @digimaun - nothing Async is happening here due to the netstandard2.0 shift down.
-        public async Task<FetchResult> FetchAsync(string dtmi, Uri registryUri, bool expanded = false)
+        public async Task<FetchResult> FetchAsync(string dtmi, Uri repositoryUri, CancellationToken cancellationToken = default)
         {
-            string registryPath = registryUri.AbsolutePath;
+            return await Task.Run(() => Fetch(dtmi, repositoryUri, cancellationToken));
+        }
+
+        public FetchResult Fetch(string dtmi, Uri repositoryUri, CancellationToken cancellationToken = default)
+        {
+            string registryPath = repositoryUri.AbsolutePath;
 
             if (!Directory.Exists(registryPath))
             {
@@ -30,13 +37,13 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
 
             Queue<string> work = new Queue<string>();
 
-            if (expanded)
-                work.Enqueue(GetPath(dtmi, registryUri, true));
+            if (_tryExpanded)
+                work.Enqueue(GetPath(dtmi, repositoryUri, true));
 
-            work.Enqueue(GetPath(dtmi, registryUri, false));
+            work.Enqueue(GetPath(dtmi, repositoryUri, false));
 
             string fnfError = string.Empty;
-            while (work.Count != 0)
+            while (work.Count != 0 && !cancellationToken.IsCancellationRequested)
             {
                 string tryContentPath = work.Dequeue();
                 _logger.LogTrace(StandardStrings.FetchingContent(tryContentPath));
@@ -57,10 +64,10 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
             throw new FileNotFoundException(fnfError);
         }
 
-        public string GetPath(string dtmi, Uri registryUri, bool expanded = false)
+        public string GetPath(string dtmi, Uri repositoryUri, bool expanded = false)
         {
-            string registryPath = registryUri.AbsolutePath;
-            return DtmiConventions.ToPath(dtmi, registryPath, expanded);
+            string registryPath = repositoryUri.AbsolutePath;
+            return DtmiConventions.DtmiToQualifiedPath(dtmi, registryPath, expanded);
         }
 
         private bool EvaluatePath(string path)
