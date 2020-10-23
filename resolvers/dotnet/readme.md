@@ -33,12 +33,12 @@ ResolverClient client = new ResolverClient("https://raw.githubusercontent.com/Az
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:Thermostat;1");
 ```
 
-To configure the repository from a local folder use the `file:///` scheme:
+To configure the repository from a local folder use an absolute path:
 
 ```csharp
 using Azure.IoT.DeviceModelsRepository.Resolver;
 
-ResolverClient client = new ResolverClient("file:///C:/LocalModelRepo/");
+ResolverClient client = new ResolverClient("/LocalModelRepo/");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:Thermostat;1");
 ```
 
@@ -50,7 +50,7 @@ If the root interface has dependencies with external interfaces, via `expand` or
 |--------------------------|-----------|
 |Disabled|Do not process external dependencies|
 |Enabled|Enable external dependencies|
-|FromExpanded|Try to get external dependencies using .expand.json|
+|FromExpanded|Try to get external dependencies using [.expanded.json](https://github.com/Azure/iot-plugandplay-models-tools/wiki/Resolution-Convention#expanded-dependencies)|
 
 The next code block shows how to configure the resolver with a custom `DependencyResolutionOption`
 
@@ -145,17 +145,15 @@ This snippet from the `CLI` shows a way to use `ResolverException`.
 ```csharp
 try
 {
-    logger.LogInformation($"Using repository location {repository}");
     result = await new ResolverClient().ResolveAsync(dtmi);
 }
 catch (ResolverException resolverEx)
 {
     logger.LogError(resolverEx.Message);
-    return ReturnCodes.ResolutionError;
 }
 ```
 
-## Device Model Repository CLI
+## Device Model Repository Client
 
 This solution includes a CLI project `Azure.IoT.DeviceModelsRepository.CLI` to jumpstart scenarios. You are able to invoke commands via `dotnet run` or as the compiled executable `dmr-client`.
 
@@ -186,6 +184,7 @@ Commands:
 # Retrieves an interface from the default repo by DTMI
 
 > dmr-client export --dtmi "dtmi:com:example:Thermostat;1"
+> dmr-client export --dtmi "dtmi:com:example:Thermostat;1" -o thermostat.json
 ```
 
 >Note: The quotes are required to avoid the shell to split the param in the `;`
@@ -196,12 +195,16 @@ Commands:
 > dmr-client export --dtmi "dtmi:com:example:Thermostat;1" --repository https://raw.githubusercontent.com/Azure/iot-plugandplay-models/main
 ```
 
+
+
 ### dmr-client import
 
 ```bash
 # Adds an external file to the `dtmi` folder structure in the current working directory CWD
 
 > dmr-client import --dtmi "dtmi:com:example:Thermostat;1"
+
+# Creates the path `dtmi/com/example/thermostat-1.json`
 ```
 
 ### dmr-client validate
