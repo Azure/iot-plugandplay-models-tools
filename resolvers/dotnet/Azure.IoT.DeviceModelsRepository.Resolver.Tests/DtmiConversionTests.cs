@@ -1,39 +1,43 @@
 ﻿using NUnit.Framework;
+using System;
+using System.Runtime.InteropServices;
 
 namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
 {
     public class DtmiConversionTests
     {
-        [Test]
-        public void DtmiToLocalPath()
+        [TestCase("dtmi:com:Example:Model;1", "dtmi/com/example/model-1.json")]
+        [TestCase("dtmi:com:example:Model;1", "dtmi/com/example/model-1.json")]
+        [TestCase("dtmi:com:example:Model:1", null)]
+        public void DtmiToPath(string dtmi, string expectedPath)
         {
-            string dtmiVariation1 = "dtmi:com:Example:Model;1";
-            string dtmiVariation2 = "dtmi:com:example:Model;1";
-
-            string registryBasePathWindows = @"C:\fakeRegistry\";
-            string expectedPathWindows = $"{registryBasePathWindows}/dtmi/com/example/model-1.json";
-
-            Assert.AreEqual(expectedPathWindows, DtmiConventions.ToPath(dtmiVariation1, registryBasePathWindows));
-            Assert.AreEqual(expectedPathWindows, DtmiConventions.ToPath(dtmiVariation2, registryBasePathWindows));
-
-            string registryBasePathLinux = "/me/fakeRegistry";
-            string expectedPathLinux = $"{registryBasePathLinux}/dtmi/com/example/model-1.json";
-
-            Assert.AreEqual(expectedPathLinux, DtmiConventions.ToPath(dtmiVariation1, registryBasePathLinux));
-            Assert.AreEqual(expectedPathLinux, DtmiConventions.ToPath(dtmiVariation2, registryBasePathLinux));
+            Assert.AreEqual(expectedPath, DtmiConventions.DtmiToPath(dtmi));
         }
 
-        [Test]
-        public void DtmiToRemotePath()
+        [TestCase("dtmi:com:example:Thermostat;1", "dtmi/com/example/thermostat-1.json", "https://localhost/repository")]
+        [TestCase("dtmi:com:example:Thermostat;1", "dtmi/com/example/thermostat-1.json", @"C:\fakeRegistry")]
+        [TestCase("dtmi:com:example:Thermostat;1", "dtmi/com/example/thermostat-1.json", "/me/fakeRegistry")]
+        [TestCase("dtmi:com:example:Thermostat:1", null, "https://localhost/repository")]
+        [TestCase("dtmi:com:example:Thermostat:1", null, "/me/fakeRegistry")]
+        public void DtmiToQualifiedPath(string dtmi, string expectedPath, string repository)
         {
-            string dtmiVariation1 = "dtmi:com:Example:Model;1";
-            string dtmiVariation2 = "dtmi:com:example:Model;1";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                repository = repository.Replace("\\", "/");
+            }
 
-            string registryBaseEndpoint = "http://localhost/registry";
-            string expectedPath = $"{registryBaseEndpoint}/dtmi/com/example/model-1.json";
+            if (string.IsNullOrEmpty(expectedPath))
+            {
+                ArgumentException re = Assert.Throws<ArgumentException>(() => DtmiConventions.DtmiToQualifiedPath(dtmi, repository));
+                Assert.AreEqual(re.Message, StandardStrings.InvalidDtmiFormat(dtmi));
+                return;
+            }
 
-            Assert.AreEqual(expectedPath, DtmiConventions.ToPath(dtmiVariation1, registryBaseEndpoint));
-            Assert.AreEqual(expectedPath, DtmiConventions.ToPath(dtmiVariation2, registryBaseEndpoint));
+            string modelPath = DtmiConventions.DtmiToQualifiedPath(dtmi, repository);
+            Assert.AreEqual($"{repository}/{expectedPath}", modelPath);
+
+            string expandedModelPath = DtmiConventions.DtmiToQualifiedPath(dtmi, repository, true);
+            Assert.AreEqual($"{repository}/{expectedPath.Replace(".json", ".expanded.json")}", expandedModelPath);
         }
     }
 }

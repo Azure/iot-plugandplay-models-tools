@@ -46,11 +46,11 @@
     },
     "Azure.IoT.DeviceModelsRepository.CLI.AddModel": {
       "commandName": "Project",
-      "commandLineArgs": "import --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/thermostat-1.json --repository ../../../../../../.localRepository/ --force"
+      "commandLineArgs": "import --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/thermostat-1.json --local-repo ./localRepository/"
     },
     "Azure.IoT.DeviceModelsRepository.CLI.AddModelInvalid": {
       "commandName": "Project",
-      "commandLineArgs": "import --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json --repository ../../../../../../.localRepository/ --force"
+      "commandLineArgs": "import --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json --local-repo ./localRepository/"
     }
   }
 }

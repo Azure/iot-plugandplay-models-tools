@@ -1,10 +1,8 @@
 ﻿using Azure.IoT.DeviceModelsRepository.Resolver;
 using Azure.IoT.DeviceModelsRepository.Resolver.Extensions;
 using Microsoft.Azure.DigitalTwins.Parser;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 

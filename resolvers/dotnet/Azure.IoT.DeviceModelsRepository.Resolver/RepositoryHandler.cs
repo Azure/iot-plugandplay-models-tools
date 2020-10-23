@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Azure.IoT.DeviceModelsRepository.Resolver
@@ -33,33 +34,21 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
             if (repositoryUri.Scheme == "file")
             {
                 RepositoryType = RepositoryTypeCategory.LocalUri;
-                _modelFetcher = new LocalModelFetcher(_logger);
+                _modelFetcher = new LocalModelFetcher(_logger, ClientOptions);
             }
             else
             {
                 RepositoryType = RepositoryTypeCategory.RemoteUri;
-                _modelFetcher = new RemoteModelFetcher(_logger);
+                _modelFetcher = new RemoteModelFetcher(_logger, ClientOptions);
             }
         }
 
-        public string ToPath(string dtmi)
+        public async Task<IDictionary<string, string>> ProcessAsync(string dtmi, CancellationToken cancellationToken)
         {
-            if (!DtmiConventions.IsDtmi(dtmi))
-            {
-                string invalidArgMsg = StandardStrings.InvalidDtmiFormat(dtmi);
-                _logger.LogError(invalidArgMsg);
-                throw new ResolverException(dtmi, invalidArgMsg, new ArgumentException(invalidArgMsg));
-            }
-
-            return _modelFetcher.GetPath(dtmi, this.RepositoryUri);
+            return await this.ProcessAsync(new List<string>() { dtmi }, cancellationToken);
         }
 
-        public async Task<IDictionary<string, string>> ProcessAsync(string dtmi)
-        {
-            return await this.ProcessAsync(new List<string>() { dtmi });
-        }
-
-        public async Task<IDictionary<string, string>> ProcessAsync(IEnumerable<string> dtmis)
+        public async Task<IDictionary<string, string>> ProcessAsync(IEnumerable<string> dtmis, CancellationToken cancellationToken)
         {
             Dictionary<string, string> processedModels = new Dictionary<string, string>();
             Queue<string> toProcessModels = new Queue<string>();
@@ -76,7 +65,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
                 toProcessModels.Enqueue(dtmi);
             }
 
-            while (toProcessModels.Count != 0)
+            while (toProcessModels.Count != 0 && !cancellationToken.IsCancellationRequested)
             {
                 string targetDtmi = toProcessModels.Dequeue();
                 if (processedModels.ContainsKey(targetDtmi))
@@ -86,7 +75,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
                 }
                 _logger.LogTrace(StandardStrings.ProcessingDtmi(targetDtmi));
 
-                FetchResult result = await this.FetchAsync(targetDtmi);
+                FetchResult result = await this.FetchAsync(targetDtmi, cancellationToken);
                 if (result.FromExpanded)
                 {
                     Dictionary<string, string> expanded = await new ModelQuery(result.Definition).ListToDictAsync();
@@ -127,13 +116,11 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
             return processedModels;
         }
 
-        private async Task<FetchResult> FetchAsync(string dtmi)
+        private async Task<FetchResult> FetchAsync(string dtmi, CancellationToken cancellationToken)
         {
             try
             {
-                return await this._modelFetcher.FetchAsync(
-                    dtmi, this.RepositoryUri,
-                    ClientOptions.DependencyResolution == DependencyResolutionOption.FromExpanded);
+                return await this._modelFetcher.FetchAsync(dtmi, this.RepositoryUri, cancellationToken);
             }
             catch (Exception ex)
             {

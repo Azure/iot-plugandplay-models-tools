@@ -1,6 +1,5 @@
 ﻿using Azure.IoT.DeviceModelsRepository.CLI.Exceptions;
 using Azure.IoT.DeviceModelsRepository.Resolver;
-using Azure.IoT.DeviceModelsRepository.Resolver.Extensions;
 using Microsoft.Azure.DigitalTwins.Parser;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,6 +13,7 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -33,8 +33,8 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             public const int ResolutionError = 1;
             public const int ParserError = 2;
             public const int InvalidArguments = 3;
-
             public const int ValidationError = 4;
+            public const int ImportError = 5;
         }
 
         static async Task<int> Main(string[] args) => await BuildCommandLine()
@@ -64,18 +64,11 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             return loggerFactory.CreateLogger(typeof(Program));
         }
 
-        private static ResolverClient InitializeClient(string repository, ILogger logger)
+        private static void OutputHeaders(ILogger logger)
         {
-            if (Validations.IsRelativePath(repository))
-            {
-                repository = Path.GetFullPath(repository);
-            }
-
-            return new ResolverClient(
-                repository,
-                new ResolverClientOptions(DependencyResolutionOption.FromExpanded),
-                logger);
+            logger.LogInformation($"dmr-client/{_cliVersion} parser/{_parserVersion} resolver/{_resolverVersion}");
         }
+
 
         private static Command BuildExportCommand()
         {
@@ -92,24 +85,26 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             resolveModel.Handler = CommandHandler.Create<string, string, IHost, string, bool, FileInfo>(async (dtmi, repository, host, output, silent, modelFile) =>
             {
                 ILogger logger = GetLogger(host);
+                OutputHeaders(logger);
 
-                logger.LogInformation($"Resolver client version: {_resolverVersion}");
                 IDictionary<string, string> result;
 
                 //check that we have either model file or dtmi
                 if (string.IsNullOrWhiteSpace(dtmi) && modelFile == null)
                 {
-                    logger.LogError("Either dtmi or model-file must be specified");
+                    logger.LogError("Either --dtmi or --model-file must be specified!");
                     return ReturnCodes.InvalidArguments;
                 }
+
+                Parsing parsing = new Parsing(repository, logger);
                 try
                 {
                     if (string.IsNullOrWhiteSpace(dtmi))
                     {
-                        dtmi = GetRootDtmiFromFile(modelFile);
+                        dtmi = parsing.GetRootDtmiFromFile(modelFile);
                     }
-                    logger.LogInformation($"Using repository location: {repository}");
-                    result = await InitializeClient(repository, logger).ResolveAsync(dtmi);
+                    
+                    result = await parsing.GetResolver().ResolveAsync(dtmi);
                 }
                 catch (ResolverException resolverEx)
                 {
@@ -148,13 +143,6 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             return resolveModel;
         }
 
-        private static string GetRootDtmiFromFile(FileInfo fileName)
-        {
-            var jsonDocument = JsonDocument.Parse(File.ReadAllText(fileName.FullName));
-            var idElement = jsonDocument.RootElement.GetProperty("@id");
-            return idElement.GetString();
-        }
-
         private static Command BuildValidateCommand()
         {
             var modelFileOption = CommonOptions.ModelFile;
@@ -167,16 +155,18 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 CommonOptions.Strict
             };
 
-            validateModel.Description = "Validates a model using the Digital Twins model parser. Uses the target repository for model resolution.";
+            validateModel.Description = "Validates a model using the DTDL model parser & resolver. " +
+                "Uses the target repository for model resolution. ";
             validateModel.Handler = CommandHandler.Create<FileInfo, string, IHost, bool>(async (modelFile, repository, host, strict) =>
             {
                 ILogger logger = GetLogger(host);
+                OutputHeaders(logger);
 
-                ModelParser parser = GetParser(repository, logger);
-
+                Parsing parsing = new Parsing(repository, logger);
+                bool isValid;
                 try
                 {
-                    return await validateFile(modelFile, repository, strict, logger, parser);
+                    isValid = await parsing.IsValidDtdlFileAsync(modelFile, strict);
                 }
                 catch (ResolutionException resolutionEx)
                 {
@@ -206,31 +196,11 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                     logger.LogError(validationEx.Message);
                     return ReturnCodes.ValidationError;
                 }
+
+                return isValid ? ReturnCodes.Success : ReturnCodes.ValidationError;
             });
 
             return validateModel;
-        }
-
-        private static ModelParser GetParser(string repository, ILogger logger)
-        {
-            ResolverClient client = InitializeClient(repository, logger);
-
-            logger.LogInformation($"Parser version: {_parserVersion}, Resolver client version: {_resolverVersion}");
-            ModelParser parser = new ModelParser();
-
-            parser.DtmiResolver = client.ParserDtmiResolver;
-            return parser;
-        }
-
-        private static async Task<int> validateFile(FileInfo modelFile, string repository, bool strict, ILogger logger, ModelParser parser)
-        {
-            logger.LogInformation($"Repository location: {repository}");
-            await parser.ParseAsync(new string[] { File.ReadAllText(modelFile.FullName) });
-            if (strict)
-            {
-                return await modelFile.Validate() ? ReturnCodes.Success : ReturnCodes.ValidationError;
-            }
-            return ReturnCodes.Success;
         }
 
         private static Command BuildImportModelCommand()
@@ -241,25 +211,37 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             Command addModel = new Command("import")
             {
                 modelFileOption,
-                CommonOptions.LocalRepo,
-                CommonOptions.Force
+                CommonOptions.LocalRepo
             };
-            addModel.Description = "Adds a model to the repo. Validates ids, dependencies and set the right folder/file name";
-            addModel.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, bool, IHost>(async (modelFile, repository, force, host) =>
+            addModel.Description = "Adds a model to a local repository. " +
+                "Validates Id's, dependencies and places model content in the proper location.";
+            addModel.Handler = CommandHandler.Create<FileInfo, string, IHost>(async (modelFile, localRepository, host) =>
             {
                 var returnCode = ReturnCodes.Success;
                 ILogger logger = GetLogger(host);
-                var parser = GetParser(repository.FullName, logger);
+
+                OutputHeaders(logger);
+
+                if (localRepository == null)
+                {
+                    localRepository = Path.GetFullPath(".");
+                }
+                else if (Validations.IsRelativePath(localRepository))
+                {
+                    localRepository = Path.GetFullPath(localRepository);
+                }
+
+                DirectoryInfo repoDirInfo = new DirectoryInfo(localRepository);
+                Parsing parsing = new Parsing(repoDirInfo.FullName, logger);
                 try
                 {
-                    var newModels = await ModelImporter.ImportModels(modelFile, repository, force, logger);
+                    var newModels = await ModelImporter.ImportModels(modelFile, repoDirInfo, logger);
                     foreach (var model in newModels)
                     {
-                        var validationResult = await validateFile(model, repository.FullName, true, logger, parser);
-                        if (validationResult != ReturnCodes.Success)
-                        {
-                            returnCode = validationResult;
-                        }
+                        var validationResult = await parsing.IsValidDtdlFileAsync(model, false);
+
+                        if (!validationResult)
+                            returnCode = ReturnCodes.ValidationError;
                     }
                 }
                 catch (ValidationException validationEx)
@@ -267,10 +249,15 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                     logger.LogError(validationEx.Message);
                     return ReturnCodes.ValidationError;
                 }
+                catch (IOException ioEx)
+                {
+                    logger.LogError(ioEx.Message);
+                    return ReturnCodes.ImportError;
+                }
+
                 return returnCode;
-
-
             });
+
             return addModel;
         }
     }

@@ -36,15 +36,15 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             }
         }
 
-        public static Option<DirectoryInfo> LocalRepo
+        public static Option<string> LocalRepo
         {
             get
             {
-                return new Option<DirectoryInfo>(
-                  "--repository",
-                  description: "Local Model Repository location path.",
-                  getDefaultValue: () => new DirectoryInfo(Directory.GetCurrentDirectory())
-                  );
+                return new Option<string>(
+                  new string[] { "--local-repo", "--local-repository" },
+                  description: "Local Model Repository path. " +
+                  "If no path is provided the current working directory is used.",
+                  getDefaultValue: () => null);
             }
         }
 
@@ -93,18 +93,6 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                     description: "Runs additional validation of file paths, DTMI scoping, and searches for reserved words.",
                     getDefaultValue: () => false
                 );
-            }
-        }
-
-        public static Option<bool> Force
-        {
-            get
-            {
-                return new Option<bool>(
-                  "--force",
-                  description: "Determines whether overwriting existing files will occur.",
-                  getDefaultValue: () => false
-                  );
             }
         }
 
