@@ -58,7 +58,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
                 _logger.LogWarning(remoteFetchError);
             }
 
-            throw new HttpRequestException(remoteFetchError);
+            throw new RequestFailedException(remoteFetchError);
         }
 
         public string GetPath(string dtmi, Uri repositoryUri, bool expanded = false)
