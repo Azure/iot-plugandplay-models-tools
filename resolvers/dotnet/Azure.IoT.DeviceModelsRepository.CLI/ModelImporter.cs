@@ -51,10 +51,6 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             {
                 throw new InvalidDTMIException(fileName);
             }
-            if (!Validations.ScanForReservedWords(modelItem.ToString(), logger))
-            {
-                throw new ValidationException($"File '{fileName}' contains reserved words. ");
-            }
 
             // write file to repository location
             var newPath = DtmiConventions.DtmiToQualifiedPath(rootId.GetString(), repository.FullName);
