@@ -95,9 +95,9 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         public void FetchRemoteRepositoryDoesNotExist()
         {
             string targetDtmi = "dtmi:com:example:thermostat;1";
-            Uri invalidRemoteUri = new Uri("http://localhost/fakeRepo/");
+            Uri invalidRemoteUri = new Uri("https://localhost:80/fakeRepo/");
             RemoteModelFetcher remoteFetcher = new RemoteModelFetcher(_logger.Object, new ResolverClientOptions());
-            Assert.ThrowsAsync<RequestFailedException>(async () => await remoteFetcher.FetchAsync(targetDtmi, invalidRemoteUri));
+            Assert.ThrowsAsync<AggregateException>(async () => await remoteFetcher.FetchAsync(targetDtmi, invalidRemoteUri));
         }
 
         [Test]
