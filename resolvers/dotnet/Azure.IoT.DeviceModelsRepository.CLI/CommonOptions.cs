@@ -79,7 +79,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             get
             {
                 return new Option<FileInfo>(
-                    new[] { "-m", "--model-file" },
+                    aliases: new string[] { "-m", "--model-file" },
                     description: "Path to file containing Digital Twins model content. ")
                 {
                     Argument = new Argument<FileInfo>().ExistingOnly()
