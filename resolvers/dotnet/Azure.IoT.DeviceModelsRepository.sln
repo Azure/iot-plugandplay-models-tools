@@ -16,7 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.IoT.DeviceModelsRepos
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.IoT.DeviceModelsRepository.CLI", "Azure.IoT.DeviceModelsRepository.CLI\Azure.IoT.DeviceModelsRepository.CLI.csproj", "{BF561D19-CAF1-47F4-93EE-9B9E88C013EC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.IoT.DeviceModelsRepository.Validation.Tests", "Azure.IoT.DeviceModelsRepository.Validation.Tests\Azure.IoT.DeviceModelsRepository.Validation.Tests.csproj", "{7C437255-6ABD-446D-AB22-A2569B85CB43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.IoT.DeviceModelsRepository.CLI.Tests", "Azure.IoT.DeviceModelsRepository.CLI.Tests\Azure.IoT.DeviceModelsRepository.CLI.Tests.csproj", "{7C437255-6ABD-446D-AB22-A2569B85CB43}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Azure.IoT.DeviceModelsRepository.Samples", "Azure.IoT.DeviceModelsRepository.Samples\Azure.IoT.DeviceModelsRepository.Samples.csproj", "{A82A672E-5460-41EB-A26F-E7941C6E82C2}"
 EndProject

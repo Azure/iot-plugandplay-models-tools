@@ -1,26 +1,37 @@
-﻿using System.CommandLine;
+﻿using Azure.IoT.DeviceModelsRepository.Resolver;
+using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.Text.Json;
 
 namespace Azure.IoT.DeviceModelsRepository.CLI
 {
-    class CommonOptions
+    internal class CommonOptions
     {
-        private const string _defaultRepository = "https://devicemodels.azure.com";
-
         public static Option<string> Dtmi
         {
             get
             {
-                return new Option<string>(
-                "--dtmi",
-                description: "Digital Twin Model Identifier. Example: dtmi:com:example:Thermostat;1")
+                Option<string> dtmiOption = new Option<string>(
+                    alias: "--dtmi",
+                    description: "Digital Twin Model Identifier. Example: \"dtmi:com:example:Thermostat;1\" ");
+
+                dtmiOption.AddValidator(option =>
                 {
-                    Argument = new Argument<string>
+                    string value = option.GetValueOrDefault<string>();
+                    if (!ResolverClient.IsValidDtmi(value))
                     {
-                        Arity = ArgumentArity.ExactlyOne,
+                        return $"Invalid dtmi format '{value}'.";
                     }
+                    return null;
+                });
+
+                dtmiOption.Argument = new Argument<string>
+                {
+                    Arity = ArgumentArity.ExactlyOne
                 };
+
+                return dtmiOption;
             }
         }
 
@@ -28,23 +39,26 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
         {
             get
             {
-                return new Option<string>(
-                  "--repository",
-                  description: "Model Repository location. Can be remote endpoint or local directory.",
-                  getDefaultValue: () => _defaultRepository
-                  );
+                Option<string> repoOption = new Option<string>(
+                    alias: "--repo",
+                    description: "Model Repository location. Supports remote endpoint or local directory. ",
+                    getDefaultValue: () => ResolverClient.DefaultRepository);
+
+                return repoOption;
             }
         }
 
-        public static Option<string> LocalRepo
+        public static Option<DirectoryInfo> LocalRepo
         {
             get
             {
-                return new Option<string>(
-                  new string[] { "--local-repo", "--local-repository" },
-                  description: "Local Model Repository path. " +
-                  "If no path is provided the current working directory is used.",
-                  getDefaultValue: () => null);
+                return new Option<DirectoryInfo>(
+                  alias: "--local-repo",
+                  description: "Local Model Repository path. If no path is provided the current working directory is used. ",
+                  getDefaultValue: () => null)
+                {
+                    Argument = new Argument<DirectoryInfo>().ExistingOnly()
+                };
             }
         }
 
@@ -53,8 +67,8 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             get
             {
                 return new Option<string>(
-                    new string[] { "--output", "-o" },
-                    description: "Desired file path to write result contents.",
+                    aliases: new string[] { "--output", "-o" },
+                    description: "Desired file path to write result contents. ",
                     getDefaultValue: () => null
                     );
             }
@@ -65,8 +79,8 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             get
             {
                 return new Option<FileInfo>(
-                    "--model-file",
-                    description: "Path to file containing Digital Twins model content.")
+                    aliases: new string[] { "-m", "--model-file" },
+                    description: "Path to file containing Digital Twins model content. ")
                 {
                     Argument = new Argument<FileInfo>().ExistingOnly()
                 };
@@ -78,21 +92,43 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             get
             {
                 return new Option<bool>(
-                  "--silent",
-                  description: "Silences command result output on stdout.",
-                  getDefaultValue: () => false
-                  );
+                    alias: "--silent",
+                    description: "Silences command result output on stdout.",
+                    getDefaultValue: () => false)
+                {
+                    Argument = new Argument<bool>
+                    {
+                        Arity = ArgumentArity.ZeroOrOne
+                    },
+                };
             }
         }
 
         public static Option<bool> Strict
         {
-            get{
+            get
+            {
                 return new Option<bool>(
-                    "--strict",
-                    description: "Runs additional validation of file paths, DTMI scoping, and searches for reserved words.",
-                    getDefaultValue: () => false
-                );
+                    alias: "--strict",
+                    description: "Runs additional verifications for a model including file paths and DTMI scoping.",
+                    getDefaultValue: () => false)
+                {
+                    Argument = new Argument<bool>
+                    {
+                        Arity = ArgumentArity.ZeroOrOne
+                    },
+                };
+            }
+        }
+
+        public static Option<DependencyResolutionOption> Deps
+        {
+            get
+            {
+                return new Option<DependencyResolutionOption>(
+                    alias: "--deps",
+                    description: "Indicates how model dependencies should be resolved. ",
+                    getDefaultValue: () => DependencyResolutionOption.Enabled);
             }
         }
 
@@ -103,7 +139,6 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 return new JsonDocumentOptions
                 {
                     AllowTrailingCommas = true,
-
                 };
             }
         }

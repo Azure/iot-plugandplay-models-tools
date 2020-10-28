@@ -1,5 +1,4 @@
-﻿using Azure.IoT.DeviceModelsRepository.CLI.Exceptions;
-using Azure.IoT.DeviceModelsRepository.Resolver;
+﻿using Azure.IoT.DeviceModelsRepository.Resolver;
 using Microsoft.Azure.DigitalTwins.Parser;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,7 +12,6 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -22,17 +20,13 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
 {
     class Program
     {
-        private static readonly string _parserVersion = typeof(ModelParser).Assembly.GetName().Version.ToString();
-        private static readonly string _resolverVersion = typeof(ResolverClient).Assembly.GetName().Version.ToString();
-        private static readonly string _cliVersion = typeof(Program).Assembly.GetName().Version.ToString();
-
         // Alternative to enum to avoid casting.
         public static class ReturnCodes
         {
             public const int Success = 0;
-            public const int ResolutionError = 1;
+            public const int InvalidArguments = 1;
             public const int ParserError = 2;
-            public const int InvalidArguments = 3;
+            public const int ResolutionError = 3;
             public const int ValidationError = 4;
             public const int ImportError = 5;
         }
@@ -47,7 +41,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
         {
             RootCommand root = new RootCommand("parent")
             {
-                Description = "Microsoft IoT Plug and Play Device Model Repository CLI"
+                Description = $"Microsoft IoT Plug and Play Device Models Repository CLI v{Outputs.CliVersion}"
             };
 
             root.Add(BuildExportCommand());
@@ -64,62 +58,75 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             return loggerFactory.CreateLogger(typeof(Program));
         }
 
-        private static void OutputHeaders(ILogger logger)
-        {
-            logger.LogInformation($"dmr-client/{_cliVersion} parser/{_parserVersion} resolver/{_resolverVersion}");
-        }
-
-
         private static Command BuildExportCommand()
         {
-            Command resolveModel = new Command("export")
+            var modelFileOpt = CommonOptions.ModelFile;
+            modelFileOpt.IsHidden = true;
+
+            Command exportModelCommand = new Command("export")
             {
                 CommonOptions.Dtmi,
+                modelFileOpt,
                 CommonOptions.Repo,
+                CommonOptions.Deps,
                 CommonOptions.Output,
-                CommonOptions.Silent,
-                CommonOptions.ModelFile
+                CommonOptions.Silent
             };
 
-            resolveModel.Description = "Retrieve a model and its dependencies by dtmi or model file using the target repository for model resolution.";
-            resolveModel.Handler = CommandHandler.Create<string, string, IHost, string, bool, FileInfo>(async (dtmi, repository, host, output, silent, modelFile) =>
+            exportModelCommand.Description =
+                "Retrieve a model and its dependencies by dtmi or model file using the target repository for model resolution.";
+            exportModelCommand.Handler = CommandHandler.Create<string, string, string, bool, FileInfo, DependencyResolutionOption, IHost>(
+                async (dtmi, repo, output, silent, modelFile, deps, host) =>
             {
                 ILogger logger = GetLogger(host);
-                OutputHeaders(logger);
+
+                if (!silent)
+                {
+                    await Outputs.WriteHeadersAsync();
+                    await Outputs.WriteInputsAsync("export",
+                        new Dictionary<string, string> {
+                            {"dtmi", dtmi },
+                            {"model-file", modelFile?.FullName},
+                            {"repo", repo },
+                            {"deps", deps.ToString() },
+                            {"output", output },
+                        });
+                }
 
                 IDictionary<string, string> result;
 
                 //check that we have either model file or dtmi
                 if (string.IsNullOrWhiteSpace(dtmi) && modelFile == null)
                 {
-                    logger.LogError("Either --dtmi or --model-file must be specified!");
+                    string invalidArgMsg = "Please specify a value for --dtmi";
+                    await Outputs.WriteErrorAsync(invalidArgMsg);
                     return ReturnCodes.InvalidArguments;
                 }
 
-                Parsing parsing = new Parsing(repository, logger);
+                Parsing parsing = new Parsing(repo, logger);
                 try
                 {
                     if (string.IsNullOrWhiteSpace(dtmi))
                     {
-                        dtmi = parsing.GetRootDtmiFromFile(modelFile);
+                        dtmi = parsing.GetModelMetadata(modelFile).Id;
+                        if (string.IsNullOrWhiteSpace(dtmi))
+                        {
+                            await Outputs.WriteErrorAsync("Model is missing root @id");
+                            return ReturnCodes.ParserError;
+                        }
                     }
-                    
-                    result = await parsing.GetResolver().ResolveAsync(dtmi);
+
+                    result = await parsing.GetResolver(resolutionOption: deps).ResolveAsync(dtmi);
                 }
                 catch (ResolverException resolverEx)
                 {
-                    logger.LogError(resolverEx.Message);
+                    await Outputs.WriteErrorAsync(resolverEx.Message);
                     return ReturnCodes.ResolutionError;
-                }
-                catch (KeyNotFoundException keyNotFoundEx)
-                {
-                    logger.LogError(keyNotFoundEx.Message);
-                    return ReturnCodes.ParserError;
                 }
 
                 List<string> resultList = result.Values.ToList();
                 string normalizedList = string.Join(',', resultList);
-                string payload = "[" + string.Join(',', normalizedList) + "]";
+                string payload = $"[{normalizedList}]";
 
                 using JsonDocument document = JsonDocument.Parse(payload, CommonOptions.DefaultJsonParseOptions);
                 using MemoryStream stream = new MemoryStream();
@@ -133,14 +140,14 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
 
                 if (!string.IsNullOrEmpty(output))
                 {
-                    logger.LogInformation($"Writing result to file '{output}'");
+                    logger.LogTrace($"Writing result to file '{output}'");
                     await File.WriteAllTextAsync(output, jsonSerialized, Encoding.UTF8);
                 }
 
                 return ReturnCodes.Success;
             });
 
-            return resolveModel;
+            return exportModelCommand;
         }
 
         private static Command BuildValidateCommand()
@@ -148,29 +155,51 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             var modelFileOption = CommonOptions.ModelFile;
             modelFileOption.IsRequired = true; // Option is required for this command
 
-            Command validateModel = new Command("validate")
+            Command validateModelCommand = new Command("validate")
             {
                 modelFileOption,
                 CommonOptions.Repo,
-                CommonOptions.Strict
+                CommonOptions.Deps,
+                CommonOptions.Strict,
+                CommonOptions.Silent
             };
 
-            validateModel.Description = "Validates a model using the DTDL model parser & resolver. " +
-                "Uses the target repository for model resolution. ";
-            validateModel.Handler = CommandHandler.Create<FileInfo, string, IHost, bool>(async (modelFile, repository, host, strict) =>
+            validateModelCommand.Description =
+                "Validates a model using the DTDL model parser & resolver. The target repository is used for model resolution. ";
+            validateModelCommand.Handler = CommandHandler.Create<FileInfo, string, IHost, bool, bool, DependencyResolutionOption>(
+                async (modelFile, repo, host, silent, strict, deps) =>
             {
                 ILogger logger = GetLogger(host);
-                OutputHeaders(logger);
+                if (!silent)
+                {
+                    await Outputs.WriteHeadersAsync();
+                    await Outputs.WriteInputsAsync("validate",
+                        new Dictionary<string, string> {
+                            {"model-file", modelFile.FullName },
+                            {"repo", repo },
+                            {"deps",  deps.ToString()},
+                            {"strict", strict.ToString() }
+                        });
+                }
 
-                Parsing parsing = new Parsing(repository, logger);
-                bool isValid;
+                Parsing parsing = new Parsing(repo, logger);
+                string modelFileText;
                 try
                 {
-                    isValid = await parsing.IsValidDtdlFileAsync(modelFile, strict);
+                    modelFileText = File.ReadAllText(modelFile.FullName);
+                    Outputs.WriteOut("- Validating model conforms to DTDL...");
+                    ModelParser parser = parsing.GetParser(resolutionOption: deps);
+                    await parser.ParseAsync(new string[] { modelFileText });
+                    Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
                 }
                 catch (ResolutionException resolutionEx)
                 {
-                    logger.LogError(resolutionEx.Message);
+                    await Outputs.WriteErrorAsync(resolutionEx.Message);
+                    return ReturnCodes.ResolutionError;
+                }
+                catch (ResolverException resolverEx)
+                {
+                    await Outputs.WriteErrorAsync(resolverEx.Message);
                     return ReturnCodes.ResolutionError;
                 }
                 catch (ParsingException parsingEx)
@@ -179,28 +208,45 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                     string normalizedErrors = string.Empty;
                     foreach (ParsingError error in errors)
                     {
-                        normalizedErrors += $"{error.Message}{Environment.NewLine}";
+                        normalizedErrors += $"{Environment.NewLine}{error.Message}";
                     }
 
-                    logger.LogError(normalizedErrors);
-
+                    await Outputs.WriteErrorAsync(normalizedErrors);
                     return ReturnCodes.ParserError;
                 }
-                catch (ResolverException resolverEx)
+                catch (IOException ioEx)
                 {
-                    logger.LogError(resolverEx.Message);
-                    return ReturnCodes.ResolutionError;
-                }
-                catch (ValidationException validationEx)
-                {
-                    logger.LogError(validationEx.Message);
-                    return ReturnCodes.ValidationError;
+                    await Outputs.WriteErrorAsync(ioEx.Message);
+                    return ReturnCodes.InvalidArguments;
                 }
 
-                return isValid ? ReturnCodes.Success : ReturnCodes.ValidationError;
+                if (strict)
+                {
+                    // TODO silent?
+                    Outputs.WriteOut("- Validating file path...");
+                    if (!Validations.IsValidDtmiPath(modelFile.FullName))
+                    {
+                        await Outputs.WriteErrorAsync($"File \"{modelFile.FullName}\" does not adhere to DMR naming conventions.");
+                        return ReturnCodes.ValidationError;
+                    }
+                    Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
+
+                    // TODO extract/DRY
+                    Outputs.WriteOut("- Ensuring DTMIs namespace conformance...");
+                    List<string> invalidSubDtmis = Validations.EnsureSubDtmiNamespace(modelFileText);
+                    if (invalidSubDtmis.Count > 0)
+                    {
+                        await Outputs.WriteErrorAsync(
+                            $"The following DTMI's do not start with the root DTMI namespace:{Environment.NewLine}{string.Join($",{Environment.NewLine}", invalidSubDtmis)}");
+                        return ReturnCodes.ValidationError;
+                    }
+                    Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
+                }
+
+                return ReturnCodes.Success;
             });
 
-            return validateModel;
+            return validateModelCommand;
         }
 
         private static Command BuildImportModelCommand()
@@ -208,57 +254,103 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             var modelFileOption = CommonOptions.ModelFile;
             modelFileOption.IsRequired = true; // Option is required for this command
 
-            Command addModel = new Command("import")
+            Command importModelCommand = new Command("import")
             {
                 modelFileOption,
-                CommonOptions.LocalRepo
+                CommonOptions.LocalRepo,
+                CommonOptions.Deps,
+                CommonOptions.Strict,
+                CommonOptions.Silent
             };
-            addModel.Description = "Adds a model to a local repository. " +
-                "Validates Id's, dependencies and places model content in the proper location.";
-            addModel.Handler = CommandHandler.Create<FileInfo, string, IHost>(async (modelFile, localRepository, host) =>
+            importModelCommand.Description = "Validates a local model file then adds it to the local repository.";
+            importModelCommand.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, DependencyResolutionOption, bool, bool, IHost>(
+                async (modelFile, localRepo, deps, silent, strict, host) =>
             {
-                var returnCode = ReturnCodes.Success;
                 ILogger logger = GetLogger(host);
-
-                OutputHeaders(logger);
-
-                if (localRepository == null)
+                if (localRepo == null)
                 {
-                    localRepository = Path.GetFullPath(".");
-                }
-                else if (Validations.IsRelativePath(localRepository))
-                {
-                    localRepository = Path.GetFullPath(localRepository);
+                    localRepo = new DirectoryInfo(Path.GetFullPath("."));
                 }
 
-                DirectoryInfo repoDirInfo = new DirectoryInfo(localRepository);
-                Parsing parsing = new Parsing(repoDirInfo.FullName, logger);
+                if (!silent)
+                {
+                    await Outputs.WriteHeadersAsync();
+                    await Outputs.WriteInputsAsync("import",
+                        new Dictionary<string, string> {
+                            {"model-file", modelFile.FullName },
+                            {"local-repo", localRepo.FullName },
+                            {"deps",  deps.ToString()},
+                            {"strict", strict.ToString()}
+                        });
+                }
+
+                Parsing parsing = new Parsing(localRepo.FullName, logger);
+
                 try
                 {
-                    var newModels = await ModelImporter.ImportModels(modelFile, repoDirInfo, logger);
-                    foreach (var model in newModels)
+                    ModelParser parser = parsing.GetParser(resolutionOption: deps);
+                    List<string> models = parsing.ExtractModels(modelFile);
+                    foreach (string content in models)
                     {
-                        var validationResult = await parsing.IsValidDtdlFileAsync(model, false);
+                        Outputs.WriteOut("- Validating model conforms to DTDL...");
+                        await parser.ParseAsync(new string[] { content });
+                        Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
 
-                        if (!validationResult)
-                            returnCode = ReturnCodes.ValidationError;
+                        if (strict)
+                        {
+                            Outputs.WriteOut("- Ensuring DTMIs namespace conformance...");
+                            List<string> invalidSubDtmis = Validations.EnsureSubDtmiNamespace(content);
+                            if (invalidSubDtmis.Count > 0)
+                            {
+                                await Outputs.WriteErrorAsync(
+                                    $"The following DTMI's do not start with the root DTMI namespace:{Environment.NewLine}{string.Join($",{Environment.NewLine}", invalidSubDtmis)}");
+                                return ReturnCodes.ValidationError;
+                            }
+                            Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
+                        }
+
+                        Outputs.WriteOut("- Importing model...");
+                        ModelImporter.Import(content, localRepo);
+                        Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
                     }
                 }
-                catch (ValidationException validationEx)
+                catch (ResolutionException resolutionEx)
                 {
-                    logger.LogError(validationEx.Message);
-                    return ReturnCodes.ValidationError;
+                    await Outputs.WriteErrorAsync(resolutionEx.Message);
+                    return ReturnCodes.ResolutionError;
+                }
+                catch (ResolverException resolverEx)
+                {
+                    await Outputs.WriteErrorAsync(resolverEx.Message);
+                    return ReturnCodes.ResolutionError;
+                }
+                catch (ParsingException parsingEx)
+                {
+                    IList<ParsingError> errors = parsingEx.Errors;
+                    string normalizedErrors = string.Empty;
+                    foreach (ParsingError error in errors)
+                    {
+                        normalizedErrors += $"{Environment.NewLine}{error.Message}";
+                    }
+
+                    await Outputs.WriteErrorAsync(normalizedErrors);
+                    return ReturnCodes.ParserError;
                 }
                 catch (IOException ioEx)
                 {
-                    logger.LogError(ioEx.Message);
-                    return ReturnCodes.ImportError;
+                    await Outputs.WriteErrorAsync(ioEx.Message);
+                    return ReturnCodes.InvalidArguments;
+                }
+                catch (ArgumentException argEx)
+                {
+                    await Outputs.WriteErrorAsync(argEx.Message);
+                    return ReturnCodes.InvalidArguments;
                 }
 
-                return returnCode;
+                return ReturnCodes.Success;
             });
 
-            return addModel;
+            return importModelCommand;
         }
     }
 }

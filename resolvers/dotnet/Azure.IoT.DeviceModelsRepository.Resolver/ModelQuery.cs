@@ -19,6 +19,14 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
             };
         }
 
+        public string GetRawText()
+        {
+            using (JsonDocument document = JsonDocument.Parse(_content, _parseOptions))
+            {
+                return document.RootElement.GetRawText();
+            }
+        }
+
         public ModelMetadata GetMetadata()
         {
             return new ModelMetadata(GetId(), GetExtends(), GetComponentSchemas());

@@ -1,51 +1,14 @@
 ﻿using NUnit.Framework;
 using System.Text.Json;
-using Azure.IoT.DeviceModelsRepository.CLI.Exceptions;
-using Azure.IoT.DeviceModelsRepository.CLI;
 
-namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
+namespace Azure.IoT.DeviceModelsRepository.CLI.Tests
 {
-    public class ValidateDTMITests
+    public class EnsureSubDtmiNamespaceTests
     {
-        [Test]
-        public void FailsOnMissingRootId()
-        {
-            var doc = JsonDocument.Parse(@"{
-                ""something"": ""dtmi:com:example:ThermoStat;1""
-            }");
-            Assert.Throws<MissingDTMIException>(() => Validations.ValidateDTMIs(doc.RootElement));
-        }
-        [Test]
-        public void ValidatesRootId()
-        {
-            var doc = JsonDocument.Parse(@"{
-                ""@id"": ""dtmi:com:example:ThermoStat;1""
-            }");
-            Assert.True(Validations.ValidateDTMIs(doc.RootElement));
-        }
-
-        [Test]
-        public void FailsOnRootIdMissingSemicolon()
-        {
-            var doc = JsonDocument.Parse(@"{
-                ""@id"": ""dtmi:com:example:ThermoStat-1""
-            }");
-            Assert.False(Validations.ValidateDTMIs(doc.RootElement));
-        }
-
-        [Test]
-        public void FailsOnMissingDTMIPortionOfRootId()
-        {
-            var doc = JsonDocument.Parse(@"{
-                ""@id"": ""com:example:ThermoStat;1""
-            }");
-            Assert.False(Validations.ValidateDTMIs(doc.RootElement));
-        }
-
         [Test]
         public void ValidatesSubDTMI()
         {
-            var doc = JsonDocument.Parse(@"{
+            string doc = @"{
                 ""@context"": ""dtmi:dtdl:context;2"",
                 ""@id"": ""dtmi:com:test:device;1"",
                 ""@type"": ""Interface"",
@@ -58,14 +21,16 @@ namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
                         ""schema"": ""boolean""
                     }
                 ]
-            }");
-            Assert.True(Validations.ValidateDTMIs(doc.RootElement));
+            }";
+
+            var result = Validations.EnsureSubDtmiNamespace(doc);
+            Assert.AreEqual(0, result.Count);
         }
 
         [Test]
         public void FailsOnSubDTMIThatAreNotNamespaced()
         {
-            var doc = JsonDocument.Parse(@"{
+            string doc = @"{
                 ""@context"": ""dtmi:dtdl:context;2"",
                 ""@id"": ""dtmi:com:test:device;1"",
                 ""@type"": ""Interface"",
@@ -78,14 +43,16 @@ namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
                         ""schema"": ""boolean""
                     }
                 ]
-            }");
-            Assert.False(Validations.ValidateDTMIs(doc.RootElement));
+            }";
+
+            var result = Validations.EnsureSubDtmiNamespace(doc);
+            Assert.True(result.Count > 0);
         }
 
         [Test]
         public void FailsOnSubDTMIWithInvalidFormats()
         {
-            var doc = JsonDocument.Parse(@"{
+            string doc = @"{
                 ""@context"": ""dtmi:dtdl:context;2"",
                 ""@id"": ""dtmi:com:test:device;1"",
                 ""@type"": ""Interface"",
@@ -98,8 +65,10 @@ namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
                         ""schema"": ""boolean""
                     }
                 ]
-            }");
-            Assert.False(Validations.ValidateDTMIs(doc.RootElement));
+            }";
+
+            var result = Validations.EnsureSubDtmiNamespace(doc);
+            Assert.True(result.Count > 0);
         }
     }
 }

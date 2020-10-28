@@ -46,7 +46,7 @@
     },
     "Azure.IoT.DeviceModelsRepository.CLI.AddModel": {
       "commandName": "Project",
-      "commandLineArgs": "import --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/thermostat-1.json --local-repo ./localRepository/"
+      "commandLineArgs": "import --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/thermostat-1.json --local-repo ./localRepository"
     },
     "Azure.IoT.DeviceModelsRepository.CLI.AddModelInvalid": {
       "commandName": "Project",

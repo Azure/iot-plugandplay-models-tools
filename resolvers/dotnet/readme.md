@@ -50,7 +50,7 @@ If the root interface has dependencies with external interfaces, via `expand` or
 |--------------------------|-----------|
 |Disabled|Do not process external dependencies|
 |Enabled|Enable external dependencies|
-|FromExpanded|Try to get external dependencies using [.expanded.json](https://github.com/Azure/iot-plugandplay-models-tools/wiki/Resolution-Convention#expanded-dependencies)|
+|TryFromExpanded|Try to get external dependencies using [.expanded.json](https://github.com/Azure/iot-plugandplay-models-tools/wiki/Resolution-Convention#expanded-dependencies)|
 
 The next code block shows how to configure the resolver with a custom `DependencyResolutionOption`
 
