@@ -1,126 +1,72 @@
 ﻿using System;
-using System.IO;
-using System.Text.Json;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Azure.IoT.DeviceModelsRepository.CLI.Exceptions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using Azure.IoT.DeviceModelsRepository.Resolver;
 
 namespace Azure.IoT.DeviceModelsRepository.CLI
 {
     public static class Validations
     {
-        public async static Task<bool> Validate(this FileInfo fileInfo, ILogger logger = null)
+        public static bool IsValidDtmiPath(string fullPath)
         {
-            var fileName = fileInfo.FullName;
-            var fileText = await File.ReadAllTextAsync(fileName);
-            var model = JsonDocument.Parse(fileText).RootElement;
-
-
-            return ValidateFilePath(fileName, logger) &
-                ScanForReservedWords(fileText, logger) &
-                ValidateDTMIs(model, fileName, logger);
-        }
-        public static bool FindAllIds(string fileText, Func<string, bool> validation)
-        {
-            var valid = true;
-            var idRegex = new Regex("\\\"@id\\\":\\s?\\\"[^\\\"]*\\\",?");
-            foreach (Match id in idRegex.Matches(fileText))
-            {
-                // return just the value without "@id" and quotes
-                var idValue = Regex.Replace(Regex.Replace(id.Value, "\\\"@id\\\":\\s?\"", ""), "\",?", "");
-                valid = valid & validation(idValue);
-            }
-
-            return valid;
-        }
-
-        public static bool ValidateFilePath(string fullPath, ILogger logger = null)
-        {
-            logger = logger ?? NullLogger.Instance;
             var filePathRegex = new Regex("dtmi[\\\\\\/](?:_+[a-z0-9]|[a-z])(?:[a-z0-9_]*[a-z0-9])?(?:[\\\\\\/](?:_+[a-z0-9]|[a-z])(?:[a-z0-9_]*[a-z0-9])?)*-[1-9][0-9]{0,8}\\.json$");
 
             if (!filePathRegex.IsMatch(fullPath))
             {
-                logger.LogError($"File '{fullPath}' does not adhere to naming rules.");
                 return false;
             }
             return true;
         }
 
-        public static bool ScanForReservedWords(string fileText, ILogger logger = null)
+        public static List<string> ScanIdsForReservedWords(string fileText)
         {
-            logger = logger ?? NullLogger.Instance;
-
+            List<string> badIds = new List<string>();
             var reservedRegEx = new Regex("Microsoft|Azure", RegexOptions.IgnoreCase);
-            return FindAllIds(fileText, (id) =>
+
+            FindAllIds(fileText, (id) =>
             {
                 if (reservedRegEx.IsMatch(id))
-                {
-                    logger.LogError($"Reserved words found in the following:\n{string.Join(",\n", id)}");
-                    return false;
-                }
-                return true;
+                    badIds.Add(id);
             });
+
+            return badIds;
         }
 
-        public static bool ValidateDTMIs(JsonElement model, string fileName = "", ILogger logger = null)
+        public static List<string> EnsureSubDtmiNamespace(string fileText)
         {
-            logger = logger ?? NullLogger.Instance;
-            var dtmiNamespace = GetDtmiNamespace(GetRootId(model, fileName));
-            var fileText = model.ToString();
-            try
+            List<string> badIds = new List<string>();
+            ModelMetadata metadata = new ModelQuery(fileText).GetMetadata();
+            string dtmiNamespace = GetDtmiNamespace(metadata.Id);
+
+            FindAllIds(fileText, (id) =>
             {
-                return FindAllIds(fileText, (id) =>
-                {
-                    if (!IsDtmi(id))
-                    {
-                        logger.LogError($"Invalid DTMI format:\n{id}");
-                        return false;
-                    }
-                    if (!id.StartsWith(dtmiNamespace))
-                    {
-                        logger.LogError($"Invalid sub DTMI format:\n{id}");
-                        return false;
-                    }
-                    return true;
-                });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message);
-                return false;
-            }
+                if (!id.StartsWith(dtmiNamespace))
+                    badIds.Add(id);
+            });
+
+            return badIds;
         }
 
-        public static JsonElement GetRootId(JsonElement model, string fileName)
+        private static void FindAllIds(string fileText, Action<string> validation)
         {
-            JsonElement rootId;
-            if (!model.TryGetProperty("@id", out rootId))
+            var idRegex = new Regex("\\\"@id\\\":\\s?\\\"[^\\\"]*\\\",?");
+            foreach (Match id in idRegex.Matches(fileText))
             {
-                throw new MissingDTMIException(fileName);
+                // return just the value without "@id" and quotes
+                var idValue = Regex.Replace(Regex.Replace(id.Value, "\\\"@id\\\":\\s?\"", ""), "\",?", "");
+                validation(idValue);
             }
-
-            return rootId;
         }
 
-        public static bool IsDtmi(string id)
-        {
-            var dtmiRegex = new Regex("^dtmi:(?:_+[A-Za-z0-9]|[A-Za-z])(?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::(?:_+[A-Za-z0-9]|[A-Za-z])(?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$");
-            return dtmiRegex.IsMatch(id);
-        }
-
-        public static string GetDtmiNamespace(JsonElement id)
+        public static string GetDtmiNamespace(string rootId)
         {
             var versionRegex = new Regex(";[1-9][0-9]{0,8}$");
-            return versionRegex.Replace(id.GetString(), "");
+            return versionRegex.Replace(rootId, "");
         }
 
         public static bool IsRelativePath(string repositoryPath)
         {
-            Uri testUri;
-            bool validUri = Uri.TryCreate(repositoryPath, UriKind.Relative, out testUri);
+            bool validUri = Uri.TryCreate(repositoryPath, UriKind.Relative, out Uri testUri);
             return validUri && testUri != null;
         }
     }

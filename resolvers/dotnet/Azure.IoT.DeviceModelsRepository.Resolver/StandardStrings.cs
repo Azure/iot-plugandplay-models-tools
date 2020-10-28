@@ -23,7 +23,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
             => $"Discovered dependencies {string.Join(", ", dependencies)}. ";
 
         public static string IncorrectDtmiCasing(string expectedDtmi, string parsedDtmi) 
-            => $"Retrieved model content has incorrect DTMI casing. Expected {expectedDtmi}, parsed {parsedDtmi}. ";
+            => $"Retrieved model content has incorrect DTMI casing. Expected '{expectedDtmi}', parsed '{parsedDtmi}'. ";
 
         public static string FetchingContent(string path) 
             => $"Attempting to retrieve model content from '{path}'. ";

@@ -1,7 +1,6 @@
-﻿using Azure.IoT.DeviceModelsRepository.CLI;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
-namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
+namespace Azure.IoT.DeviceModelsRepository.CLI.Tests
 {
     public class ScanForReservedWordsTests
     {
@@ -21,8 +20,9 @@ namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
                     }
                 ]
             }";
-            Assert.True(Validations.ScanForReservedWords(doc));
 
+            var result = Validations.ScanIdsForReservedWords(doc);
+            Assert.AreEqual(0, result.Count);
         }
 
         [Test]
@@ -42,7 +42,9 @@ namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
                     }
                 ]
             }";
-            Assert.True(Validations.ScanForReservedWords(doc));
+
+            var result = Validations.ScanIdsForReservedWords(doc);
+            Assert.AreEqual(0, result.Count);
         }
 
         [Test]
@@ -61,7 +63,9 @@ namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
                     }
                 ]
             }";
-            Assert.False(Validations.ScanForReservedWords(doc));
+
+            var result = Validations.ScanIdsForReservedWords(doc);
+            Assert.IsTrue(result.Count > 0);
         }
 
         [Test]
@@ -81,7 +85,9 @@ namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
                     }
                 ]
             }";
-            Assert.False(Validations.ScanForReservedWords(doc));
+
+            var result = Validations.ScanIdsForReservedWords(doc);
+            Assert.IsTrue(result.Count > 0);
         }
 
         [Test]
@@ -100,7 +106,9 @@ namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
                     }
                 ]
             }";
-            Assert.False(Validations.ScanForReservedWords(doc));
+
+            var result = Validations.ScanIdsForReservedWords(doc);
+            Assert.IsTrue(result.Count > 0);
         }
 
         [Test]
@@ -120,7 +128,9 @@ namespace Azure.IoT.DeviceModelsRepository.Validation.Tests
                     }
                 ]
             }";
-            Assert.False(Validations.ScanForReservedWords(doc));
+
+            var result = Validations.ScanIdsForReservedWords(doc);
+            Assert.IsTrue(result.Count > 0);
         }
 
     }
