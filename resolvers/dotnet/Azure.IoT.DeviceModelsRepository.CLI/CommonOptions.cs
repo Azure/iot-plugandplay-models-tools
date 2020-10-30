@@ -28,7 +28,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
 
                 dtmiOption.Argument = new Argument<string>
                 {
-                    Arity = ArgumentArity.ExactlyOne
+                    Arity = ArgumentArity.ZeroOrOne
                 };
 
                 return dtmiOption;
@@ -111,6 +111,23 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 return new Option<bool>(
                     alias: "--strict",
                     description: "Runs additional verifications for a model including file paths and DTMI scoping.",
+                    getDefaultValue: () => false)
+                {
+                    Argument = new Argument<bool>
+                    {
+                        Arity = ArgumentArity.ZeroOrOne
+                    },
+                };
+            }
+        }
+
+        public static Option<bool> Debug
+        {
+            get
+            {
+                return new Option<bool>(
+                    alias: "--debug",
+                    description: "Shows additional logs for debugging.",
                     getDefaultValue: () => false)
                 {
                     Argument = new Argument<bool>

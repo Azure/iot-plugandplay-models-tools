@@ -9,6 +9,8 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         [TestCase("dtmi:com:Example:Model;1", "dtmi/com/example/model-1.json")]
         [TestCase("dtmi:com:example:Model;1", "dtmi/com/example/model-1.json")]
         [TestCase("dtmi:com:example:Model:1", null)]
+        [TestCase("", null)]
+        [TestCase(null, null)]
         public void DtmiToPath(string dtmi, string expectedPath)
         {
             Assert.AreEqual(expectedPath, DtmiConventions.DtmiToPath(dtmi));

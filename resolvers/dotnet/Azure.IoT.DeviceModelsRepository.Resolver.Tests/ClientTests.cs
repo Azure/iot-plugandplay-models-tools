@@ -68,6 +68,8 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         [TestCase("dtmi:com:example:Thermostat:1", false)]
         [TestCase("dtmi:com:example::Thermostat;1", false)]
         [TestCase("com:example:Thermostat;1", false)]
+        [TestCase("", false)]
+        [TestCase(null, false)]
         public void ClientIsValidDtmi(string dtmi, bool expected)
         {
             Assert.AreEqual(ResolverClient.IsValidDtmi(dtmi), expected);

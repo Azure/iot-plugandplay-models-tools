@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Azure.IoT.DeviceModelsRepository.Resolver
 {
-    public class ModelMetadata
+    internal class ModelMetadata
     {
         public string Id { get; }
         public IList<string> Extends { get; }

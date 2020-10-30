@@ -44,12 +44,6 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 _logger);
         }
 
-        public ModelMetadata GetModelMetadata(FileInfo fileName)
-        {
-            ModelQuery modelQuery = new ModelQuery(File.ReadAllText(fileName.FullName));
-            return modelQuery.GetMetadata();
-        }
-
         public List<string> ExtractModels(FileInfo modelsFile)
         {
             List<string> result = new List<string>();
@@ -62,8 +56,37 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 result.Add(root.GetRawText());
                 return result;
             }
+            if (root.ValueKind == JsonValueKind.Array)
+            {
+                foreach(var element in root.EnumerateArray())
+                {
+                    result.Add(element.GetRawText());
+                }
+                return result;
+            }
 
             throw new ArgumentException($"Importing model file contents of kind {root.ValueKind} is not yet supported.");
+        }
+
+        public static string GetRootId(string modelText)
+        {
+            using JsonDocument document = JsonDocument.Parse(modelText);
+            JsonElement root = document.RootElement;
+
+            if (root.TryGetProperty("@id", out JsonElement id))
+            {
+                if (id.ValueKind == JsonValueKind.String)
+                {
+                    return id.GetString();
+                }
+            }
+
+            return string.Empty;
+        }
+
+        public static string GetRootId(FileInfo fileInfo)
+        {
+            return GetRootId(File.ReadAllText(fileInfo.FullName));
         }
     }
 }

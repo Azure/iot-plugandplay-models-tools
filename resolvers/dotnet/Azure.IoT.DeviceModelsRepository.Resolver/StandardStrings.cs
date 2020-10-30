@@ -2,7 +2,7 @@
 
 namespace Azure.IoT.DeviceModelsRepository.Resolver
 {
-    public class StandardStrings
+    internal class StandardStrings
     {
         public static string GenericResolverError(string dtmi) 
             => $"Unable to resolve '{dtmi}'. ";

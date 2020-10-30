@@ -7,7 +7,7 @@
     <Copyright>Microsoft</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>0.0.14</Version>
+    <Version>0.0.15</Version>
     <AssemblyName>dmr-client</AssemblyName>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dmr-client</ToolCommandName>
@@ -20,18 +20,11 @@
     <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.5" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.9" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
-    <PackageReference Include="System.CommandLine.Hosting" Version="0.3.0-alpha.20371.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Azure.IoT.DeviceModelsRepository.Resolver.Extensions\Azure.IoT.DeviceModelsRepository.Resolver.Extensions.csproj" />
     <ProjectReference Include="..\Azure.IoT.DeviceModelsRepository.Resolver\Azure.IoT.DeviceModelsRepository.Resolver.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

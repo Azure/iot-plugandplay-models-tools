@@ -35,8 +35,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
         public static List<string> EnsureSubDtmiNamespace(string fileText)
         {
             List<string> badIds = new List<string>();
-            ModelMetadata metadata = new ModelQuery(fileText).GetMetadata();
-            string dtmiNamespace = GetDtmiNamespace(metadata.Id);
+            string dtmiNamespace = GetDtmiNamespace(Parsing.GetRootId(fileText));
 
             FindAllIds(fileText, (id) =>
             {

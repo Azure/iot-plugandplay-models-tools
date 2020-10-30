@@ -4,6 +4,10 @@
       "commandName": "Project",
       "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1"
     },
+    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ResolveRemoteDebug": {
+      "commandName": "Project",
+      "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1 --debug"
+    },
     "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ResolveLocal": {
       "commandName": "Project",
       "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1 --repository ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/"
