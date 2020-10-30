@@ -21,8 +21,9 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 return;
             }
 
+            UTF8Encoding utf8WithoutBom = new UTF8Encoding(false);
             (new FileInfo(createPath)).Directory.Create();
-            File.WriteAllText(createPath, modelContent, Encoding.UTF8);
+            File.WriteAllText(createPath, modelContent, utf8WithoutBom);
         }
     }
 }
