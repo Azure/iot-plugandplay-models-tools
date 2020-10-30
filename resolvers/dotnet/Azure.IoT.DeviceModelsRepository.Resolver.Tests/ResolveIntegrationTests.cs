@@ -214,12 +214,12 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         [TestCase(
             "dtmi:com:example:TemperatureController;1", // Expanded available locally.
             "dtmi:com:example:Thermostat;1,dtmi:azure:DeviceManagement:DeviceInformation;1",
-            RepositoryHandler.RepositoryTypeCategory.LocalUri)]
+            "local")]
         [TestCase(
             "dtmi:com:example:TemperatureController;1", // Expanded available remotely.
             "dtmi:com:example:Thermostat;1,dtmi:azure:DeviceManagement:DeviceInformation;1",
-            RepositoryHandler.RepositoryTypeCategory.RemoteUri)]
-        public async Task ResolveUseExpanded(string dtmi, string expectedDeps, RepositoryHandler.RepositoryTypeCategory clientType)
+            "remote")]
+        public async Task ResolveUseExpanded(string dtmi, string expectedDeps, string repoType)
         {
             Mock<ILogger> _logger = new Mock<ILogger>();
             var expectedDtmis = $"{dtmi},{expectedDeps}".Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
@@ -227,13 +227,13 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             ResolverClientOptions options = new ResolverClientOptions(DependencyResolutionOption.TryFromExpanded);
 
             ResolverClient client = null;
-            if (clientType == RepositoryHandler.RepositoryTypeCategory.LocalUri)
+            if (repoType == "local")
                 client = new ResolverClient(
                     TestHelpers.TestLocalModelRepository,
                     options,
                     _logger.Object);
 
-            if (clientType == RepositoryHandler.RepositoryTypeCategory.RemoteUri)
+            if (repoType == "remote")
                 client = new ResolverClient(
                     TestHelpers.TestRemoteModelRepository,
                     options,
@@ -249,8 +249,8 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             }
 
             string expectedPath = DtmiConventions.DtmiToQualifiedPath(
-                dtmi, 
-                clientType == RepositoryHandler.RepositoryTypeCategory.LocalUri ? client.RepositoryUri.AbsolutePath : client.RepositoryUri.AbsoluteUri,
+                dtmi,
+                repoType == "local" ? client.RepositoryUri.AbsolutePath : client.RepositoryUri.AbsoluteUri,
                 fromExpanded: true);
             _logger.ValidateLog(StandardStrings.FetchingContent(expectedPath), LogLevel.Trace, Times.Once());
         }

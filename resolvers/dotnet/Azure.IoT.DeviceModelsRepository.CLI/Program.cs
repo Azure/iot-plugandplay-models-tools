@@ -1,13 +1,11 @@
 ﻿using Azure.IoT.DeviceModelsRepository.Resolver;
 using Microsoft.Azure.DigitalTwins.Parser;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Builder;
-using System.CommandLine.Hosting;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
@@ -31,13 +29,9 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             public const int ImportError = 5;
         }
 
-        static async Task<int> Main(string[] args) => await BuildCommandLine()
-            .UseHost(_ => Host.CreateDefaultBuilder())
-            .UseDefaults()
-            .Build()
-            .InvokeAsync(args);
+        static async Task<int> Main(string[] args) => await GetCommandLine().UseDefaults().Build().InvokeAsync(args);
 
-        private static CommandLineBuilder BuildCommandLine()
+        private static CommandLineBuilder GetCommandLine()
         {
             RootCommand root = new RootCommand("parent")
             {
@@ -48,14 +42,22 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             root.Add(BuildValidateCommand());
             root.Add(BuildImportModelCommand());
 
+            root.AddGlobalOption(CommonOptions.Debug);
+
             return new CommandLineBuilder(root);
         }
 
-        private static ILogger GetLogger(IHost host)
+        private static ILogger GetLogger(bool debug)
         {
-            IServiceProvider serviceProvider = host.Services;
-            ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-            return loggerFactory.CreateLogger(typeof(Program));
+            if (!debug)
+                return NullLogger.Instance;
+
+            using ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.ClearProviders().SetMinimumLevel(LogLevel.Trace).AddConsole();
+            });
+
+            return loggerFactory.CreateLogger<Program>();
         }
 
         private static Command BuildExportCommand()
@@ -75,10 +77,10 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
 
             exportModelCommand.Description =
                 "Retrieve a model and its dependencies by dtmi or model file using the target repository for model resolution.";
-            exportModelCommand.Handler = CommandHandler.Create<string, string, string, bool, FileInfo, DependencyResolutionOption, IHost>(
-                async (dtmi, repo, output, silent, modelFile, deps, host) =>
+            exportModelCommand.Handler = CommandHandler.Create<string, string, string, bool, FileInfo, DependencyResolutionOption, bool>(
+                async (dtmi, repo, output, silent, modelFile, deps, debug) =>
             {
-                ILogger logger = GetLogger(host);
+                ILogger logger = GetLogger(debug);
 
                 if (!silent)
                 {
@@ -108,7 +110,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 {
                     if (string.IsNullOrWhiteSpace(dtmi))
                     {
-                        dtmi = parsing.GetModelMetadata(modelFile).Id;
+                        dtmi = Parsing.GetRootId(modelFile);
                         if (string.IsNullOrWhiteSpace(dtmi))
                         {
                             await Outputs.WriteErrorAsync("Model is missing root @id");
@@ -161,15 +163,14 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 CommonOptions.Repo,
                 CommonOptions.Deps,
                 CommonOptions.Strict,
-                CommonOptions.Silent
             };
 
             validateModelCommand.Description =
                 "Validates a model using the DTDL model parser & resolver. The target repository is used for model resolution. ";
-            validateModelCommand.Handler = CommandHandler.Create<FileInfo, string, IHost, bool, bool, DependencyResolutionOption>(
-                async (modelFile, repo, host, silent, strict, deps) =>
+            validateModelCommand.Handler = CommandHandler.Create<FileInfo, string, bool, bool, DependencyResolutionOption, bool>(
+                async (modelFile, repo, silent, strict, deps, debug) =>
             {
-                ILogger logger = GetLogger(host);
+                ILogger logger = GetLogger(debug);
                 if (!silent)
                 {
                     await Outputs.WriteHeadersAsync();
@@ -190,7 +191,6 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                     Outputs.WriteOut("- Validating model conforms to DTDL...");
                     ModelParser parser = parsing.GetParser(resolutionOption: deps);
                     await parser.ParseAsync(new string[] { modelFileText });
-                    Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
                 }
                 catch (ResolutionException resolutionEx)
                 {
@@ -229,7 +229,6 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                         await Outputs.WriteErrorAsync($"File \"{modelFile.FullName}\" does not adhere to DMR naming conventions.");
                         return ReturnCodes.ValidationError;
                     }
-                    Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
 
                     // TODO extract/DRY
                     Outputs.WriteOut("- Ensuring DTMIs namespace conformance...");
@@ -240,7 +239,6 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                             $"The following DTMI's do not start with the root DTMI namespace:{Environment.NewLine}{string.Join($",{Environment.NewLine}", invalidSubDtmis)}");
                         return ReturnCodes.ValidationError;
                     }
-                    Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
                 }
 
                 return ReturnCodes.Success;
@@ -263,10 +261,10 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 CommonOptions.Silent
             };
             importModelCommand.Description = "Validates a local model file then adds it to the local repository.";
-            importModelCommand.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, DependencyResolutionOption, bool, bool, IHost>(
-                async (modelFile, localRepo, deps, silent, strict, host) =>
+            importModelCommand.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, DependencyResolutionOption, bool, bool, bool>(
+                async (modelFile, localRepo, deps, silent, strict, debug) =>
             {
-                ILogger logger = GetLogger(host);
+                ILogger logger = GetLogger(debug);
                 if (localRepo == null)
                 {
                     localRepo = new DirectoryInfo(Path.GetFullPath("."));
@@ -290,15 +288,15 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 {
                     ModelParser parser = parsing.GetParser(resolutionOption: deps);
                     List<string> models = parsing.ExtractModels(modelFile);
-                    foreach (string content in models)
-                    {
-                        Outputs.WriteOut("- Validating model conforms to DTDL...");
-                        await parser.ParseAsync(new string[] { content });
-                        Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
 
-                        if (strict)
+                    Outputs.WriteOut($"- Validating models conform to DTDL...");
+                    await parser.ParseAsync(models);
+
+                    if (strict) {
+                        foreach (string content in models)
                         {
-                            Outputs.WriteOut("- Ensuring DTMIs namespace conformance...");
+                            string id = Parsing.GetRootId(content);
+                            Outputs.WriteOut($"- Ensuring DTMIs namespace conformance for model \"{id}\"...");
                             List<string> invalidSubDtmis = Validations.EnsureSubDtmiNamespace(content);
                             if (invalidSubDtmis.Count > 0)
                             {
@@ -306,12 +304,12 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                                     $"The following DTMI's do not start with the root DTMI namespace:{Environment.NewLine}{string.Join($",{Environment.NewLine}", invalidSubDtmis)}");
                                 return ReturnCodes.ValidationError;
                             }
-                            Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
                         }
+                    }
 
-                        Outputs.WriteOut("- Importing model...");
+                    foreach (string content in models)
+                    {
                         ModelImporter.Import(content, localRepo);
-                        Outputs.WriteOut($"Success{Environment.NewLine}", ConsoleColor.Green);
                     }
                 }
                 catch (ResolutionException resolutionEx)

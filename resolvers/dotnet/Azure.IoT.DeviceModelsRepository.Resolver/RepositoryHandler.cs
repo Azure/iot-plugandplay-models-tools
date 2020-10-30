@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Azure.IoT.DeviceModelsRepository.Resolver
 {
-    public class RepositoryHandler
+    internal class RepositoryHandler
     {
         private readonly IModelFetcher _modelFetcher;
         private readonly ILogger _logger;

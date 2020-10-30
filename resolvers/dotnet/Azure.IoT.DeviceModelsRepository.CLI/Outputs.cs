@@ -34,7 +34,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 Console.ForegroundColor = color.Value;
             }
 
-            Console.Out.Write(content);
+            Console.Out.Write($"{content}{Environment.NewLine}");
 
             if (color.HasValue)
             {
