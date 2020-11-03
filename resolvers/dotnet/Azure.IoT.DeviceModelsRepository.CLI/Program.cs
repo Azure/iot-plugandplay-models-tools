@@ -143,7 +143,8 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                 if (!string.IsNullOrEmpty(output))
                 {
                     logger.LogTrace($"Writing result to file '{output}'");
-                    await File.WriteAllTextAsync(output, jsonSerialized, Encoding.UTF8);
+                    UTF8Encoding utf8WithoutBom = new UTF8Encoding(false);
+                    await File.WriteAllTextAsync(output, jsonSerialized, utf8WithoutBom);
                 }
 
                 return ReturnCodes.Success;
