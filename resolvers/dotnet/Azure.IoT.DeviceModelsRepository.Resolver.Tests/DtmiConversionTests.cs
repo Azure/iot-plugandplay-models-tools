@@ -31,7 +31,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
             if (string.IsNullOrEmpty(expectedPath))
             {
                 ArgumentException re = Assert.Throws<ArgumentException>(() => DtmiConventions.DtmiToQualifiedPath(dtmi, repository));
-                Assert.AreEqual(re.Message, StandardStrings.InvalidDtmiFormat(dtmi));
+                Assert.AreEqual(re.Message, string.Format(StandardStrings.InvalidDtmiFormat, dtmi));
                 return;
             }
 

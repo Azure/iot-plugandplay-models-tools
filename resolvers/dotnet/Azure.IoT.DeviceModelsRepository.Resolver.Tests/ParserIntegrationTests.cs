@@ -58,8 +58,10 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
                 Assert.ThrowsAsync<ResolverException>(async () => await parser.ParseAsync(new string[] { File.ReadAllText(modelPath) }));
 
             Assert.AreEqual(e.Message,
-                $"{StandardStrings.GenericResolverError("dtmi:azure:deviceManagement:DeviceInformation;1")}" +
-                $"{StandardStrings.IncorrectDtmiCasing("dtmi:azure:deviceManagement:DeviceInformation;1","dtmi:azure:DeviceManagement:DeviceInformation;1")}");
+                string.Format(StandardStrings.GenericResolverError, "dtmi:azure:deviceManagement:DeviceInformation;1") +
+                string.Format(StandardStrings.IncorrectDtmiCasing, 
+                "dtmi:azure:deviceManagement:DeviceInformation;1",
+                "dtmi:azure:DeviceManagement:DeviceInformation;1"));
         }
 
         [Test]

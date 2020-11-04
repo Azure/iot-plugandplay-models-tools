@@ -1,7 +1,6 @@
 ﻿using Azure.IoT.DeviceModelsRepository.Resolver;
 using Azure.IoT.DeviceModelsRepository.Resolver.Extensions;
 using Microsoft.Azure.DigitalTwins.Parser;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,12 +10,10 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
 {
     internal class Parsing
     {
-        private readonly ILogger _logger;
         private readonly string _repository;
 
-        public Parsing(string repository, ILogger logger)
+        public Parsing(string repository)
         {
-            _logger = logger;
             _repository = repository;
         }
 
@@ -40,8 +37,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
 
             return new ResolverClient(
                 repository,
-                new ResolverClientOptions(resolutionOption),
-                _logger);
+                new ResolverClientOptions(resolutionOption));
         }
 
         public List<string> ExtractModels(FileInfo modelsFile)
