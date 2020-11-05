@@ -5,9 +5,14 @@ using System.Text.Json;
 
 namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
 {
-    class TestHelpers
+    public class TestHelpers
     {
         readonly static string _fallbackTestRemoteRepo = "https://devicemodeltest.azureedge.net/";
+        public enum ClientType
+        {
+            Local,
+            Remote
+        }
 
         public static string ParseRootDtmiFromJson(string json)
         {
@@ -22,6 +27,16 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
                 dtmi = document.RootElement.GetProperty("@id").GetString();
             }
             return dtmi;
+        }
+
+        public static ResolverClient GetTestClient(ClientType clientType, ResolverClientOptions clientOptions = null)
+        {
+            if (clientType == ClientType.Local)
+                return new ResolverClient(TestLocalModelRepository, clientOptions);
+            if (clientType == ClientType.Remote)
+                return new ResolverClient(TestRemoteModelRepository, clientOptions);
+
+            throw new ArgumentException();
         }
 
         public static string TestDirectoryPath => Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(TestContext.CurrentContext.TestDirectory)));
