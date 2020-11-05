@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,31 +10,21 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
         public const string DefaultRepository = "https://devicemodels.azure.com";
         private readonly RepositoryHandler repositoryHandler = null;
 
-        public ResolverClient() : this(new Uri(DefaultRepository), null, null) { }
+        public ResolverClient() : this(new Uri(DefaultRepository), null) { }
 
-        public ResolverClient(Uri repositoryUri) : this(repositoryUri, null, null) { }
+        public ResolverClient(Uri repositoryUri) : this(repositoryUri, null) { }
 
-        public ResolverClient(ILogger logger) : this(new Uri(DefaultRepository), null, logger) { }
+        public ResolverClient(ResolverClientOptions options) : this(new Uri(DefaultRepository), options) { }
 
-        public ResolverClient(ResolverClientOptions options) : this(new Uri(DefaultRepository), options, null) { }
-
-        public ResolverClient(ResolverClientOptions options, ILogger logger) : this(new Uri(DefaultRepository), options, logger) { }
-
-        public ResolverClient(Uri repositoryUri, ResolverClientOptions options) : this(repositoryUri, options, null) { }
-
-        public ResolverClient(Uri repositoryUri, ResolverClientOptions options = null, ILogger logger = null)
+        public ResolverClient(Uri repositoryUri, ResolverClientOptions options)
         {
-            this.repositoryHandler = new RepositoryHandler(repositoryUri, options, logger);
+            this.repositoryHandler = new RepositoryHandler(repositoryUri, options);
         }
 
-        public ResolverClient(string repositoryUriStr) : this(repositoryUriStr, null, null) { }
+        public ResolverClient(string repositoryUriStr) : this(repositoryUriStr, null) { }
 
         public ResolverClient(string repositoryUriStr, ResolverClientOptions options) :
-            this(repositoryUriStr, options, null)
-        { }
-
-        public ResolverClient(string repositoryUriStr, ResolverClientOptions options = null, ILogger logger = null) :
-            this(new Uri(repositoryUriStr), options, logger)
+            this(new Uri(repositoryUriStr), options)
         { }
 
         public virtual async Task<IDictionary<string, string>> ResolveAsync(string dtmi, CancellationToken cancellationToken = default)

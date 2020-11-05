@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
         {
             string dtmiPath = DtmiToPath(dtmi);
             if (dtmiPath == null)
-                throw new ArgumentException(StandardStrings.InvalidDtmiFormat(dtmi));
+                throw new ArgumentException(string.Format(StandardStrings.InvalidDtmiFormat, dtmi));
 
             if (!basePath.EndsWith("/"))
                 basePath += "/";

@@ -7,7 +7,7 @@
     <Copyright>Microsoft</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>0.0.15</Version>
+    <Version>0.0.16</Version>
     <AssemblyName>dmr-client</AssemblyName>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dmr-client</ToolCommandName>
@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.5" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.9" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
   </ItemGroup>
 

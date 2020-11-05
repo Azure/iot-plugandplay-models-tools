@@ -1,6 +1,3 @@
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
 using NUnit.Framework;
 using System;
 using System.Runtime.InteropServices;
@@ -10,57 +7,36 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
     public class ClientTests
     {
         [Test]
-        public void ClientInitRemoteRepository()
+        public void CtorOverloads()
         {
-            Mock<ILogger> fromUriLogger = new Mock<ILogger>();
-            Mock<ILogger> fromStrLogger = new Mock<ILogger>();
+            string remoteUriStr = "https://dtmi.com";
+            Uri remoteUri = new Uri(remoteUriStr);
 
-            string remoteRepoEndpoint = "https://localhost/repository";
-            Uri repositoryUri = new Uri(remoteRepoEndpoint);
+            ResolverClientOptions options = new ResolverClientOptions();
 
-            ResolverClient clientInitUri = new ResolverClient(repositoryUri, default, fromUriLogger.Object);
-            ResolverClient clientInitStr = new ResolverClient(remoteRepoEndpoint, default, logger: fromStrLogger.Object);
+            Assert.AreEqual(new Uri(ResolverClient.DefaultRepository), new ResolverClient().RepositoryUri);
+            Assert.AreEqual($"{ResolverClient.DefaultRepository}/", new ResolverClient().RepositoryUri.AbsoluteUri);
+            Assert.AreEqual(new Uri(ResolverClient.DefaultRepository), new ResolverClient(options).RepositoryUri);
 
-            Assert.AreEqual(repositoryUri, clientInitUri.RepositoryUri);
-            Assert.AreEqual(remoteRepoEndpoint, clientInitUri.RepositoryUri.AbsoluteUri);
+            Assert.AreEqual(remoteUri, new ResolverClient(remoteUri).RepositoryUri);
+            Assert.AreEqual(remoteUri, new ResolverClient(remoteUri, options).RepositoryUri);
+            Assert.AreEqual(remoteUri, new ResolverClient(remoteUri, null).RepositoryUri);
 
-            fromUriLogger.ValidateLog(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme), LogLevel.Trace, Times.Once());
+            Assert.AreEqual(remoteUri, new ResolverClient(remoteUriStr).RepositoryUri);
+            Assert.AreEqual(remoteUri, new ResolverClient(remoteUriStr, options).RepositoryUri);
+            Assert.AreEqual(remoteUri, new ResolverClient(remoteUriStr, null).RepositoryUri);
 
-            Assert.AreEqual(repositoryUri, clientInitStr.RepositoryUri);
-            Assert.AreEqual(remoteRepoEndpoint, clientInitStr.RepositoryUri.AbsoluteUri);
+            string localUriStr = TestHelpers.TestLocalModelRepository;
+            Uri localUri = new Uri(localUriStr);
 
-            fromStrLogger.ValidateLog(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme), LogLevel.Trace, Times.Once());
-
-            ResolverClient clientInitDefault = new ResolverClient();
-            Assert.AreEqual($"{ResolverClient.DefaultRepository}/", clientInitDefault.RepositoryUri.AbsoluteUri);
-        }
-
-        [Test]
-        public void ClientInitLocalRepository()
-        {
-            Mock<ILogger> fromUriLogger = new Mock<ILogger>();
-            Mock<ILogger> fromStrLogger = new Mock<ILogger>();
-
-            string localTestRepoPath = TestHelpers.TestLocalModelRepository;
-            Uri repositoryUri = new Uri($"file://{localTestRepoPath}");
-
-            ResolverClient clientInitUri = new ResolverClient(repositoryUri, default, fromUriLogger.Object) ;
-            ResolverClient clientInitStr = new ResolverClient(localTestRepoPath, default, logger: fromStrLogger.Object);
+            Assert.AreEqual(localUri, new ResolverClient(localUri).RepositoryUri);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                localTestRepoPath = localTestRepoPath.Replace("\\", "/");
+                localUriStr = localUriStr.Replace("\\", "/");
             }
 
-            Assert.AreEqual(repositoryUri, clientInitUri.RepositoryUri);
-            Assert.AreEqual(localTestRepoPath, clientInitUri.RepositoryUri.AbsolutePath);
-
-            fromUriLogger.ValidateLog(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme), LogLevel.Trace, Times.Once());
-
-            Assert.AreEqual(repositoryUri, clientInitStr.RepositoryUri);
-            Assert.AreEqual(localTestRepoPath, clientInitStr.RepositoryUri.AbsolutePath);
-
-            fromStrLogger.ValidateLog(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme), LogLevel.Trace, Times.Once());
+            Assert.AreEqual(localUriStr, new ResolverClient(localUri).RepositoryUri.AbsolutePath);
         }
 
         [TestCase("dtmi:com:example:Thermostat;1", true)]
@@ -72,44 +48,38 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Tests
         [TestCase(null, false)]
         public void ClientIsValidDtmi(string dtmi, bool expected)
         {
-            Assert.AreEqual(ResolverClient.IsValidDtmi(dtmi), expected);
+            Assert.AreEqual(expected, ResolverClient.IsValidDtmi(dtmi));
         }
 
         [Test]
         public void ClientOptions()
         {
             DependencyResolutionOption defaultResolutionOption = DependencyResolutionOption.Enabled;
-            ResolverClientOptions customOptions = 
+            ResolverClientOptions customOptions =
                 new ResolverClientOptions(DependencyResolutionOption.TryFromExpanded);
+            int maxRetries = 10;
+            customOptions.Retry.MaxRetries = maxRetries;
 
             string repositoryUriString = "https://localhost/myregistry/";
             Uri repositoryUri = new Uri(repositoryUriString);
 
             ResolverClient defaultClient = new ResolverClient(repositoryUri);
-            Assert.AreEqual(defaultClient.ClientOptions.DependencyResolution, defaultResolutionOption);
+            Assert.AreEqual(defaultResolutionOption, defaultClient.ClientOptions.DependencyResolution);
 
             ResolverClient customClient = new ResolverClient(repositoryUriString, customOptions);
-            Assert.AreEqual(customClient.ClientOptions.DependencyResolution, DependencyResolutionOption.TryFromExpanded);
+            Assert.AreEqual(DependencyResolutionOption.TryFromExpanded, customClient.ClientOptions.DependencyResolution);
+            Assert.AreEqual(maxRetries, customClient.ClientOptions.Retry.MaxRetries);
         }
 
         [Test]
-        public void CtorOverloads()
+        public void EvaluateEventSourceKPIs()
         {
-            var uri = new Uri("https://dtmi.com");
-            ILogger logger = new NullLogger<ClientTests>();
-            var options = new ResolverClientOptions();
+            Type eventSourceType = typeof(ResolverEventSource);
 
-            Assert.AreEqual(new Uri(ResolverClient.DefaultRepository), new ResolverClient().RepositoryUri);
-            Assert.AreEqual(new Uri(ResolverClient.DefaultRepository), new ResolverClient(logger).RepositoryUri);
-            Assert.AreEqual(new Uri(ResolverClient.DefaultRepository), new ResolverClient(options).RepositoryUri);
-            Assert.AreEqual(new Uri(ResolverClient.DefaultRepository), new ResolverClient(options,logger).RepositoryUri);
-
-            Assert.AreEqual(uri, new ResolverClient(uri).RepositoryUri);
-            Assert.AreEqual(uri, new ResolverClient(uri, options).RepositoryUri);
-            Assert.AreEqual(uri, new ResolverClient(uri, null, logger).RepositoryUri);
-            Assert.AreEqual(uri, new ResolverClient(uri, options, null).RepositoryUri);
-            Assert.AreEqual(uri, new ResolverClient(uri, options, logger).RepositoryUri);
+            Assert.NotNull(eventSourceType);
+            Assert.AreEqual("Azure-IoT-DeviceModelsRepository-Resolver", ResolverEventSource.GetName(eventSourceType));
+            Assert.AreEqual(Guid.Parse("040ee922-a979-5242-914e-fc7fc169113f"), ResolverEventSource.GetGuid(eventSourceType));
+            Assert.IsNotEmpty(ResolverEventSource.GenerateManifest(eventSourceType, "assemblyPathToIncludeInManifest"));
         }
     }
 }
-

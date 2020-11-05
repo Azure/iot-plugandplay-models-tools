@@ -1,10 +1,8 @@
 ﻿using Azure.Core;
 using Azure.Core.Pipeline;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,13 +11,11 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
 {
     public class RemoteModelFetcher : IModelFetcher
     {
-        private readonly ILogger _logger;
         private readonly HttpPipeline _pipeline;
         private readonly bool _tryExpanded;
 
-        public RemoteModelFetcher(ILogger logger, ResolverClientOptions clientOptions)
+        public RemoteModelFetcher(ResolverClientOptions clientOptions)
         {
-            _logger = logger;
             _pipeline = CreatePipeline(clientOptions);
             _tryExpanded = clientOptions.DependencyResolution == DependencyResolutionOption.TryFromExpanded;
         }
@@ -42,7 +38,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
             while (work.Count != 0 && !cancellationToken.IsCancellationRequested)
             {
                 string tryContentPath = work.Dequeue();
-                _logger.LogTrace(StandardStrings.FetchingContent(tryContentPath));
+                ResolverEventSource.Shared.FetchingModelContent(tryContentPath);
 
                 string content = await EvaluatePathAsync(tryContentPath, cancellationToken);
                 if (!string.IsNullOrEmpty(content))
@@ -54,14 +50,14 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
                     };
                 }
 
-                remoteFetchError = StandardStrings.ErrorAccessRemoteRepositoryModel(tryContentPath);
-                _logger.LogWarning(remoteFetchError);
+                ResolverEventSource.Shared.ErrorFetchingModelContent(tryContentPath);
+                remoteFetchError = string.Format(StandardStrings.ErrorFetchingModelContent, tryContentPath);
             }
 
             throw new RequestFailedException(remoteFetchError);
         }
 
-        public string GetPath(string dtmi, Uri repositoryUri, bool expanded = false)
+        private string GetPath(string dtmi, Uri repositoryUri, bool expanded = false)
         {
             string absoluteUri = repositoryUri.AbsoluteUri;
             return DtmiConventions.DtmiToQualifiedPath(dtmi, absoluteUri, expanded);
@@ -82,8 +78,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver.Fetchers
 
             return null;
         }
-
-        public static async Task<string> GetContentAsync(Stream content, CancellationToken cancellationToken)
+        private static async Task<string> GetContentAsync(Stream content, CancellationToken cancellationToken)
         {
             using (JsonDocument json = await JsonDocument.ParseAsync(content, default, cancellationToken))
             {

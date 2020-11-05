@@ -1,6 +1,4 @@
 ﻿using Azure.IoT.DeviceModelsRepository.Resolver.Fetchers;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -11,36 +9,20 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
     internal class RepositoryHandler
     {
         private readonly IModelFetcher _modelFetcher;
-        private readonly ILogger _logger;
-
-        public enum RepositoryTypeCategory
-        {
-            RemoteUri,
-            LocalUri
-        }
+        private readonly Guid _clientId;
 
         public Uri RepositoryUri { get; }
         public ResolverClientOptions ClientOptions { get; }
-        public RepositoryTypeCategory RepositoryType { get; }
 
-        public RepositoryHandler(Uri repositoryUri, ResolverClientOptions options = null, ILogger logger = null)
+        public RepositoryHandler(Uri repositoryUri, ResolverClientOptions options = null)
         {
-            _logger = logger ?? NullLogger.Instance;
             ClientOptions = options ?? new ResolverClientOptions();
             RepositoryUri = repositoryUri;
-
-            _logger.LogTrace(StandardStrings.ClientInitWithFetcher(repositoryUri.Scheme));
-
-            if (repositoryUri.Scheme == "file")
-            {
-                RepositoryType = RepositoryTypeCategory.LocalUri;
-                _modelFetcher = new LocalModelFetcher(_logger, ClientOptions);
-            }
-            else
-            {
-                RepositoryType = RepositoryTypeCategory.RemoteUri;
-                _modelFetcher = new RemoteModelFetcher(_logger, ClientOptions);
-            }
+            _modelFetcher = repositoryUri.Scheme == "file" ?
+                _modelFetcher = new LocalModelFetcher(ClientOptions) :
+                _modelFetcher = new RemoteModelFetcher(ClientOptions);
+            _clientId = Guid.NewGuid();
+            ResolverEventSource.Shared.InitFetcher(_clientId, repositoryUri.Scheme);
         }
 
         public async Task<IDictionary<string, string>> ProcessAsync(string dtmi, CancellationToken cancellationToken)
@@ -57,8 +39,8 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
             {
                 if (!DtmiConventions.IsDtmi(dtmi))
                 {
-                    string invalidArgMsg = StandardStrings.InvalidDtmiFormat(dtmi);
-                    _logger.LogError(invalidArgMsg);
+                    ResolverEventSource.Shared.InvalidDtmiInput(dtmi);
+                    string invalidArgMsg = string.Format(StandardStrings.InvalidDtmiFormat, dtmi);
                     throw new ResolverException(dtmi, invalidArgMsg, new ArgumentException(invalidArgMsg));
                 }
 
@@ -70,12 +52,12 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
                 string targetDtmi = toProcessModels.Dequeue();
                 if (processedModels.ContainsKey(targetDtmi))
                 {
-                    _logger.LogTrace(StandardStrings.SkippingPreProcessedDtmi(targetDtmi));
+                    ResolverEventSource.Shared.SkippingPreprocessedDtmi(targetDtmi);
                     continue;
                 }
-                _logger.LogTrace(StandardStrings.ProcessingDtmi(targetDtmi));
+                ResolverEventSource.Shared.ProcessingDtmi(targetDtmi);
 
-                FetchResult result = await this.FetchAsync(targetDtmi, cancellationToken);
+                FetchResult result = await FetchAsync(targetDtmi, cancellationToken);
                 if (result.FromExpanded)
                 {
                     Dictionary<string, string> expanded = await new ModelQuery(result.Definition).ListToDictAsync();
@@ -95,7 +77,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
                     IList<string> dependencies = metadata.Dependencies;
 
                     if (dependencies.Count > 0)
-                        _logger.LogTrace(StandardStrings.DiscoveredDependencies(dependencies));
+                        ResolverEventSource.Shared.DiscoveredDependencies(string.Join("\", \"", dependencies));
 
                     foreach (string dep in dependencies)
                     {
@@ -106,7 +88,8 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
                 string parsedDtmi = metadata.Id;
                 if (!parsedDtmi.Equals(targetDtmi, StringComparison.Ordinal))
                 {
-                    string formatErrorMsg = StandardStrings.IncorrectDtmiCasing(targetDtmi, parsedDtmi);
+                    ResolverEventSource.Shared.IncorrectDtmiCasing(targetDtmi, parsedDtmi);
+                    string formatErrorMsg = string.Format(StandardStrings.IncorrectDtmiCasing, targetDtmi, parsedDtmi);
                     throw new ResolverException(targetDtmi, formatErrorMsg, new FormatException(formatErrorMsg));
                 }
 
@@ -120,7 +103,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
         {
             try
             {
-                return await this._modelFetcher.FetchAsync(dtmi, this.RepositoryUri, cancellationToken);
+                return await _modelFetcher.FetchAsync(dtmi, this.RepositoryUri, cancellationToken);
             }
             catch (Exception ex)
             {
