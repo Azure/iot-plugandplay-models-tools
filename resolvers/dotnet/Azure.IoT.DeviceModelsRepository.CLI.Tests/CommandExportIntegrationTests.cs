@@ -84,7 +84,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"export --model-file \"{qualifiedModelFilePath}\" --repo \"{TestHelpers.TestLocalModelRepository}\"");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode, standardError);
             Assert.False(standardError.Contains("ERROR:"));
             Assert.True(standardError.Contains(Outputs.StandardHeader));
 
