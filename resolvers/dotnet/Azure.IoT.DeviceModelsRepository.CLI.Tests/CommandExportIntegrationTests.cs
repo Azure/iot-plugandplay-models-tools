@@ -79,7 +79,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI.Tests
             "dtmi:azure:DeviceManagement:DeviceInformation;1")]
         public void ExportInvocationWithModelFile(string modelFilePath, string expectedDeps)
         {
-            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+            string qualifiedModelFilePath = Path.GetFullPath(Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath));
 
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"export --model-file \"{qualifiedModelFilePath}\" --repo \"{TestHelpers.TestLocalModelRepository}\"");
