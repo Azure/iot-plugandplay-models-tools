@@ -73,7 +73,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI.Tests
         }
 
         [TestCase(
-            "dtmi/com/example/TemperatureController-1.json",
+            "dtmi/com/example/temperaturecontroller-1.json",
             "dtmi:com:example:TemperatureController;1," +
             "dtmi:com:example:Thermostat;1," +
             "dtmi:azure:DeviceManagement:DeviceInformation;1")]
