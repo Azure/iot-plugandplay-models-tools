@@ -30,7 +30,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
             {
                 JsonElement _root = document.RootElement;
 
-                if (_root.TryGetProperty("@id", out JsonElement id))
+                if (_root.ValueKind == JsonValueKind.Object && _root.TryGetProperty("@id", out JsonElement id))
                 {
                     if (id.ValueKind == JsonValueKind.String)
                     {
@@ -50,7 +50,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
             {
                 JsonElement _root = document.RootElement;
 
-                if (_root.TryGetProperty("extends", out JsonElement extends))
+                if (_root.ValueKind == JsonValueKind.Object && _root.TryGetProperty("extends", out JsonElement extends))
                 {
                     if (extends.ValueKind == JsonValueKind.Array)
                     {
@@ -80,7 +80,7 @@ namespace Azure.IoT.DeviceModelsRepository.Resolver
             {
                 JsonElement _root = document.RootElement;
 
-                if (_root.TryGetProperty("contents", out JsonElement contents))
+                if (_root.ValueKind == JsonValueKind.Object && _root.TryGetProperty("contents", out JsonElement contents))
                 {
                     if (contents.ValueKind == JsonValueKind.Array)
                     {

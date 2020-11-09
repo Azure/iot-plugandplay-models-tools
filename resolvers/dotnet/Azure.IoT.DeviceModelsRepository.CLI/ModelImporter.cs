@@ -9,15 +9,15 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
     {
         public static void Import(string modelContent, DirectoryInfo repository)
         {
-            string rootId = Parsing.GetRootId(modelContent);
+            string rootId = new Parsing(null).GetRootId(modelContent);
             string createPath = DtmiConventions.DtmiToQualifiedPath(rootId, repository.FullName);
 
-            Outputs.WriteOut($"- Importing model \"{rootId}\"...");
+            Outputs.WriteOutAsync($"- Importing model \"{rootId}\"...").Wait();
             if (File.Exists(createPath))
             {
-                Outputs.WriteOut(
+                Outputs.WriteOutAsync(
                     $"Skipping \"{rootId}\". Model file already exists in repository.",
-                    ConsoleColor.DarkCyan);
+                    ConsoleColor.DarkCyan).Wait();
                 return;
             }
 
