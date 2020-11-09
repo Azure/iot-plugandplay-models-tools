@@ -57,7 +57,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
                   description: "Local Model Repository path. If no path is provided the current working directory is used. ",
                   getDefaultValue: () => null)
                 {
-                    Argument = new Argument<DirectoryInfo>().ExistingOnly()
+                    Argument = new Argument<DirectoryInfo>()
                 };
             }
         }
@@ -93,7 +93,7 @@ namespace Azure.IoT.DeviceModelsRepository.CLI
             {
                 return new Option<bool>(
                     alias: "--silent",
-                    description: "Silences command result output on stdout.",
+                    description: "Silences command output on standard out.",
                     getDefaultValue: () => false)
                 {
                     Argument = new Argument<bool>
