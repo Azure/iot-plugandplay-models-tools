@@ -3,13 +3,18 @@
 
 "use strict"
 
+import * as dtmiConventions from './dtmiConventions'
+import * as debug from 'debug'
+import https from 'https'
 
 
-function remoteModelFetcher (remoteEndpoint) {
+
+export function remoteModelFetcher (dtmi, endpoint) {
+
     const options = {
-        hostname: repositoryEndpoint,
+        hostname: endpoint,
         port: 443,
-        path: path,
+        path: dtmiConventions.dtmiToPath(dtmi),
         method: 'GET'
     }
 
@@ -20,22 +25,14 @@ function remoteModelFetcher (remoteEndpoint) {
         });
         res.on('end', () => {
             debug('all data received');
-            break;
+            return;
         });
     });
 
     req.on('error', error => {
-        debug(`DTMI not valid for endpoint ${repositoryEndpoint}`);
+        debug(`DTMI not valid for endpoint ${endpoint}`);
         debug(error);
     });
 
     req.end();
-}
-
-function localModelFetcher(localPathEndpoint) {
-
-}
-
-module.exports = function fetchModel(repositoryEndpoint) {
-    // method
 }
