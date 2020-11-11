@@ -67,7 +67,7 @@ Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:
 
 To support traceability and diagnostics, the `ResolverClient` implements the [AzureEventSourceListener](https://docs.microsoft.com/dotnet/api/azure.core.diagnostics.azureeventsourcelistener?view=azure-dotnet)
 
-The following shows an example of to configure an event source to show logs in the debug output
+The following shows an example of how to configure an event source to show logs in the debug output
 
 ```csharp
 using Azure.Core.Diagnostics;
@@ -148,7 +148,7 @@ This solution includes a CLI project `Azure.Iot.DeviceModelsRepository.CLI` to i
 
 ### Install dmr-client
 
-The tool is actually distributed as source code and requires `dotnet sdk 3.1` to build and install. 
+The tool is actually distributed as source code and requires `dotnet sdk 3.1` to build and install.
 
 #### Linux/Bash
 
@@ -169,7 +169,7 @@ rd /S /Q "%TEMP%\dmrclient-setup"
 
 ```text
 dmr-client:
-  Microsoft IoT Plug and Play Device Models Repository CLI v0.0.14.0
+  Microsoft IoT Plug and Play Device Models Repository CLI v0.0.17.0
 
 Usage:
   dmr-client [options] [command]
@@ -210,9 +210,9 @@ Commands:
 ### dmr-client import
 
 ```bash
-# Adds an external file to the `dtmi` folder structure in the current working directory CWD
+# Adds an external file to the `dtmi` folder structure in the current working directory
 
-> dmr-client import --model-file "MyThermostat.json" --local-folder .
+> dmr-client import --model-file "MyThermostat.json" --local-repo .
 
 # Creates the path `.dtmi/com/example/thermostat-1.json`
 ```
