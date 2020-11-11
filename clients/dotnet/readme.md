@@ -9,7 +9,7 @@ The model resolution client `ResolverClient` provides functionality for retrievi
 
 ## Usage
 
-The client is available in the C# project `Azure.IoT.DeviceModelsRepository.Resolver` as a `netstandard2.0` library.
+The client is available in the C# project `Azure.Iot.ModelsRepository` as a `netstandard2.0` library.
 
 > Note. The package is not yet available on NuGet.org.
 
@@ -18,7 +18,7 @@ The client is available in the C# project `Azure.IoT.DeviceModelsRepository.Reso
 The following code block shows the basic usage of the `ResolverClient` using default parameters:
 
 ```csharp
-using Azure.Iot.DeviceModelsRepository.Resolver;
+using Azure.Iot.ModelsRepository;
 
 ResolverClient client = new ResolverClient();
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:Thermostat;1");
@@ -29,7 +29,7 @@ Without any options the resolver will use the default repository `devicemodels.a
 The resolver can be customized to use a different repository, local or remote:
 
 ```csharp
-using Azure.Iot.DeviceModelsRepository.Resolver;
+using Azure.Iot.ModelsRepository;
 
 ResolverClient client = new ResolverClient("https://raw.githubusercontent.com/Azure/iot-plugandplay-models/main");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:Thermostat;1");
@@ -38,7 +38,7 @@ Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:
 To configure the repository from a local folder use an absolute path:
 
 ```csharp
-using Azure.Iot.DeviceModelsRepository.Resolver;
+using Azure.Iot.ModelsRepository;
 
 ResolverClient client = new ResolverClient("/LocalModelRepo/");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:Thermostat;1");
@@ -57,7 +57,7 @@ If the root interface has dependencies with external interfaces, via `expand` or
 The next code block shows how to configure the resolver with a custom `DependencyResolutionOption`
 
 ```csharp
-using Azure.IoT.DeviceModelsRepository.Resolver;
+using Azure.Iot.ModelsRepository;
 
 ResolverClient rc = new ResolverClient(new ResolverClientOptions(DependencyResolutionOption.Enabled));
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:TemperatureController;1");
@@ -86,8 +86,8 @@ There are two options to integrate with the parser:
 ### Resolve before parsing
 
 ```csharp
-using Azure.Iot.DeviceModelsRepository.Resolver;
-using Azure.Iot.DeviceModelsRepository.Resolver.Extensions;
+using Azure.Iot.ModelsRepository;
+using Azure.Iot.ModelsRepository.Extensions;
 using Microsoft.Azure.DigitalTwins.Parser;
 using Microsoft.Extensions.Logging;
 using System;
@@ -105,11 +105,11 @@ Console.WriteLine($"{dtmi} resolved in {models.Count} interfaces with {parseResu
 ### Resolve while parsing
 
 The parser call a `DtmiResolverCallback` when it founds an unknown `@Id`, to configure the callback to be used from the parser, you can use the sister package
-`Azure.IoT.DeviceModelsRepository.Resolver.Extensions` to support this  integration:
+`Azure.Iot.ModelsRepository.Extensions` to support this  integration:
 
 ```csharp
-using Azure.Iot.DeviceModelsRepository.Resolver;
-using Azure.Iot.DeviceModelsRepository.Resolver.Extensions;
+using Azure.Iot.ModelsRepository;
+using Azure.Iot.ModelsRepository.Extensions;
 using Microsoft.Azure.DigitalTwins.Parser;
 using Microsoft.Extensions.Logging;
 using System;
@@ -144,7 +144,7 @@ catch (ResolverException resolverEx)
 
 ## Device Model Repository Client
 
-This solution includes a CLI project `Azure.Iot.DeviceModelsRepository.CLI` to interact with local and remote repositories. 
+This solution includes a CLI project `Azure.Iot.ModelsRepository.CLI` to interact with local and remote repositories. 
 
 ### Install dmr-client
 
