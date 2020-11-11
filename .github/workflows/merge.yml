@@ -23,7 +23,7 @@ jobs:
       with:
         dotnet-version: ${{ matrix.dotnet }}
     - name: Install dependencies
-      run: dotnet restore resolvers/dotnet
+      run: dotnet restore clients/dotnet
 
     - name: Build
       run: dotnet build --no-restore --configuration Release clients/dotnet
