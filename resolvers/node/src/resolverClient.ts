@@ -3,7 +3,8 @@
 
 "use strict"
 
-import { debug } from 'debug';
+import logger = require('@azure/logger');
+logger.setLogLevel('info');
 import { fetchers } from 'modelFetchers';
 
 
@@ -27,7 +28,7 @@ class ResolverClient {
         this.endpoint = endpoint;
     }
 
-    resolve (dtmi: string) {
+    async resolve (dtmi: string): Promise<void> {
         fetchers.fetchModel(dtmi);
     }
 }

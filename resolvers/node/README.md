@@ -4,7 +4,7 @@ The Azure IoT Resolver library for Javascript provides implementations for inter
 
 ## Key concepts
 
-The Azure IoT Resolver library for Javascript
+The Azure IoT Resolver library for Javascript is written to interact with the Azure IoT PlugAndPlay Models Repository, for those developers who wish to write applications in Javascript to do so.
 
 
 ## Examples
