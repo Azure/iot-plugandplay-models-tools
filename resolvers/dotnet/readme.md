@@ -9,7 +9,7 @@ The model resolution client `ResolverClient` provides functionality for retrievi
 
 ## Usage
 
-The client is available in the NuGet package `Azure.IoT.DeviceModelsRepository.Resolver` as `netstandard2.0`.
+The client is available in the C# project `Azure.IoT.DeviceModelsRepository.Resolver` as a `netstandard2.0` library.
 
 > Note. The package is not yet available on NuGet.org.
 
@@ -18,16 +18,18 @@ The client is available in the NuGet package `Azure.IoT.DeviceModelsRepository.R
 The following code block shows the basic usage of the `ResolverClient` using default parameters:
 
 ```csharp
-using Azure.IoT.DeviceModelsRepository.Resolver;
+using Azure.Iot.DeviceModelsRepository.Resolver;
 
 ResolverClient client = new ResolverClient();
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:Thermostat;1");
 ```
 
+Without any options the resolver will use the default repository `devicemodels.azure.com`.
+
 The resolver can be customized to use a different repository, local or remote:
 
 ```csharp
-using Azure.IoT.DeviceModelsRepository.Resolver;
+using Azure.Iot.DeviceModelsRepository.Resolver;
 
 ResolverClient client = new ResolverClient("https://raw.githubusercontent.com/Azure/iot-plugandplay-models/main");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:Thermostat;1");
@@ -36,7 +38,7 @@ Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:
 To configure the repository from a local folder use an absolute path:
 
 ```csharp
-using Azure.IoT.DeviceModelsRepository.Resolver;
+using Azure.Iot.DeviceModelsRepository.Resolver;
 
 ResolverClient client = new ResolverClient("/LocalModelRepo/");
 Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:Thermostat;1");
@@ -44,7 +46,7 @@ Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:
 
 ### DependencyResolutionOption
 
-If the root interface has dependencies with external interfaces, via `expand` or `@component` the client can be configured with the next `DependencyResolutionOption`:
+If the root interface has dependencies with external interfaces, via `expand` or `@component` as described [here](https://github.com/Azure/iot-plugandplay-models-tools/wiki/Resolution-Convention#expanded-dependencies), the client can be configured with the next `DependencyResolutionOption`:
 
 |DependencyResolutionOption|Description|
 |--------------------------|-----------|
@@ -63,27 +65,16 @@ Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:
 
 ### Logging
 
-To support traceability and diagnostics, the `ResolverClient` supports an optional `ILogger` parameter to pass in during initialization.
+To support traceability and diagnostics, the `ResolverClient` implements the [AzureEventSourceListener](https://docs.microsoft.com/dotnet/api/azure.core.diagnostics.azureeventsourcelistener?view=azure-dotnet)
 
-The following shows an example of how to pass in an `ILogger` instance.
+The following shows an example of how to configure an event source to show logs in the debug output
 
 ```csharp
-ILogger logger = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Trace)).CreateLogger<Program>();
-ResolverClient rc = new ResolverClient(logger);
-```
+using Azure.Core.Diagnostics;
+using System.Diagnostics.Tracing;
 
-Logging configuration is done with the standard `Microsoft.Extensions.Hosting` pattern using configuration appsettings or via environment variables.
-
-When using env vars, it's recommended using the cross-platform environment variable syntax (double underscore `__` delimiters).
-
-```powershell
-# powershell example for setting the default logger min log level to "Trace" in the current session.
-$env:Logging__LogLevel__Default="Trace"
-```
-
-```bash
-# bash example for setting the default logger min log level to "Warning"
-export Logging__LogLevel__Default="Trace"
+using AzureEventSourceListener listener = AzureEventSourceListener.CreateTraceLogger(EventLevel.Verbose);
+ResolverClient rc = new ResolverClient();
 ```
 
 ## Integration with the DigitalTwins Model Parser
@@ -95,8 +86,8 @@ There are two options to integrate with the parser:
 ### Resolve before parsing
 
 ```csharp
-using Azure.IoT.DeviceModelsRepository.Resolver;
-using Azure.IoT.DeviceModelsRepository.Resolver.Extensions;
+using Azure.Iot.DeviceModelsRepository.Resolver;
+using Azure.Iot.DeviceModelsRepository.Resolver.Extensions;
 using Microsoft.Azure.DigitalTwins.Parser;
 using Microsoft.Extensions.Logging;
 using System;
@@ -104,8 +95,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 string dtmi = "dtmi:com:example:TemperatureController;1";
-ILogger logger = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Trace)).CreateLogger<Program>();
-ResolverClient rc = new ResolverClient(logger);
+ResolverClient rc = new ResolverClient();
 var models = await rc.ResolveAsync(dtmi);
 ModelParser parser = new ModelParser();
 var parseResult = await parser.ParseAsync(models.Values.ToArray());
@@ -118,8 +108,8 @@ The parser call a `DtmiResolverCallback` when it founds an unknown `@Id`, to con
 `Azure.IoT.DeviceModelsRepository.Resolver.Extensions` to support this  integration:
 
 ```csharp
-using Azure.IoT.DeviceModelsRepository.Resolver;
-using Azure.IoT.DeviceModelsRepository.Resolver.Extensions;
+using Azure.Iot.DeviceModelsRepository.Resolver;
+using Azure.Iot.DeviceModelsRepository.Resolver.Extensions;
 using Microsoft.Azure.DigitalTwins.Parser;
 using Microsoft.Extensions.Logging;
 using System;
@@ -127,8 +117,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 string dtmi = "dtmi:com:example:TemperatureController;1";
-ILogger logger = LoggerFactory.Create(builder => builder.AddDebug().SetMinimumLevel(LogLevel.Trace)).CreateLogger<Program>();
-ResolverClient rc = new ResolverClient(new ResolverClientOptions(DependencyResolutionOption.Enabled), logger);
+ResolverClient rc = new ResolverClient(new ResolverClientOptions(DependencyResolutionOption.Enabled));
 var models = await rc.ResolveAsync(dtmi);
 ModelParser parser = new ModelParser();
 parser.DtmiResolver = rc.ParserDtmiResolver;
@@ -155,11 +144,32 @@ catch (ResolverException resolverEx)
 
 ## Device Model Repository Client
 
-This solution includes a CLI project `Azure.IoT.DeviceModelsRepository.CLI` to jumpstart scenarios. You are able to invoke commands via `dotnet run` or as the compiled executable `dmr-client`.
+This solution includes a CLI project `Azure.Iot.DeviceModelsRepository.CLI` to interact with local and remote repositories. 
+
+### Install dmr-client
+
+The tool is actually distributed as source code and requires `dotnet sdk 3.1` to build and install.
+
+#### Linux/Bash
+
+```bash
+curl -L https://aka.ms/install-dmr-client | bash
+```
+
+#### Windows/CMD
+
+```cmd
+git clone https://github.com/Azure/iot-plugandplay-models-tools "%TEMP%/dmrclient-setup"
+dotnet pack "%TEMP%/dmrclient-setup/resolvers/dotnet/Azure.IoT.DeviceModelsRepository.CLI/Azure.IoT.DeviceModelsRepository.CLI.csproj"
+dotnet tool install -g dmr-client --add-source "%TEMP%/dmrclient-setup/resolvers/dotnet/Azure.IoT.DeviceModelsRepository.CLI/bin/Debug"
+rd /S /Q "%TEMP%\dmrclient-setup"
+```
+
+### dmr-client Usage
 
 ```text
 dmr-client:
-  Microsoft IoT Plug and Play Device Model Repository CLI
+  Microsoft IoT Plug and Play Device Models Repository CLI v0.0.17.0
 
 Usage:
   dmr-client [options] [command]
@@ -171,8 +181,10 @@ Options:
 Commands:
   export      Retrieve a model and its dependencies by dtmi or model file using the target repository for model
               resolution.
-  validate    Validates a model using the Digital Twins model parser. Uses the target repository for model resolution.
-  import      Adds a model to the repo. Validates ids, dependencies and set the right folder/file name
+  validate    Validates a model using the DTDL model parser & resolver. The target repository is used for model
+              resolution.
+  import      Validates a local model file then adds it to the local repository.
+
   
 ```
 
@@ -195,16 +207,14 @@ Commands:
 > dmr-client export --dtmi "dtmi:com:example:Thermostat;1" --repository https://raw.githubusercontent.com/Azure/iot-plugandplay-models/main
 ```
 
-
-
 ### dmr-client import
 
 ```bash
-# Adds an external file to the `dtmi` folder structure in the current working directory CWD
+# Adds an external file to the `dtmi` folder structure in the current working directory
 
-> dmr-client import --dtmi "dtmi:com:example:Thermostat;1"
+> dmr-client import --model-file "MyThermostat.json" --local-repo .
 
-# Creates the path `dtmi/com/example/thermostat-1.json`
+# Creates the path `.dtmi/com/example/thermostat-1.json`
 ```
 
 ### dmr-client validate
