@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Microsoft</Copyright>
+    <Company>Microsoft</Company>
+    <Authors>Microsoft</Authors>
+    <Version>0.0.17</Version>
+    <AssemblyName>dmr-client</AssemblyName>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dmr-client</ToolCommandName>
+    <PackageId>dmr-client</PackageId>
+    <Product>Azure.Iot.ModelsRepository.CLI</Product>
+    <RepositoryUrl>https://github.com/Azure/iot-plugandplay-models-tools</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.5" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Azure.Iot.ModelsRepository.Extensions\Azure.Iot.ModelsRepository.Extensions.csproj" />
+    <ProjectReference Include="..\Azure.Iot.ModelsRepository\Azure.Iot.ModelsRepository.csproj" />
+  </ItemGroup>
+
+</Project>
