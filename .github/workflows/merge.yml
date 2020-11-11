@@ -3,14 +3,14 @@ name: Merge
 on:
   push:
     branches: [ main, dev ]
-    paths-ignore: samples
+    paths-ignore: [ samples ]
   pull_request:
     branches: [ main, dev ]
-    paths-ignore: samples
+    paths-ignore: [ samples ]
 
 jobs:
-  dotnet_resolver_tools:
-    name: dotnet resolver tools
+  evaluating_dotnet_clients:
+    name: Evaluating dotnet clients
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -19,14 +19,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1.6.0 # TODO: Change to latest after setup-dotnet action bug resolution https://github.com/actions/setup-dotnet/issues/128.
+      uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ matrix.dotnet }}
     - name: Install dependencies
-      run: dotnet restore resolvers/dotnet
+      run: dotnet restore clients/dotnet
 
     - name: Build
-      run: dotnet build --no-restore --configuration Release resolvers/dotnet
+      run: dotnet build --no-restore --configuration Release clients/dotnet
 
     - name: Test
-      run: dotnet test --no-restore --verbosity normal resolvers/dotnet
+      run: dotnet test --no-restore --verbosity normal clients/dotnet
