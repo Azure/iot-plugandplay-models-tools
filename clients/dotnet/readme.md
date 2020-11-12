@@ -151,7 +151,13 @@ The tool is distributed as source code and requires `dotnet sdk 3.1` to build an
 #### Linux/Bash
 
 ```bash
-curl -L https://aka.ms/install-dmr-client-bash | bash
+curl -L https://aka.ms/install-dmr-client-linux | bash
+```
+
+#### Windows/Powershell
+
+```powershell
+iwr https://aka.ms/install-dmr-client-windows -UseBasicParsing | iex
 ```
 
 #### Windows/CMD
