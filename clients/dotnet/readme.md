@@ -89,7 +89,6 @@ There are two options to integrate with the parser:
 using Azure.Iot.ModelsRepository;
 using Azure.Iot.ModelsRepository.Extensions;
 using Microsoft.Azure.DigitalTwins.Parser;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -104,14 +103,13 @@ Console.WriteLine($"{dtmi} resolved in {models.Count} interfaces with {parseResu
 
 ### Resolve while parsing
 
-The parser call a `DtmiResolverCallback` when it founds an unknown `@Id`, to configure the callback to be used from the parser, you can use the sister package
-`Azure.Iot.ModelsRepository.Extensions` to support this  integration:
+The parser call a `DtmiResolver` callback when it finds an unknown `@Id`. To configure the callback to be used from the parser, you can use the sister package
+`Azure.Iot.ModelsRepository.Extensions`:
 
 ```csharp
 using Azure.Iot.ModelsRepository;
 using Azure.Iot.ModelsRepository.Extensions;
 using Microsoft.Azure.DigitalTwins.Parser;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -127,7 +125,7 @@ Console.WriteLine($"{dtmi} resolved in {models.Count} interfaces with {parseResu
 
 ## Error Handling
 
-When the `ResolverClient` hits an issue resolving `DTMI`'s a `ResolverException` will be thrown which summarizes the issue. The `ResolverException` may contain an inner exception with additional details as to why the exception occured.
+When the `ResolverClient` hits a problem resolving `DTMI`'s a `ResolverException` will be thrown which summarizes the issue. The `ResolverException` may contain an inner exception with additional details as to why the exception occured.
 
 This snippet from the `CLI` shows a way to use `ResolverException`.
 
@@ -148,12 +146,12 @@ This solution includes a CLI project `Azure.Iot.ModelsRepository.CLI` to interac
 
 ### Install dmr-client
 
-The tool is actually distributed as source code and requires `dotnet sdk 3.1` to build and install.
+The tool is distributed as source code and requires `dotnet sdk 3.1` to build and install.
 
 #### Linux/Bash
 
 ```bash
-curl -L https://aka.ms/install-dmr-client | bash
+curl -L https://aka.ms/install-dmr-client-bash | bash
 ```
 
 #### Windows/CMD
