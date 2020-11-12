@@ -160,15 +160,6 @@ curl -L https://aka.ms/install-dmr-client-linux | bash
 iwr https://aka.ms/install-dmr-client-windows -UseBasicParsing | iex
 ```
 
-#### Windows/CMD
-
-```cmd
-git clone https://github.com/Azure/iot-plugandplay-models-tools "%TEMP%/dmrclient-setup"
-dotnet pack "%TEMP%/dmrclient-setup/resolvers/dotnet/Azure.IoT.DeviceModelsRepository.CLI/Azure.IoT.DeviceModelsRepository.CLI.csproj"
-dotnet tool install -g dmr-client --add-source "%TEMP%/dmrclient-setup/resolvers/dotnet/Azure.IoT.DeviceModelsRepository.CLI/bin/Debug"
-rd /S /Q "%TEMP%\dmrclient-setup"
-```
-
 ### dmr-client Usage
 
 ```text
@@ -208,7 +199,7 @@ Commands:
 ```bash
 # Retrieves an interface from a custom  repo by DTMI
 
-> dmr-client export --dtmi "dtmi:com:example:Thermostat;1" --repository https://raw.githubusercontent.com/Azure/iot-plugandplay-models/main
+> dmr-client export --dtmi "dtmi:com:example:Thermostat;1" --repo https://raw.githubusercontent.com/Azure/iot-plugandplay-models/main
 ```
 
 ### dmr-client import
@@ -232,5 +223,5 @@ Commands:
 ```bash
 # Validates a DTDLv2 model using the Digital Twins Parser and custom repository endpoint for resolution.
 
-> dmr-client validate --model-file ./my/model/file.json --repository "https://mycustom.domain"
+> dmr-client validate --model-file ./my/model/file.json --repo "https://mycustom.domain"
 ```
