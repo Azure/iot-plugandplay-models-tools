@@ -7,7 +7,7 @@
     <Copyright>Microsoft</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>0.0.17</Version>
+    <Version>1.0.0-beta</Version>
     <AssemblyName>dmr-client</AssemblyName>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dmr-client</ToolCommandName>

@@ -18,7 +18,7 @@ namespace Azure.Iot.ModelsRepository.CLI
                 dtmiOption.AddValidator(option =>
                 {
                     string value = option.GetValueOrDefault<string>();
-                    if (!ResolverClient.IsValidDtmi(value))
+                    if (!DtmiConventions.IsDtmi(value))
                     {
                         return $"Invalid dtmi format '{value}'.";
                     }

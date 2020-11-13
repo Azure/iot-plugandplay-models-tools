@@ -7,7 +7,7 @@ namespace Azure.Iot.ModelsRepository.CLI
     {
         public static readonly string ParserVersion = typeof(ModelParser).Assembly.GetName().Version.ToString();
         public static readonly string ResolverVersion = typeof(ResolverClient).Assembly.GetName().Version.ToString();
-        public static readonly string CliVersion = typeof(Program).Assembly.GetName().Version.ToString();
+        public static readonly string CliVersion = $"{typeof(Program).Assembly.GetName().Version}-beta";
         public static readonly string StandardHeader = $"dmr-client/{CliVersion} parser/{ParserVersion} resolver/{ResolverVersion}";
 
         public static void WriteError(string msg)
