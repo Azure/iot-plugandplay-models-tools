@@ -22,7 +22,7 @@ namespace Azure.Iot.ModelsRepository
 
         /// <summary>
         /// Initializes the <c>ResolverClient</c> with default client options while pointing to
-        /// a custom <c>Uri</c> for resolution.
+        /// a custom <paramref name="repositoryUri"/> for resolution.
         /// </summary>
         /// <param name="repositoryUri">
         /// The model repository <c>Uri</c> value. This can be a remote endpoint or local directory.
@@ -30,7 +30,7 @@ namespace Azure.Iot.ModelsRepository
         public ResolverClient(Uri repositoryUri) : this(repositoryUri, null) { }
 
         /// <summary>
-        /// Initializes the <c>ResolverClient</c> with custom client options while pointing to
+        /// Initializes the <c>ResolverClient</c> with custom client <paramref name="options"/> while pointing to
         /// the Azure IoT Plug and Play Model repository https://devicemodels.azure.com for resolution.
         /// </summary>
         /// <param name="options">
@@ -39,8 +39,8 @@ namespace Azure.Iot.ModelsRepository
         public ResolverClient(ResolverClientOptions options) : this(new Uri(DefaultRepository), options) { }
 
         /// <summary>
-        /// Initializes the <c>ResolverClient</c> with custom client options while pointing to
-        /// a custom <c>Uri</c> for resolution.
+        /// Initializes the <c>ResolverClient</c> with custom client <paramref name="options"/> while pointing to
+        /// a custom <paramref name="repositoryUri"/> for resolution.
         /// </summary>
         /// <param name="repositoryUri">
         /// The model repository <c>Uri</c>. This can be a remote endpoint or local directory.
@@ -55,7 +55,7 @@ namespace Azure.Iot.ModelsRepository
 
         /// <summary>
         /// Initializes the <c>ResolverClient</c> with default client options while pointing to
-        /// a custom <c>Uri</c> for resolution.
+        /// a custom <paramref name="repositoryUriStr"/> for resolution.
         /// </summary>
         /// <param name="repositoryUriStr">
         /// The model repository <c>Uri</c> in string format. This can be a remote endpoint or local directory.
@@ -63,11 +63,11 @@ namespace Azure.Iot.ModelsRepository
         public ResolverClient(string repositoryUriStr) : this(repositoryUriStr, null) { }
 
         /// <summary>
-        /// Initializes the <c>ResolverClient</c> with custom client options while pointing to
-        /// a custom <c>Uri</c> for resolution.
+        /// Initializes the <c>ResolverClient</c> with custom client <paramref name="options"/> while pointing to
+        /// a custom <paramref name="repositoryUriStr"/> for resolution.
         /// </summary>
-        /// <param name="repositoryUri">
-        /// The model repository <c>Uri</c>. This can be a remote endpoint or local directory.
+        /// <param name="repositoryUriStr">
+        /// The model repository <c>Uri</c> in string format. This can be a remote endpoint or local directory.
         /// </param>
         /// <param name="options">
         /// <c>ResolverClientOptions</c> to configure resolution and client behavior.
