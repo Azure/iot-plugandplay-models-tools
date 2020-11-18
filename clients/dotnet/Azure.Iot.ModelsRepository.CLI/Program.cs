@@ -115,7 +115,8 @@ namespace Azure.Iot.ModelsRepository.CLI
                 CommonOptions.Deps,
                 CommonOptions.Strict,
             };
-            importModelCommand.Description = "Imports models from a local model file into the target local repository.";
+            importModelCommand.Description =
+                "Imports models from a model file into the local repository. The local repo is used for model resolution. ";
             importModelCommand.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, DependencyResolutionOption, bool>(Handlers.Import);
 
             return importModelCommand;

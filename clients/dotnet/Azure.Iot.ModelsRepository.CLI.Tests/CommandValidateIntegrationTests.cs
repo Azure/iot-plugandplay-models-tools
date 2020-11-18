@@ -93,7 +93,7 @@ namespace Azure.Iot.ModelsRepository.CLI.Tests
                 $"validate --model-file \"{qualifiedModelFilePath}\" " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ParserError, returnCode);
+            Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
 
             Assert.True(standardError.Contains("Error:"));
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));

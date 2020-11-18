@@ -17,9 +17,8 @@ namespace Azure.Iot.ModelsRepository.CLI
         {
             public const int Success = 0;
             public const int InvalidArguments = 1;
-            public const int ParserError = 2;
+            public const int ValidationError = 2;
             public const int ResolutionError = 3;
-            public const int ValidationError = 4;
         }
 
         public static async Task<int> Export(string dtmi, FileInfo modelFile, string repo, DependencyResolutionOption deps, string output)
@@ -41,7 +40,7 @@ namespace Azure.Iot.ModelsRepository.CLI
                     if (string.IsNullOrWhiteSpace(dtmi))
                     {
                         Outputs.WriteError("Model is missing root @id");
-                        return ReturnCodes.ParserError;
+                        return ReturnCodes.ValidationError;
                     }
                 }
 
@@ -155,7 +154,7 @@ namespace Azure.Iot.ModelsRepository.CLI
                 }
 
                 Outputs.WriteError(normalizedErrors);
-                return ReturnCodes.ParserError;
+                return ReturnCodes.ValidationError;
             }
             catch (IOException ioEx)
             {
@@ -241,7 +240,7 @@ namespace Azure.Iot.ModelsRepository.CLI
                 }
 
                 Outputs.WriteError(normalizedErrors);
-                return ReturnCodes.ParserError;
+                return ReturnCodes.ValidationError;
             }
             catch (IOException ioEx)
             {

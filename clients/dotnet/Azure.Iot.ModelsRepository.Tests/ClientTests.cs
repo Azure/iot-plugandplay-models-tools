@@ -48,7 +48,7 @@ namespace Azure.Iot.ModelsRepository.Tests
         [TestCase(null, false)]
         public void ClientIsValidDtmi(string dtmi, bool expected)
         {
-            Assert.AreEqual(expected, ResolverClient.IsValidDtmi(dtmi));
+            Assert.AreEqual(expected, new ResolverClient().IsValidDtmi(dtmi));
         }
 
         [Test]

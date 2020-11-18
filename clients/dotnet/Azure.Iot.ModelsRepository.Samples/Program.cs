@@ -1,5 +1,4 @@
 ﻿using Azure.Core.Diagnostics;
-using Azure.Iot.ModelsRepository;
 using Azure.Iot.ModelsRepository.Extensions;
 using Microsoft.Azure.DigitalTwins.Parser;
 using System;
