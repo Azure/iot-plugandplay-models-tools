@@ -46,7 +46,7 @@ Dictionary<string, string> models = await client.ResolveAsync("dtmi:com:example:
 
 ### DependencyResolutionOption
 
-If the root interface has dependencies with external interfaces, via `expand` or `@component` as described [here](https://github.com/Azure/iot-plugandplay-models-tools/wiki/Resolution-Convention#expanded-dependencies), the client can be configured with the next `DependencyResolutionOption`:
+If the root interface has dependencies with external interfaces, via `extends` or `@component` as described [here](https://github.com/Azure/iot-plugandplay-models-tools/wiki/Resolution-Convention#expanded-dependencies), the client can be configured with the following `DependencyResolutionOption`:
 
 |DependencyResolutionOption|Description|
 |--------------------------|-----------|
@@ -103,7 +103,7 @@ Console.WriteLine($"{dtmi} resolved in {models.Count} interfaces with {parseResu
 
 ### Resolve while parsing
 
-The parser call a `DtmiResolver` callback when it finds an unknown `@Id`. To configure the callback to be used from the parser, you can use the sister package
+The parser calls a `DtmiResolver` callback when it finds an unknown `@Id`. To configure the callback to be used from the parser, you can use the sister package
 `Azure.Iot.ModelsRepository.Extensions`:
 
 ```csharp
