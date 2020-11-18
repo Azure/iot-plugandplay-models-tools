@@ -3,7 +3,7 @@
 # Copyright (c) Microsoft Corporation MIT license
 
 source_archive_dir=dmr-tools-$(date +"%s")
-snapshot_ver="0.4-preview"
+snapshot_ver="1.0.0-beta.1"
 
 echo "Running dmr-client install script..."
 mkdir $source_archive_dir
