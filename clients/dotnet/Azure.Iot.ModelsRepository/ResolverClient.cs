@@ -84,7 +84,7 @@ namespace Azure.Iot.ModelsRepository
         /// and the value is the raw model definition string.
         /// </returns>
         /// <exception cref="ResolverException">Thrown when a resolution failure occurs.</exception>
-        /// <param name="dtmi">A well-formed DTDL model Id.</param>
+        /// <param name="dtmi">A well-formed DTDL model Id. For example 'dtmi:com:example:Thermostat;1'.</param>
         public virtual async Task<IDictionary<string, string>> ResolveAsync(string dtmi, CancellationToken cancellationToken = default)
         {
             return await this.repositoryHandler.ProcessAsync(dtmi, cancellationToken);

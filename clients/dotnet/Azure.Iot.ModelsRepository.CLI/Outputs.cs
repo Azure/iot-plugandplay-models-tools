@@ -1,13 +1,15 @@
 ﻿using Microsoft.Azure.DigitalTwins.Parser;
 using System;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace Azure.Iot.ModelsRepository.CLI
 {
     internal class Outputs
     {
-        public static readonly string ParserVersion = typeof(ModelParser).Assembly.GetName().Version.ToString();
-        public static readonly string ResolverVersion = typeof(ResolverClient).Assembly.GetName().Version.ToString();
-        public static readonly string CliVersion = $"{typeof(Program).Assembly.GetName().Version}-beta";
+        public static readonly string ParserVersion = FileVersionInfo.GetVersionInfo(typeof(ModelParser).Assembly.Location).ProductVersion;
+        public static readonly string ResolverVersion = FileVersionInfo.GetVersionInfo(typeof(ResolverClient).Assembly.Location).ProductVersion;
+        public static readonly string CliVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
         public static readonly string StandardHeader = $"dmr-client/{CliVersion} parser/{ParserVersion} resolver/{ResolverVersion}";
 
         public static void WriteError(string msg)

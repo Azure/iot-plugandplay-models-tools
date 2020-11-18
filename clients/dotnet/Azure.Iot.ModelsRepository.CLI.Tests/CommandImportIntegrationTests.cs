@@ -35,6 +35,8 @@ namespace Azure.Iot.ModelsRepository.CLI.Tests
 
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains("Error:"));
+
+            Assert.True(standardError.Contains(Outputs.StandardHeader));
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
             Assert.True(standardOut.Contains($"- Importing model \"{expectedDtmi}\"..."));
 
@@ -104,7 +106,7 @@ namespace Azure.Iot.ModelsRepository.CLI.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ParserError, returnCode);
+            Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
 
             Assert.True(standardError.Contains("Error:"));
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));

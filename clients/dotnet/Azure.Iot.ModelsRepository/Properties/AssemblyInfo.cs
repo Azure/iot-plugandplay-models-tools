@@ -3,4 +3,4 @@
 
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Azure.Iot.ModelsRepository.Tests"), InternalsVisibleTo("dmr-client")]
+[assembly: InternalsVisibleTo("Azure.Iot.ModelsRepository.Tests")]
