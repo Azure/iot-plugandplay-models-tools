@@ -11,4 +11,4 @@ Set-Location -Path "$source_archive_dir"
 tar -xf "snapshot-$snapshot_ver"
 Pop-Location
 dotnet pack "$source_archive_dir/iot-plugandplay-models-tools-$snapshot_ver/clients/dotnet" -v q -c Release
-dotnet tool install -g dmr-client --add-source "$source_archive_dir/iot-plugandplay-models-tools-$snapshot_ver/clients/dotnet/Azure.Iot.ModelsRepository.CLI/bin/Release"
+dotnet tool install -g dmr-client --add-source "$source_archive_dir/iot-plugandplay-models-tools-$snapshot_ver/clients/dotnet/Azure.Iot.ModelsRepository.CLI/bin/Release" --version $snapshot_ver
