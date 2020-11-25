@@ -9,9 +9,7 @@ import EventEmitter from "events";
 // for both node and web
 import { isNode } from "@azure/core-http";
 
-// exporting some value from a dependency
-
-export { ResolverClient } from './resolverClient'
+export * from './resolver'
 
 
 export function createEventEmitter(): EventEmitter {
@@ -24,8 +22,6 @@ export function createEventEmitter(): EventEmitter {
   } else {
     console.log("Browser ❤");
   }
-
-  print("Created event emitter");
 
   return e;
 }

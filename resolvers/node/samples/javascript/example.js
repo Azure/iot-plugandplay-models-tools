@@ -6,20 +6,19 @@
  * Demonstrates something
  */
 
-import { ResolverClient } from "../../src/resolverClient"
+
+const resolver = require('../../out/resolver.js')
+
 
 const repositoryEndpoint = 'devicemodels.azure.com'
 const dtmi = process.argv[2] || 'dtmi:azure:DeviceManagement:DeviceInformation;1'
 
-console.log(repositoryEndpoint, path)
-
-dmrClient = new ResolverClient(repositoryEndpoint);
-dmrClient.resolve(dtmi);
+console.log(repositoryEndpoint, dtmi)
 
 async function main() {
-  dmrClient = new ResolverClient(repositoryEndpoint);
-  dmrClient.resolve(dtmi);
 
+  result = await resolver.resolve(dtmi, repositoryEndpoint);
+  console.log(result)
 }
 
 main().catch((err) => {

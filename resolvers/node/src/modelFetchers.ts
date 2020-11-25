@@ -4,35 +4,42 @@
 "use strict"
 
 import * as dtmiConventions from './dtmiConventions'
-import * as debug from 'debug'
 import https from 'https'
 
 
 
-export function remoteModelFetcher (dtmi, endpoint) {
-
+export function remoteModelFetcher (dtmi: string, endpoint: string, expanded: boolean): Promise<{ [dtmi: string]: string}> {
+    const formattedPath = expanded ? dtmiConventions.dtmiToPath(dtmi).replace('.json','.expanded.json') : dtmiConventions.dtmiToPath(dtmi);
     const options = {
         hostname: endpoint,
         port: 443,
-        path: dtmiConventions.dtmiToPath(dtmi),
+        path: formattedPath,
         method: 'GET'
     }
-
-    const req = https.request(options, res => {
-        debug('statusCode: ', res.statusCode);
-        res.on('data', d => {
-            debug(d);
+    return new Promise((resolve, reject) => {
+        let body: Buffer[] = [];
+        const req = https.request(options, res => {
+            console.log('statusCode: ', res.statusCode);
+            if (res.statusCode && res.statusCode >= 400) {
+               reject(res);
+            } else {
+                res.on('data', (chunk: Buffer) => {
+                    body.push(chunk)
+                    console.log(chunk);
+                });
+                res.on('end', () => {
+                    console.log('all data received');
+                    let stringBody = Buffer.concat(body).toString();
+                    resolve({ [dtmi] : stringBody });
+                });
+            }
         });
-        res.on('end', () => {
-            debug('all data received');
-            return;
+        req.on('error', error => {
+            console.log(`DTMI not valid for endpoint ${endpoint}`);
+            console.error(error);
+            reject(error);
         });
-    });
 
-    req.on('error', error => {
-        debug(`DTMI not valid for endpoint ${endpoint}`);
-        debug(error);
-    });
-
-    req.end();
+        req.end();
+    })
 }
