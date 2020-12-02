@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
+
 
 namespace Azure.Iot.ModelsRepository.CLI.Tests
 {
@@ -9,9 +11,11 @@ namespace Azure.Iot.ModelsRepository.CLI.Tests
 
         public static (int, string, string) Invoke(string commandArgs)
         {
+            string moniker = GetFrameworkMoniker();
+
             ProcessStartInfo cmdsi = new ProcessStartInfo("dotnet")
             {
-                Arguments = $"run -- {commandArgs}",
+                Arguments = $"run --framework {moniker} -- {commandArgs}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -25,6 +29,22 @@ namespace Azure.Iot.ModelsRepository.CLI.Tests
             cmd.WaitForExit(10000);
 
             return (cmd.ExitCode, standardOut, standardError);
+        }
+
+        public static string GetFrameworkMoniker()
+        {
+            string lframeworkDesc = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.ToLower();
+            if (lframeworkDesc.StartsWith(".net core 3.1"))
+            {
+                return "netcoreapp3.1";
+            }
+
+            if (lframeworkDesc.StartsWith(".net 5.0"))
+            {
+                return "net5.0";
+            }
+
+            throw new ArgumentException($"Unsupported framework: {lframeworkDesc}.");
         }
     }
 }
