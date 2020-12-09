@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace Azure.Iot.ModelsRepository.CLI.Tests
 {
+    [NonParallelizable]
     public class CommandExportIntegrationTests
     {
         [TestCase(

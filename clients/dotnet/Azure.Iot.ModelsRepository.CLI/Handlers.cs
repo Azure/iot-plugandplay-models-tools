@@ -84,7 +84,6 @@ namespace Azure.Iot.ModelsRepository.CLI
 
             try
             {
-                ModelParser parser = parsing.GetParser(resolutionOption: deps);
                 FileExtractResult extractResult = parsing.ExtractModels(modelFile);
                 List<string> models = extractResult.Models;
 
@@ -92,6 +91,24 @@ namespace Azure.Iot.ModelsRepository.CLI
                 {
                     Outputs.WriteError("No models to validate.");
                     return ReturnCodes.ValidationError;
+                }
+
+                ModelParser parser;
+                if (models.Count > 1)
+                {
+                    // Special case: when validating from an array, only use array contents for resolution.
+                    // Setup vanilla parser with no resolution. We get a better error message when a delegate is assigned.
+                    parser = new ModelParser
+                    {
+                        DtmiResolver = (IReadOnlyCollection<Dtmi> dtmis) =>
+                        {
+                            return Task.FromResult(Enumerable.Empty<string>());
+                        }
+                    };
+                }
+                else
+                {
+                    parser = parsing.GetParser(resolutionOption: deps);
                 }
 
                 Outputs.WriteOut($"- Validating models conform to DTDL...");

@@ -20,6 +20,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
+        tfm: [ netcoreapp3.1, net5.0 ]
     steps:
     - uses: actions/checkout@v2
 
@@ -36,11 +37,8 @@ jobs:
     - name: dotnet --info
       run: dotnet --info
 
-    - name: Restore dependencies
-      run: dotnet restore clients/dotnet
-
     - name: Build solution Azure.Iot.ModelsRepository
-      run: dotnet build --no-restore --configuration Release clients/dotnet
+      run: dotnet build clients/dotnet
 
-    - name: Execute solution Azure.Iot.ModelsRepository test components
-      run: dotnet test --no-restore --verbosity normal clients/dotnet
+    - name: Execute solution Azure.Iot.ModelsRepository tests
+      run: dotnet test --no-build --verbosity detailed clients/dotnet --framework ${{ matrix.tfm }} --blame-hang

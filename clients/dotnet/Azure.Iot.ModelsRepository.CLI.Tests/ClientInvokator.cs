@@ -12,10 +12,9 @@ namespace Azure.Iot.ModelsRepository.CLI.Tests
         public static (int, string, string) Invoke(string commandArgs)
         {
             string moniker = GetFrameworkMoniker();
-
             ProcessStartInfo cmdsi = new ProcessStartInfo("dotnet")
             {
-                Arguments = $"run --framework {moniker} -- {commandArgs}",
+                Arguments = $"run --no-build --framework {moniker} -- {commandArgs}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -27,7 +26,6 @@ namespace Azure.Iot.ModelsRepository.CLI.Tests
             string standardError = cmd.StandardError.ReadToEnd();
 
             cmd.WaitForExit(10000);
-
             return (cmd.ExitCode, standardOut, standardError);
         }
 
