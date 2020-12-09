@@ -4,42 +4,31 @@
 "use strict"
 
 import * as dtmiConventions from './dtmiConventions'
-import https from 'https'
-
+import * as coreHttp from "@azure/core-http"
 
 
 export function remoteModelFetcher (dtmi: string, endpoint: string, expanded: boolean): Promise<{ [dtmi: string]: string}> {
-    const formattedPath = expanded ? dtmiConventions.dtmiToPath(dtmi).replace('.json','.expanded.json') : dtmiConventions.dtmiToPath(dtmi);
-    const options = {
-        hostname: endpoint,
-        port: 443,
-        path: formattedPath,
-        method: 'GET'
-    }
-    return new Promise((resolve, reject) => {
-        let body: Buffer[] = [];
-        const req = https.request(options, res => {
-            console.log('statusCode: ', res.statusCode);
-            if (res.statusCode && res.statusCode >= 400) {
-               reject(res);
-            } else {
-                res.on('data', (chunk: Buffer) => {
-                    body.push(chunk)
-                    console.log(chunk);
-                });
-                res.on('end', () => {
-                    console.log('all data received');
-                    let stringBody = Buffer.concat(body).toString();
-                    resolve({ [dtmi] : stringBody });
-                });
-            }
-        });
-        req.on('error', error => {
-            console.log(`DTMI not valid for endpoint ${endpoint}`);
-            console.error(error);
-            reject(error);
-        });
+    const formattedPath = dtmiConventions.dtmiToPath(dtmi, expanded)
+    const req: coreHttp.RequestPrepareOptions = {
+        url: `${endpoint}${formattedPath}`,
+        method: "GET"
+    };
 
-        req.end();
+    return new Promise((resolve, reject) => {
+        const client = new coreHttp.ServiceClient();
+        client.sendRequest(req)
+        .then((res: coreHttp.HttpOperationResponse) => {
+            if (res.bodyAsText) {
+                console.log(res.bodyAsText.substr(0,1000));
+            } else {
+                console.log('res is undefined or null');
+            }
+            const result = { [dtmi] : res.bodyAsText ? res.bodyAsText : '' };
+            resolve(result);
+        })
+        .catch((err) => {
+            console.error(err);
+            reject(err);
+        });
     })
 }

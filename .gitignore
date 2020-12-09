@@ -276,7 +276,8 @@ FakesAssemblies/
 node_modules/
 **/types/
 
-# Transpile Folders
+# Typescript Transpile Folders
+**/out/
 
 # Visual Studio 6 build log
 *.plg
@@ -355,3 +356,5 @@ MigrationBackup/
 
 # Local repository for testing add model
 .localRepository
+
+.vscode/
