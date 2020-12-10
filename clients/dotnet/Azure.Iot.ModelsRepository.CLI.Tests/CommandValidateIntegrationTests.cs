@@ -3,6 +3,7 @@ using System.IO;
 
 namespace Azure.Iot.ModelsRepository.CLI.Tests
 {
+    [NonParallelizable]
     public class CommandValidateIntegrationTests
     {
         [TestCase("dtmi/com/example/thermostat-1.json", false)]
@@ -59,7 +60,7 @@ namespace Azure.Iot.ModelsRepository.CLI.Tests
 
         [TestCase("dtmi/com/example/temperaturecontroller-1.expanded.json", false)]
         [TestCase("dtmi/com/example/temperaturecontroller-1.expanded.json", true)]
-        public void ValidateModelFileArrayOfModelObjects(string modelFilePath, bool strict)
+        public void ValidateModelFileArrayOfModels(string modelFilePath, bool strict)
         {
             string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
             string strictSwitch = strict ? "--strict" : "";
@@ -81,6 +82,22 @@ namespace Azure.Iot.ModelsRepository.CLI.Tests
             // TODO: --strict validation is not fleshed out for an array of models.
             Assert.True(standardError.Contains("Error: Strict validation requires a single root model object."));
             Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
+        }
+
+        [TestCase("dtmi/com/example/incompleteexpanded-1.expanded.json")]
+        public void ValidateModelFileErrorIncompleteArrayOfModels(string modelFilePath)
+        {
+            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"" +
+                $"validate --model-file \"{qualifiedModelFilePath}\" " +
+                $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
+
+            Assert.True(standardError.Contains(
+                "Error: DtmiResolver failed to resolve requisite references to element(s): " +
+                "dtmi:azure:DeviceManagement:DeviceInformation;1"));
+            Assert.AreEqual(Handlers.ReturnCodes.ResolutionError, returnCode);
         }
 
         [TestCase("dtmi/com/example/invalidmodel-2.json")]

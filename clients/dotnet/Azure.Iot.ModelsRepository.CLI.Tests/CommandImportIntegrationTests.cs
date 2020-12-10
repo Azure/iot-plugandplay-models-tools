@@ -4,6 +4,7 @@ using System.IO;
 
 namespace Azure.Iot.ModelsRepository.CLI.Tests
 {
+    [NonParallelizable]
     public class CommandImportIntegrationTests
     {
         readonly string testDirectory = TestContext.CurrentContext.TestDirectory;

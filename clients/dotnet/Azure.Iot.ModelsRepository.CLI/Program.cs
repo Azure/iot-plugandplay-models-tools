@@ -96,7 +96,10 @@ namespace Azure.Iot.ModelsRepository.CLI
             };
 
             validateModelCommand.Description =
-                "Validates a model using the DTDL model parser & resolver. The target repository is used for model resolution. ";
+                "Validates a model using the DTDL model parser & resolver. When validating a single model object " +
+                "the target repository is used for model resolution. When validating an array of models only the array " +
+                "contents is used for resolution.";
+
             validateModelCommand.Handler =
                 CommandHandler.Create<FileInfo, string, DependencyResolutionOption, bool>(Handlers.Validate);
 
@@ -107,12 +110,14 @@ namespace Azure.Iot.ModelsRepository.CLI
         {
             var modelFileOption = CommonOptions.ModelFile;
             modelFileOption.IsRequired = true; // Option is required for this command
+            var depsResOption = CommonOptions.Deps;
+            depsResOption.IsHidden = true; // Option has limited value for this command
 
             Command importModelCommand = new Command("import")
             {
                 modelFileOption,
                 CommonOptions.LocalRepo,
-                CommonOptions.Deps,
+                depsResOption,
                 CommonOptions.Strict,
             };
             importModelCommand.Description =
