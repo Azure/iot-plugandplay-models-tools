@@ -76,7 +76,7 @@
     "@types/chai": "^4.2.14",
     "@types/chai-as-promised": "^7.1.0",
     "@types/mocha": "^7.0.2",
-    "@types/node": "^8.0.0",
+    "@types/node": "^10.17.48",
     "@types/sinon": "^9.0.9",
     "azure-common": "^0.9.25",
     "chai": "^4.2.0",
@@ -100,7 +100,9 @@
     "util": "^0.12.1"
   },
   "standard": {
-    "env": [ "mocha" ]
+    "env": [
+      "mocha"
+    ]
   },
   "//smokeTestConfiguration": {
     "skipFolder": true

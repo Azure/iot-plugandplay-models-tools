@@ -3,7 +3,7 @@
 
 'use strict'
 
-export function isValidDtmi (dtmi : string) {
+export function isValidDtmi (dtmi: string) {
     if (dtmi) {
         const re = new RegExp("^dtmi:[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$");
         return re.test(dtmi); // true if dtmi matches regular expression, false otherwise

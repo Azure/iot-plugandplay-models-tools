@@ -5,22 +5,22 @@
 
 import logger = require('@azure/logger');
 logger.setLogLevel('info');
-import { remoteModelFetcher } from './modelFetchers';
+import { modelFetcher } from './modelFetchers';
 
 
 /**
  * resolve
  */
-function resolve(dtmi: string, endpoint: string): Promise<{ [dtmi: string]: string}>;
-function resolve(dtmi: string, endpoint: string, expanded: boolean): Promise<{ [dtmi: string]: string}>;
-function resolve(dtmi: string, endpoint : string, expanded ?: boolean): Promise<{ [dtmi: string]: string}> {
+function resolve(dtmi: string, endpoint: string): Promise<{ [dtmi: string]: JSON}>;
+function resolve(dtmi: string, endpoint: string, expanded: boolean): Promise<{ [dtmi: string]: JSON}>;
+function resolve(dtmi: string, endpoint : string, expanded ?: boolean): Promise<{ [dtmi: string]: JSON}> {
     let isExpanded: boolean;
     if (expanded) {
         isExpanded = expanded;
     } else {
         isExpanded = false;
     }
-    return remoteModelFetcher(dtmi, endpoint, isExpanded);
+    return modelFetcher(dtmi, endpoint, isExpanded);
 }
 
 
