@@ -55,7 +55,7 @@ describe('dtmiConventions', function () {
       }).to.throw('DTMI is incorrectly formatted. Ensure DTMI follows conventions.')
     })
 
-    it('should reformat a DTMI to a URL Path', function () {
+    it('should reformat a DTMI to a generic path', function () {
       const validDtmi = 'dtmi:azure:DeviceManagement:DeviceInformation;1'
       const result = lib.dtmiToPath(validDtmi)
       assert.deepEqual(result, '/dtmi/azure/devicemanagement/deviceinformation-1.json')
