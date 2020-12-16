@@ -71,7 +71,7 @@ describe('dtmiConventions', function () {
       }).to.throw('DTMI is incorrectly formatted. Ensure DTMI follows conventions.')
     })
 
-    it('should reformat a DTMI to a URL Path', function () {
+    it('should reformat a DTMI to a qualified URL path', function () {
       const validDtmi = 'dtmi:foobar:DeviceInformation;1'
       const fakeBasePath = 'https://contoso.com'
       const result = lib.dtmiToQualifiedPath(validDtmi, fakeBasePath, false)
