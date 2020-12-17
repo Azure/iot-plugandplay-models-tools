@@ -57,7 +57,7 @@ describe('resolver - node', () => {
           "fakeKey": "fakeValue"
         })
         const localDirectory = path.resolve('./')
-        const expectedFilePath = path.join(localDirectory, './dtmi/contoso/deletemedevice-1.json')
+        const expectedFilePath = path.join(localDirectory, 'dtmi/contoso/deletemedevice-1.json')
         // @ts-ignore
         sinon.stub(fs, 'readFile').callsFake((path, opts, cb) => {
           assert.deepEqual(path, expectedFilePath, 'path to dtdl incorrectly formatted.')
