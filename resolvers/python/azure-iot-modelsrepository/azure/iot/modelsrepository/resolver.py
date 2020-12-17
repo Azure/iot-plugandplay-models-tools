@@ -7,6 +7,9 @@ import requests
 import logging
 import requests_unixsocket
 import re
+import os
+import json
+from six.moves import urllib
 
 requests_unixsocket.monkeypatch()
 logger = logging.getLogger(__name__)
@@ -19,37 +22,72 @@ class ResolverError(Exception):
 def resolve(dtmi, endpoint, fully_resolve=False, expanded=False):
     """Retrieve and return the DTDL model(s) corresponding to the given DTMI
 
+    :param str dtmi: DTMI for the desired DTDL
+    :param str endpoint: Either a URL or a local filesystem directory where the desired DTDL can
+        be found according to the specified DTMI
+    :param bool fully_resolve: If True, will recursively resolve any addtional DTMIs referenced
+        from within the DTDL. (Default - False) <----- THIS IS NOT YET IMPLEMENTED!
+    :param bool expanded: If True, will retrieve the expanded DTDL instead of the regular one
+        (Default - False)
+
+    :raises: ValueError if DTMI is invalid
+    :raises: :class:`azure.iot.modelsrepository.resolver.ResolverError` if resolution of the DTMI
+        at the given endpoint is unsuccessful
+
     :returns: Dictionary mapping DTMI to a resolved DTDL (or list of DTDLs)
     :rtype: dict
     """
-    # Check value of endpoint to determine if URL or local filesystem directory
-    if endpoint.startswith("http"):
-        return _resolve_remote_url(dtmi, endpoint, expanded)
-    else:
-        pass
-
-
-def _resolve_remote_url(dtmi, endpoint, expanded):
-    """Resolve a DTMI from a remote URL endpoint"""
     if not endpoint.endswith("/"):
         endpoint += "/"
-    url = endpoint + _convert_dtmi_to_path(dtmi)
+    dtmi_location = endpoint + _convert_dtmi_to_path(dtmi)
 
     if expanded:
-        url.replace(".json", ".expanded.json")
+        dtmi_location = dtmi_location.replace(".json", ".expanded.json")
 
+    # Check value of endpoint to determine if URL or local filesystem directory
+    parse_result = urllib.parse.urlparse(dtmi_location)
+    if parse_result.scheme == "http" or parse_result.scheme == "https":
+        # HTTP URL
+        json =  _resolve_from_remote_url(dtmi_location)
+    elif parse_result.scheme == "file":
+        # File URI
+        # TODO: do we need to support files from localhost?
+        dtmi_location = dtmi_location[len("file://"):]
+        json = _resolve_from_local_file(dtmi_location)
+    else:
+        # File location
+        json = _resolve_from_local_file(dtmi_location)
+
+    # JSON dict will sometimes come wrapped in a list. If so, remove
+    if isinstance(json, list):
+        if len(json) == 1:
+            json = json[0]
+        else:
+            # This shouldn't occur. JSON returned that is a list should only be single-element
+            raise ResolverError("Unexpected format of DTDL")
+
+    # TODO: full resolution
+
+    return {dtmi : json}
+
+
+def _resolve_from_remote_url(url):
+    """Return JSON from a specified remote URL"""
     logger.debug("Making GET request to {}".format(url))
     response = requests.get(url)
     logger.debug("Received GET response: {}".format(response.status_code))
     if response.status_code == 200:
-        # probably need to expand this logic so it has consistent return values
-        return {dtmi : response.json()}
+        return response.json()
     else:
-        raise ResolverError("Failed to resolve DTMI. Status Code: {}".format(response.status_code))
+        raise ResolverError("Failed to resolve DTMI from URL. Status Code: {}".format(response.status_code))
 
 
-def _resolve_local_filesystem_dir():
-    pass
+def _resolve_from_local_file(file):
+    """Return JSON from specified local file"""
+    logger.debug("Opening local file {}".format(file))
+    with open(file) as f:
+        file_str = f.read()
+    return json.loads(file_str)
 
 
 def _convert_dtmi_to_path(dtmi):
