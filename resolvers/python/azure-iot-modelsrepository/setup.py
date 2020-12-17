@@ -30,7 +30,7 @@ setup(
     version="0.0.0-preview",
     description="Microsoft Azure IoT Models Repository Library",
     license="MIT License",
-    url="ADD URL HERE",
+    url="https://github.com/Azure/iot-plugandplay-models-tools",
     author="Microsoft Corporation",
     author_email="opensource@microsoft.com",
     long_description=_long_description,
