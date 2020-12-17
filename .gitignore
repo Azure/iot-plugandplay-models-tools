@@ -196,6 +196,18 @@ PublishScripts/
 *.nuget.props
 *.nuget.targets
 
+# Python packages
+*.egg-info/
+*.egg
+eggs/
+./eggs/
+sdist/
+build/
+wheels/
+
+# Python testing
+.pytest_cache/
+
 # Microsoft Azure Build Output
 csx/
 *.build.csdef
