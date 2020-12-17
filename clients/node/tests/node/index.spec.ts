@@ -58,7 +58,6 @@ describe('resolver - node', () => {
         })
         const localDirectory = path.resolve('./')
         const expectedFilePath = path.join(localDirectory, './dtmi/contoso/deletemedevice-1.json')
-        // sinon.stub(fs, 'readFile').callsArgWith(2, null, fakeData)
         // @ts-ignore
         sinon.stub(fs, 'readFile').callsFake((path, opts, cb) => {
           assert.deepEqual(path, expectedFilePath, 'path to dtdl incorrectly formatted.')
