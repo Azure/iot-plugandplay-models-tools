@@ -9,7 +9,7 @@ import requests_unixsocket
 import re
 import os
 import json
-from six.moves import urllib
+import urllib
 
 requests_unixsocket.monkeypatch()
 logger = logging.getLogger(__name__)
@@ -38,26 +38,24 @@ def resolve(dtmi, endpoint, expanded=False, resolve_dependencies=False):
         full resolution mode)
     :rtype: dict
     """
-    if not endpoint.endswith("/"):
-        endpoint += "/"
-    dtmi_location = endpoint + _convert_dtmi_to_path(dtmi)
+    fully_qualified_dtmi = get_fully_qualified_dtmi(dtmi, endpoint)
 
     if expanded:
-        dtmi_location = dtmi_location.replace(".json", ".expanded.json")
+        fully_qualified_dtmi = fully_qualified_dtmi.replace(".json", ".expanded.json")
 
     # Check value of endpoint to determine if URL or local filesystem directory
-    parse_result = urllib.parse.urlparse(dtmi_location)
+    parse_result = urllib.parse.urlparse(fully_qualified_dtmi)
     if parse_result.scheme == "http" or parse_result.scheme == "https":
         # HTTP URL
-        json = _resolve_from_remote_url(dtmi_location)
+        json = _resolve_from_remote_url(fully_qualified_dtmi)
     elif parse_result.scheme == "file":
         # File URI
         # TODO: do we need to support files from localhost?
-        dtmi_location = dtmi_location[len("file://"):]
-        json = _resolve_from_local_file(dtmi_location)
+        fully_qualified_dtmi = fully_qualified_dtmi[len("file://"):]
+        json = _resolve_from_local_file(fully_qualified_dtmi)
     else:
         # File location
-        json = _resolve_from_local_file(dtmi_location)
+        json = _resolve_from_local_file(fully_qualified_dtmi)
 
     # Expanded JSON will be in the form of a list of DTDLs
     dtdl_map = {}
@@ -71,6 +69,18 @@ def resolve(dtmi, endpoint, expanded=False, resolve_dependencies=False):
     # TODO: full resolution
 
     return dtdl_map
+
+def get_fully_qualified_dtmi(dtmi, endpoint):
+    """ Return a fully-qualified path for a DTMI at an endpoint
+
+    :param str dtmi: DTMI to be make fully-qualified
+    :param str endpoint: Either a URL or a local filesystem directory that corresponds to the DTMI
+    """
+    # NOTE: does this belong in this library?
+    if not endpoint.endswith("/"):
+        endpoint += "/"
+    fully_qualified_dtmi = endpoint + _convert_dtmi_to_path(dtmi)
+    return fully_qualified_dtmi
 
 
 def _resolve_from_remote_url(url):

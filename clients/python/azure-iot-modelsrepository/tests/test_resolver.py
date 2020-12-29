@@ -221,3 +221,6 @@ class TestResolverFilesystem(SharedResolverTests):
     def test_invalid_dtmi(self, dtmi, endpoint):
         with pytest.raises(ValueError):
             resolver.resolve(dtmi, endpoint)
+
+# TODO: While tested implicitly above, the get_fully_qualified_dtmi() function needs it's own set
+# of tests. Add after clarity is gained.
