@@ -16,10 +16,41 @@ class SharedResolverTests(object):
 def dtmi():
     return "dtmi:com:somedomain:example:FakeDTDL;1"
 
+@pytest.fixture
+def dtdl_json():
+    return {
+        "@context": "dtmi:dtdl:context;1",
+        "@id": "dtmi:com:somedomain:example:FakeDTDL;1",
+        "@type": "Interface",
+        "dispalyName": "someval",
+        "contents": []
+    }
 
 @pytest.fixture
-def fake_json():
-    return {"some_json_property": "some_json_val"}
+def dtdl_expanded_json():
+    return [
+        {
+        "@context": "dtmi:dtdl:context;1",
+        "@id": "dtmi:com:somedomain:example:FakeDTDL;1",
+        "@type": "Interface",
+        "dispalyName": "FakeDTDL1",
+        "contents": []
+        },
+        {
+        "@context": "dtmi:dtdl:context;1",
+        "@id": "dtmi:com:somedomain:example:FakeDTDL;2",
+        "@type": "Interface",
+        "dispalyName": "FakeDTDL2",
+        "contents": []
+        },
+        {
+        "@context": "dtmi:dtdl:context;1",
+        "@id": "dtmi:com:somedomain:example:FakeDTDL;3",
+        "@type": "Interface",
+        "dispalyName": "FakeDTDL3",
+        "contents": []
+    }
+    ]
 
 
 @pytest.mark.describe(".resolve() -- Remote URL endpoint")
@@ -29,11 +60,20 @@ class TestResolverURL(SharedResolverTests):
         return "https://somedomain.com/"
 
     @pytest.fixture
-    def mock_http_get(self, mocker, fake_json):
+    def mock_http_get(self, mocker, dtdl_json, dtdl_expanded_json):
         mock_http_get = mocker.patch.object(requests, "get")
         mock_response = mock_http_get.return_value
         mock_response.status_code = 200
-        mock_response.json.return_value = fake_json
+
+        def choose_json():
+            """Choose the correct JSON to return based on what the get was called with"""
+            url = mock_http_get.call_args[0][0]
+            if url.endswith(".expanded.json"):
+                return dtdl_expanded_json
+            else:
+                return dtdl_json
+
+        mock_response.json.side_effect = choose_json
         return mock_http_get
 
     @pytest.mark.it("Performs an HTTP GET on a URL path to a .json file created from combining the endpoint and DTMI")
@@ -60,23 +100,24 @@ class TestResolverURL(SharedResolverTests):
         assert mock_http_get.call_count == 1
         assert mock_http_get.call_args == mocker.call(expected_url)
 
-    @pytest.mark.it("Returns a dictionary mapping the provided DTMI to the result of the HTTP GET, if the GET is successful (200 response)")
-    def test_returns_dict(self, mocker, mock_http_get, endpoint, dtmi):
-        expected_json = mock_http_get.return_value.json.return_value
+    @pytest.mark.it("Returns a dictionary mapping the provided DTMI to its corresponding non-expanded DTDL returned by the HTTP GET, if the GET is successful (200 response)")
+    def test_returned_dict_non_expanded(self, mocker, mock_http_get, endpoint, dtmi):
         result = resolver.resolve(dtmi, endpoint)
+        expected_json = mock_http_get.return_value.json()
         assert isinstance(result, dict)
         assert len(result) == 1
         assert result[dtmi] == expected_json
 
-    @pytest.mark.it("Extracts a JSON dict from a JSON list before returning, if the HTTP GET returns a single JSON dict wrapped in a list")
-    def test_removes_list_wrapper(self, mocker, mock_http_get, endpoint, dtmi):
-        expected_json = mock_http_get.return_value.json.return_value
-        # wrap json in a list
-        mock_http_get.return_value.json.return_value = [mock_http_get.return_value.json.return_value]
-        result = resolver.resolve(dtmi, endpoint)
+    @pytest.mark.it("Returns a dictionary mapping DTMIs to corresponding DTDLs, for all components of an expanded DTDL returned by the HTTP GET, if the GET is successful (200 response)")
+    def test_returned_dict_expanded(self, mocker, mock_http_get, endpoint, dtmi):
+        result = resolver.resolve(dtmi, endpoint, expanded=True)
+        received_json = mock_http_get.return_value.json()
         assert isinstance(result, dict)
-        assert len(result) == 1
-        assert result[dtmi] == expected_json
+        assert len(result) == len(received_json)
+        for dtdl in received_json:
+            dtmi = dtdl["@id"]
+            assert dtmi in result.keys()
+            assert result[dtmi] == dtdl
 
     @pytest.mark.it("Raises a ValueError if the user-provided DTMI is invalid")
     @pytest.mark.parametrize("dtmi", [
@@ -104,8 +145,19 @@ class TestResolverFilesystem(SharedResolverTests):
         return "C:/repository/"
 
     @pytest.fixture
-    def mock_open(self, mocker, fake_json):
-        return mocker.patch('builtins.open', mocker.mock_open(read_data=json.dumps(fake_json)))
+    def mock_open(self, mocker, dtdl_json, dtdl_expanded_json):
+        mock_open = mocker.patch('builtins.open', mocker.mock_open())
+
+        def choose_json():
+            fpath = mock_open.call_args[0][0]
+            if fpath.endswith(".expanded.json"):
+                return json.dumps(dtdl_expanded_json)
+            else:
+                return json.dumps(dtdl_json)
+
+        fh_mock = mock_open.return_value
+        fh_mock.read.side_effect = choose_json
+        return mock_open
 
     @pytest.mark.it("Performs a file open/read on a filepath to a .json file created from combining the endpoint and DTMI")
     @pytest.mark.parametrize("endpoint, dtmi, expected_path", [
@@ -139,31 +191,24 @@ class TestResolverFilesystem(SharedResolverTests):
         assert mock_open.call_args == mocker.call(expected_path)
         assert mock_open.return_value.read.call_count == 1
 
-    @pytest.mark.it("Returns a dictionary mapping the provided DTMI to the result of the file read")
-    def test_returns_dict(self, mocker, mock_open, endpoint, dtmi, fake_json):
-        # when you read after doing a mock_open, it will return fake_json in string form, not JSON form.
-        # This will later get converted back into JSON form (i.e. value of fake_json fixture)
-        # Instead of comparing the value directly to the mock as in other tests, we gotta directly compare
-        # to the expected value of fake_json because mock_open uses side_effects
+    @pytest.mark.it("Returns a dictionary mapping the provided DTMI to its corresponding non-expanded DTDL returned as a result of the file read")
+    def test_returns_dict_non_expanded(self, mocker, mock_open, endpoint, dtmi):
         result = resolver.resolve(dtmi, endpoint)
+        expected_json = json.loads(mock_open.return_value.read())
         assert isinstance(result, dict)
         assert len(result) == 1
-        assert result[dtmi] == fake_json
+        assert result[dtmi] == expected_json
 
-    @pytest.mark.it("Extracts a JSON dict from a JSON list before returning, if the file read returns a single JSON dict wrapped in a list")
-    def test_removes_list_wrapper(self, mocker, mock_open, endpoint, dtmi, fake_json):
-        # make a new side effect for reading the file that gives a different result
-        original_side_effect = mock_open.return_value.read.side_effect
-        def wrapping_side_effect(*args, **kwargs):
-            # the result will be the fake_json as it was set in the fixture
-            res = original_side_effect(*args, **kwargs)
-            return [res]
-        mock_open.return_value.side_effect = wrapping_side_effect
-
-        result = resolver.resolve(dtmi, endpoint)
+    @pytest.mark.it("Returns a dictionary mapping DTMIs to corresponding DTDLs, for all components of an expanded DTDL returned as a result of the file read")
+    def test_returns_dict_expanded(self, mocker, mock_open, endpoint, dtmi):
+        result = resolver.resolve(dtmi, endpoint, expanded=True)
+        received_json = json.loads(mock_open.return_value.read())
         assert isinstance(result, dict)
-        assert len(result) == 1
-        assert result[dtmi] == fake_json
+        assert len(result) == len(received_json)
+        for dtdl in received_json:
+            dtmi = dtdl["@id"]
+            assert dtmi in result.keys()
+            assert result[dtmi] == dtdl
 
     @pytest.mark.it("Raises a ValueError if the user-provided DTMI is invalid")
     @pytest.mark.parametrize("dtmi", [

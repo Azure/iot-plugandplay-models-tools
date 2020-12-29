@@ -19,22 +19,23 @@ class ResolverError(Exception):
     pass
 
 
-def resolve(dtmi, endpoint, fully_resolve=False, expanded=False):
+def resolve(dtmi, endpoint, expanded=False, resolve_dependencies=False):
     """Retrieve and return the DTDL model(s) corresponding to the given DTMI
 
     :param str dtmi: DTMI for the desired DTDL
     :param str endpoint: Either a URL or a local filesystem directory where the desired DTDL can
         be found according to the specified DTMI
-    :param bool fully_resolve: If True, will recursively resolve any addtional DTMIs referenced
-        from within the DTDL. (Default - False) <----- THIS IS NOT YET IMPLEMENTED!
     :param bool expanded: If True, will retrieve the expanded DTDL instead of the regular one
         (Default - False)
+    :param bool resolve_dependencies: If True, will recursively resolve any addtional DTMIs
+        referenced from within the DTDL. (Default - False) <----- THIS IS NOT YET IMPLEMENTED!
 
     :raises: ValueError if DTMI is invalid
     :raises: :class:`azure.iot.modelsrepository.resolver.ResolverError` if resolution of the DTMI
         at the given endpoint is unsuccessful
 
-    :returns: Dictionary mapping DTMI to a resolved DTDL (or list of DTDLs)
+    :returns: Dictionary mapping DTMIs to a resolved DTDL (multiple DTMIs possible if using
+        full resolution mode)
     :rtype: dict
     """
     if not endpoint.endswith("/"):
@@ -48,7 +49,7 @@ def resolve(dtmi, endpoint, fully_resolve=False, expanded=False):
     parse_result = urllib.parse.urlparse(dtmi_location)
     if parse_result.scheme == "http" or parse_result.scheme == "https":
         # HTTP URL
-        json =  _resolve_from_remote_url(dtmi_location)
+        json = _resolve_from_remote_url(dtmi_location)
     elif parse_result.scheme == "file":
         # File URI
         # TODO: do we need to support files from localhost?
@@ -58,17 +59,18 @@ def resolve(dtmi, endpoint, fully_resolve=False, expanded=False):
         # File location
         json = _resolve_from_local_file(dtmi_location)
 
-    # JSON dict will sometimes come wrapped in a list. If so, remove
-    if isinstance(json, list):
-        if len(json) == 1:
-            json = json[0]
-        else:
-            # This shouldn't occur. JSON returned that is a list should only be single-element
-            raise ResolverError("Unexpected format of DTDL")
+    # Expanded JSON will be in the form of a list of DTDLs
+    dtdl_map = {}
+    if expanded:
+        for dtdl in json:
+            dtdl_map[dtdl["@id"]] = dtdl
+    # Otherwise, the JSON is a singular DTDL
+    else:
+        dtdl_map[dtmi] = json
 
     # TODO: full resolution
 
-    return {dtmi : json}
+    return dtdl_map
 
 
 def _resolve_from_remote_url(url):
