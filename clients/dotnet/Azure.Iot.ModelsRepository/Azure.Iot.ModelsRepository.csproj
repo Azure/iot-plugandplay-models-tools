@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.14</Version>
+    <Company>Microsoft</Company>
+    <Authors>Microsoft</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Microsoft</Copyright>
+    <AssemblyName>Azure.Iot.ModelsRepository</AssemblyName>
+    <RootNamespace>Azure.Iot.ModelsRepository</RootNamespace>
+    <RepositoryUrl>https://github.com/Azure/iot-plugandplay-models-tools</RepositoryUrl>
+    <PackageId>Azure.Iot.ModelsRepository</PackageId>
+    <Product>Azure.Iot.ModelsRepository</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Core" Version="1.6.0" />
+    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+  </ItemGroup>
+
+</Project>
