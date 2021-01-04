@@ -91,19 +91,15 @@ function isLocalPath (p: string): boolean {
  */
 export function modelFetcher(dtmi: string, endpoint: string, expanded: boolean, resolveDependencies: boolean): Promise<{ [dtmi: string]: JSON}> {
 	const isLocal = isLocalPath(endpoint)
-	const formattedPath = dtmiConventions.dtmiToPath(dtmi)
 
 	if (resolveDependencies) {
 		throw new Error('resolveDependencies has not been implemented yet')
 	}
 
 	if (isLocal) {
-		let formattedEndpoint = endpoint
-		if (endpoint.includes('file://')) {
-			formattedEndpoint = fileURLToPath(endpoint)
-		}
-		return localModelFetcher(dtmi, `${formattedEndpoint}${formattedPath}`)
+		const formattedEndpoint = endpoint.includes('file://') ? fileURLToPath(endpoint) : endpoint
+		return localModelFetcher(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, formattedEndpoint, expanded))
 	}
 
-	return remoteModelFetcher(dtmi, `${endpoint}${formattedPath}`)
+	return remoteModelFetcher(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, endpoint, expanded))
 }
