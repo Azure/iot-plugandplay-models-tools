@@ -17,8 +17,18 @@ export function dtmiToPath (dtmi: string) {
   // that happens in the dtmiToQualifiedPath function
 
   if (isValidDtmi(dtmi)) {
-    return `/${dtmi.toLowerCase().replace(/:/gm, '/').replace(/;/gm, '-')}.json`
+    return `${dtmi.toLowerCase().replace(/:/gm, '/').replace(/;/gm, '-')}.json`
     } else {
         throw new Error('DTMI provided is invalid. Ensure it follows DTMI conventions.')
+  }
+}
+
+export function dtmiToQualifiedPath (dtmi: string, endpoint: string, isExpanded ?: boolean) {
+  const endpointWithSlash = endpoint.endsWith('/') ? endpoint : `${endpoint}/`
+  const formattedEndpoint = endpointWithSlash.startsWith('http') ? endpointWithSlash : `http://${endpointWithSlash}`
+  if (isExpanded) {
+    return `${formattedEndpoint}${dtmi.replace(/json$/, 'expanded.json')}`
+  } else {
+    return `${formattedEndpoint}${dtmi}`
   }
 }

@@ -29,7 +29,7 @@ resolve(myDtmi, myEndpoint, { 'foo': true, 'bar': false })
 
 These are the optional parameters:
 
-- `expanded (type: boolean)` - **NOT IMPLEMENTED YET** Get the `.expanded.json` version of the dtdl (if the dtdl is in the device models repository, it will have an expanded version). This is a useful way to get dependencies in one network call, and is recommended if you want to resolve the full dependency tree of a dtdl stored in the device model repository.
+- `expanded (type: boolean)` - Get the `.expanded.json` version of the dtdl (if the dtdl is in the device models repository, it will have an expanded version). This is a useful way to get dependencies in one network call, and is recommended if you want to resolve the full dependency tree of a dtdl stored in the device model repository.
 
 - `resolveDependencies (type: boolean)` - **NOT IMPLEMENTED YET** Using a psuedo-parser, scans the dtdls for dependencies and gets all dependencies. Will throw an error if a dependency does not exist in a given endpoint. In order to guarantee the full dependency tree exists at the endpoint, we recommend using the device models repository and the `expanded` optional parameter.
 

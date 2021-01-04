@@ -93,9 +93,7 @@ export function modelFetcher(dtmi: string, endpoint: string, expanded: boolean, 
 	const isLocal = isLocalPath(endpoint)
 	const formattedPath = dtmiConventions.dtmiToPath(dtmi)
 
-	if (expanded) {
-		throw new Error('expanded has not been implemented yet')
-	} else if (resolveDependencies) {
+	if (resolveDependencies) {
 		throw new Error('resolveDependencies has not been implemented yet')
 	}
 
