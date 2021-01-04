@@ -3,9 +3,9 @@
 
 "use strict"
 
-import logger from '@azure/logger';
-logger.setLogLevel('info');
-import { modelFetcher } from './modelFetchers';
+import logger from '@azure/logger'
+logger.setLogLevel('info')
+import { modelFetcher } from './modelFetchers'
 
 
 /**
@@ -17,13 +17,13 @@ import { modelFetcher } from './modelFetchers';
  *
  * @returns Promise that resolves to mapping of dtmi(s) to JSON dtdl(s)
  */
-function resolve(dtmi: string, endpoint: string): Promise<{ [dtmi: string]: JSON}>;
-function resolve(dtmi: string, endpoint: string, options: any): Promise<{ [dtmi: string]: JSON}>;
+function resolve(dtmi: string, endpoint: string): Promise<{ [dtmi: string]: JSON}>
+function resolve(dtmi: string, endpoint: string, options: any): Promise<{ [dtmi: string]: JSON}>
 function resolve(dtmi: string, endpoint : string, options ?: any): Promise<{ [dtmi: string]: JSON}> {
-    const isExpanded: boolean = options.expanded ?? false;
-    const resolveDependencies: boolean = options.resolveDependencies ?? false;
+  const isExpanded: boolean = options.expanded ?? false
+  const resolveDependencies: boolean = options.resolveDependencies ?? false
 
-    return modelFetcher(dtmi, endpoint, isExpanded, resolveDependencies);
+  return modelFetcher(dtmi, endpoint, isExpanded, resolveDependencies)
 }
 
 
