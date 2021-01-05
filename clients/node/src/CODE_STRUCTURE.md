@@ -29,9 +29,17 @@ resolve(myDtmi, myEndpoint, { 'foo': true, 'bar': false })
 
 These are the optional parameters:
 
-- `expanded (type: boolean)` - **NOT IMPLEMENTED YET** Get the `.expanded.json` version of the dtdl (if the dtdl is in the device models repository, it will have an expanded version). This is a useful way to get dependencies in one network call, and is recommended if you want to resolve the full dependency tree of a dtdl stored in the device model repository.
+- `resolveDependencies (type: string)` - **NOT IMPLEMENTED YET** Accepts the following string values:
+ - `disabled`: Unnecessary, but if you want to explicitly specify that you are not resolving dependencies, use this.
+ - `enabled`: Enables dependency resolution.
+ - `tryFromExpanded`: Enables dependency resolution **AND** first tries to get the fully resolved dependency resolution via the `.expanded.json` formatted file. If you don't know what the `.expanded.json` is, it is automatically generated when a DTDL is merged into the Device Models Repository, and it is a flat list containing the main DTDL and all dependencies. The benefit of using `tryFromExpanded` is that if your DTDL is in the Device Models Repository, you can access the fully dependency tree associated with a specific DTMI in one network call, and in the case of the `.expanded.json` files living in the Device Models Repository, they are garuanteed to be complete.
 
-- `resolveDependencies (type: boolean)` - **NOT IMPLEMENTED YET** Using a psuedo-parser, scans the dtdls for dependencies and gets all dependencies. Will throw an error if a dependency does not exist in a given endpoint. In order to guarantee the full dependency tree exists at the endpoint, we recommend using the device models repository and the `expanded` optional parameter.
+So, an example using the optional object might be:
+
+```js
+resolve(myDtmi, myEndpoint, { resolveDependencies: 'tryFromExpanded' })
+```
+
 
 ## dtmiConventions.ts
 
