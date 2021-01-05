@@ -7,6 +7,23 @@ import logger from '@azure/logger'
 logger.setLogLevel('info')
 import { modelFetcher } from './modelFetchers'
 
+interface resolverOptions {
+  resolveDependencies: 'disabled' | 'enabled' | 'tryFromExpanded'
+}
+
+function checkIfTryFromExpanded(options: any): boolean {
+  if (options.resolveDependencies && options.resolveDependencies.tryFromExpanded) {
+    return true
+  }
+  return false
+}
+
+function checkIfResolveDependencies(options: any): boolean {
+  if (options.resolveDependencies && options.resolveDependencies.enabled) {
+    return true
+  }
+  return false
+}
 
 /**
  * resolve - get interfaces (dtdls) associated to a given dtmi
@@ -19,11 +36,11 @@ import { modelFetcher } from './modelFetchers'
  */
 function resolve(dtmi: string, endpoint: string): Promise<{ [dtmi: string]: JSON}>
 function resolve(dtmi: string, endpoint: string, options: any): Promise<{ [dtmi: string]: JSON}>
-function resolve(dtmi: string, endpoint : string, options ?: any): Promise<{ [dtmi: string]: JSON}> {
-  const isExpanded: boolean = options.expanded ?? false
-  const resolveDependencies: boolean = options.resolveDependencies ?? false
+function resolve(dtmi: string, endpoint : string, options ?: resolverOptions): Promise<{ [dtmi: string]: JSON}> {
+  let tryFromExpanded = checkIfTryFromExpanded(options)
+  let resolveDependencies = checkIfResolveDependencies(options)
 
-  return modelFetcher(dtmi, endpoint, isExpanded, resolveDependencies)
+  return modelFetcher(dtmi, endpoint, tryFromExpanded, resolveDependencies)
 }
 
 
