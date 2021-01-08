@@ -4,20 +4,44 @@
 "use strict"
 
 import * as dtmiConventions from './dtmiConventions'
+import * as modelMetadata from './modelMetadata'
 import * as coreHttp from '@azure/core-http'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 
+function remoteModelFetcherRecursive (dtmi: string, targetUrl: string): Promise<{[dtmi: string]: JSON }> {
+	const client = new coreHttp.ServiceClient()
+	let result: {[dtmi: string]: JSON } = {}
+	function fetchFromEndpoint(dtmi1: any, targetUrl1: any): any {
+		return new Promise((resolve, reject) => {
+			const req: coreHttp.RequestPrepareOptions = {
+				url: targetUrl1,
+				method: "GET"
+			}
+			client.sendRequest(req)
+			.then((res: coreHttp.HttpOperationResponse) => {
+				const dtdlAsString = res.bodyAsText ? res.bodyAsText : ''
+				const dtdlAsJson = JSON.parse(dtdlAsString)
+				result[dtmi1] = dtdlAsJson
+				const deps = modelMetadata.getModelMetadata(dtdlAsJson)
+				if (deps) {
+					console.log(deps)
+					// deps.forEach(depDtmi => {
+					// 	return fetchFromEndpoint(depDtmi, targetUrl1)
+					// })
+				}
 
-/**
- * @private
- * remoteModelFetcher - for remote file paths
- *
- * @param dtmi string corresponding with specific device model.
- * @param targetUrl url endpoint where model repository is located.
- *
- * @returns Promise that resolves a mapping of dtmi strings to JSON dtdls.
- */
+				resolve(result)
+			})
+			.catch((err) => {
+				reject(err)
+			})
+		})
+	}
+
+	return fetchFromEndpoint(dtmi, targetUrl)
+}
+
 function remoteModelFetcher (dtmi: string, targetUrl: string): Promise<{[dtmi: string]: JSON }> {
 	const client = new coreHttp.ServiceClient()
 
@@ -28,9 +52,14 @@ function remoteModelFetcher (dtmi: string, targetUrl: string): Promise<{[dtmi: s
 		}
 		client.sendRequest(req)
 		.then((res: coreHttp.HttpOperationResponse) => {
-			const dtdlAsString = res.bodyAsText ? res.bodyAsText : ''
-			const dtdlAsJson = JSON.parse(dtdlAsString)
-			resolve({[dtmi]: dtdlAsJson})
+			if (res.status >= 200 && res.status < 400) {
+				const dtdlAsString = res.bodyAsText ? res.bodyAsText : ''
+				const dtdlAsJson = JSON.parse(dtdlAsString)
+				resolve({[dtmi]: dtdlAsJson})
+			} else {
+				const respError = `${res.parsedBody}${res.status}`
+				reject(new Error(respError))
+			}
 		})
 		.catch((err) => {
 			reject(err)
@@ -38,15 +67,6 @@ function remoteModelFetcher (dtmi: string, targetUrl: string): Promise<{[dtmi: s
 	})
 }
 
-/**
- * @private
- * localModelFetcher - for local file paths
- *
- * @param dtmi string corresponding with specific device model
- * @param targetPath local folder where model repository is located
- *
- * @returns Promise that resolves a mapping of dtmi strings to JSON dtdls.
- */
 function localModelFetcher (dtmi:string, targetPath: string): Promise<{ [dtmi: string]: JSON }> {
 	return new Promise((resolve, reject) => {
 		fs.readFile(targetPath, 'utf8', function (err, data) {
@@ -61,12 +81,6 @@ function localModelFetcher (dtmi:string, targetPath: string): Promise<{ [dtmi: s
 	})
 }
 
-/**
- * @private
- * isLocalPath - helper function for validating if a string is a local folder path.
- *
- * @param p string to check if corresponds to path
- */
 function isLocalPath (p: string): boolean {
 	if (p.startsWith('https://') || p.startsWith('http://')) {
 		return false
@@ -82,24 +96,17 @@ function isLocalPath (p: string): boolean {
 	}
 }
 
-/**
- *
- * @param dtmi string representing the digital twin modeling identifier
- * @param endpoint local or remote URL or path where the model repository being used is located
- * @param expanded boolean
- * @param resolveDependencies
- */
-export function modelFetcher(dtmi: string, endpoint: string, expanded: boolean, resolveDependencies: boolean): Promise<{ [dtmi: string]: JSON}> {
+export function modelFetcher(dtmi: string, endpoint: string, resolveDependencies: boolean, tryFromExpanded: boolean): Promise<{ [dtmi: string]: JSON}> {
 	const isLocal = isLocalPath(endpoint)
-
-	if (resolveDependencies) {
-		throw new Error('resolveDependencies has not been implemented yet')
-	}
 
 	if (isLocal) {
 		const formattedEndpoint = endpoint.includes('file://') ? fileURLToPath(endpoint) : endpoint
-		return localModelFetcher(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, formattedEndpoint, expanded))
+		return localModelFetcher(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, formattedEndpoint, tryFromExpanded))
 	}
-
-	return remoteModelFetcher(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, endpoint, expanded))
+	else if (resolveDependencies && tryFromExpanded) {
+		return remoteModelFetcher(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, endpoint, true))
+	} else if (resolveDependencies && !tryFromExpanded) {
+		return remoteModelFetcherRecursive(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, endpoint, tryFromExpanded))
+	}
+	return remoteModelFetcher(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, endpoint, false))
 }

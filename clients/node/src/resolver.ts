@@ -3,23 +3,23 @@
 
 "use strict"
 
-import logger from '@azure/logger'
-logger.setLogLevel('info')
+// import logger from '@azure/logger'
+// logger.setLogLevel('info')
 import { modelFetcher } from './modelFetchers'
 
 interface resolverOptions {
   resolveDependencies: 'disabled' | 'enabled' | 'tryFromExpanded'
 }
 
-function checkIfTryFromExpanded(options: any): boolean {
-  if (options.resolveDependencies && options.resolveDependencies.tryFromExpanded) {
+function checkIfTryFromExpanded(options?: resolverOptions): boolean {
+  if (options && options.resolveDependencies && options.resolveDependencies === 'tryFromExpanded') {
     return true
   }
   return false
 }
 
-function checkIfResolveDependencies(options: any): boolean {
-  if (options.resolveDependencies && options.resolveDependencies.enabled) {
+function checkIfResolveDependencies(options?: resolverOptions): boolean {
+  if (options && options.resolveDependencies && options.resolveDependencies === 'enabled') {
     return true
   }
   return false
@@ -40,7 +40,7 @@ function resolve(dtmi: string, endpoint : string, options ?: resolverOptions): P
   let tryFromExpanded = checkIfTryFromExpanded(options)
   let resolveDependencies = checkIfResolveDependencies(options)
 
-  return modelFetcher(dtmi, endpoint, tryFromExpanded, resolveDependencies)
+  return modelFetcher(dtmi, endpoint, resolveDependencies, tryFromExpanded)
 }
 
 

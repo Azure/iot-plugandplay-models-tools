@@ -5,7 +5,7 @@
  * Demonstrates resolving/obtaining a particular model definition from a remote model repository
  */
 
-let resolver = require('../../out/src/index.js')
+import * as resolver from '@azure/iot-modelsrepository-resolver'
 
 const repositoryEndpoint = 'devicemodels.azure.com'
 const dtmi = process.argv[2] || 'dtmi:azure:DeviceManagement:DeviceInformation;1'

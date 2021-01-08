@@ -26,7 +26,7 @@ export function dtmiToPath (dtmi: string) {
 export function dtmiToQualifiedPath (dtmi: string, endpoint: string, isExpanded ?: boolean) {
   const dtmiAsPath = dtmiToPath(dtmi)
   const endpointWithSlash = endpoint.endsWith('/') ? endpoint : `${endpoint}/`
-  const formattedEndpoint = endpointWithSlash.startsWith('http') ? endpointWithSlash : `http://${endpointWithSlash}`
+  const formattedEndpoint = endpointWithSlash.startsWith('http') ? endpointWithSlash : `https://${endpointWithSlash}`
   if (isExpanded) {
     return `${formattedEndpoint}${dtmiAsPath.replace(/json$/, 'expanded.json')}`
   } else {
