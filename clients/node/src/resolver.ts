@@ -34,9 +34,9 @@ function checkIfResolveDependencies(options?: resolverOptions): boolean {
  *
  * @returns Promise that resolves to mapping of dtmi(s) to JSON dtdl(s)
  */
-function resolve(dtmi: string, endpoint: string): Promise<{ [dtmi: string]: JSON}>
-function resolve(dtmi: string, endpoint: string, options: any): Promise<{ [dtmi: string]: JSON}>
-function resolve(dtmi: string, endpoint : string, options ?: resolverOptions): Promise<{ [dtmi: string]: JSON}> {
+function resolve(dtmi: string, endpoint: string): Promise<{ [dtmi: string]: any}>
+function resolve(dtmi: string, endpoint: string, options: any): Promise<{ [dtmi: string]: any}>
+function resolve(dtmi: string, endpoint : string, options ?: resolverOptions): Promise<{ [dtmi: string]:any}> {
   let tryFromExpanded = checkIfTryFromExpanded(options)
   let resolveDependencies = checkIfResolveDependencies(options)
 

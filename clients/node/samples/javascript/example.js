@@ -13,8 +13,10 @@ const dtmi = process.argv[2] || 'dtmi:azure:DeviceManagement:DeviceInformation;1
 console.log(repositoryEndpoint, dtmi)
 
 async function main () {
-  const result = await resolver.resolve(dtmi, repositoryEndpoint)
+  const result = await resolver.resolve(dtmi, repositoryEndpoint, { resolveDependencies: 'tryFromExpanded' })
   console.log(result)
+  console.log(`DTMI is: ${dtmi}`)
+  console.log(`DTDL Display Name is: ${result[dtmi]['displayName']}`)
 }
 
 main().catch((err) => {
