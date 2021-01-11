@@ -7,8 +7,8 @@ import * as coreHttp from '@azure/core-http'
 import { assert } from 'chai'
 import * as sinon from 'sinon'
 
-import fs from 'fs'
-import path from 'path'
+import * as fs from 'fs'
+import * as path from 'path'
 
 
 describe('resolver - node', () => {
@@ -67,21 +67,57 @@ describe('resolver - node', () => {
   describe('full resolution (using pseudo-parsing)', () => {
     describe('given remote URL resolution', () => {
       it('given a DTMI whose DTDL has no dependencies, should return a promise that resolves to a mapping from a DTMI to a JSON object', function (done) {
-        done('NOT IMPLEMENTED YET!')
+        const fakeDtmi: string = 'dtmi:contoso:FakeDeviceManagement:DeviceInformation;1'
+        const fakeEndpoint: string = 'devicemodels.contoso.com'
+        const expectedUri = 'https://devicemodels.contoso.com/dtmi/contoso/fakedevicemanagement/deviceinformation-1.expanded.json'
+        const fakeData = JSON.stringify({
+          "fakeKey": "fakeValue"
+        })
+        sinon.stub(coreHttp, 'ServiceClient')
+          .returns({
+            sendRequest: function (req: any) {
+              assert.deepEqual(req.url, expectedUri, 'URL not formatted for request correctly.')
+              return Promise.resolve({ bodyAsText: fakeData })
+            }
+          })
+
+        const resolveResult = lib.resolve(fakeDtmi, fakeEndpoint, { resolveDependencies: 'enabled' })
+        assert(resolveResult instanceof Promise, 'resolve method did not return a promise')
+        resolveResult.then((actualOutput: any) => {
+          assert.deepStrictEqual({ [fakeDtmi]: JSON.parse(fakeData) }, actualOutput)
+          done()
+        }).catch((err: any) => done(err))
       })
 
       it('given a DTMI whose DTDL has dependencies, should return a promise that resolves to a mapping from DTMIs to JSON objects', function (done) {
-        done('NOT IMPLEMENTED YET!')
+        const fakeDtmi: string = 'dtmi:contoso:FakeDeviceManagement:TemperatureController;1'
+        const fakeEndpoint: string = 'devicemodels.contoso.com'
+        const expectedUri = 'https://devicemodels.contoso.com/dtmi/contoso/fakedevicemanagement/deviceinformation-1.json'
+        const fakeData = fs.readFileSync('./testModelRepository/dtmi/contoso/FakeDeviceManagement/temperaturecontroller-1.json').toString()
+        sinon.stub(coreHttp, 'ServiceClient')
+          .returns({
+            sendRequest: function (req: any) {
+              assert.deepEqual(req.url, expectedUri, 'URL not formatted for request correctly.')
+              return Promise.resolve({ bodyAsText: fakeData })
+            }
+          })
+
+        const resolveResult = lib.resolve(fakeDtmi, fakeEndpoint, { resolveDependencies: 'enabled' })
+        assert(resolveResult instanceof Promise, 'resolve method did not return a promise')
+        resolveResult.then((actualOutput: any) => {
+          assert.deepStrictEqual({ [fakeDtmi]: JSON.parse(fakeData) }, actualOutput)
+          done()
+        }).catch((err: any) => done(err))
       })
 
-      describe('given an expanded URL', () => {
-        it('should return a promise that resolves to a mapping from a DTMI to a JSON object', function (done) {
+      describe('given an expanded URL (note: upon successful execution, should not use psuedo-parser)', () => {
+        it.only('should return a promise that resolves to a mapping from a DTMI to a JSON object', function (done) {
           const fakeDtmi: string = 'dtmi:contoso:FakeDeviceManagement:DeviceInformation;1'
           const fakeEndpoint = 'devicemodels.contoso.com'
           const expectedUri = 'https://devicemodels.contoso.com/dtmi/contoso/fakedevicemanagement/deviceinformation-1.expanded.json'
-          const fakeData = JSON.stringify({
+          const fakeData = `[${JSON.stringify({
             fakeDtdl: 'fakeBodyAsText'
-          })
+          })}]`
           sinon.stub(coreHttp, 'ServiceClient')
             .returns({
               sendRequest: function (req: any) {

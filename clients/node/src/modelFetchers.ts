@@ -6,7 +6,7 @@
 import * as dtmiConventions from './dtmiConventions'
 import * as modelMetadata from './modelMetadata'
 import * as coreHttp from '@azure/core-http'
-import fs from 'fs'
+import * as fs from 'fs'
 import { fileURLToPath } from 'url'
 
 function remoteModelFetcherRecursive (dtmi: string, targetUrl: string): Promise<{[dtmi: string]: JSON }> {
