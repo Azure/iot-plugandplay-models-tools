@@ -9,45 +9,52 @@ import * as coreHttp from '@azure/core-http'
 import * as fs from 'fs'
 import { fileURLToPath } from 'url'
 
-function remoteModelFetcherRecursive (dtmi: string, targetUrl: string): Promise<{[dtmi: string]: JSON }> {
+function remoteModelFetcherRecursive (dtmi: string, endpoint: string): Promise<{[dtmi: string]: JSON }> {
 	const client = new coreHttp.ServiceClient()
 	let result: {[dtmi: string]: JSON } = {}
-	function fetchFromEndpoint(dtmi1: any, targetUrl1: any): any {
-		return new Promise((resolve, reject) => {
-			const req: coreHttp.RequestPrepareOptions = {
-				url: targetUrl1,
-				method: "GET"
-			}
-			client.sendRequest(req)
-			.then((res: coreHttp.HttpOperationResponse) => {
-				const dtdlAsString = res.bodyAsText ? res.bodyAsText : ''
-				const dtdlAsJson = JSON.parse(dtdlAsString)
-				result[dtmi1] = dtdlAsJson
-				const deps = modelMetadata.getModelMetadata(dtdlAsJson)
-				if (deps) {
-					console.log(deps)
-					// deps.forEach(depDtmi => {
-					// 	return fetchFromEndpoint(depDtmi, targetUrl1)
-					// })
-				}
 
-				resolve(result)
-			})
-			.catch((err) => {
-				reject(err)
-			})
-		})
+	const fetchFromEndpoint = async function (fnDtmi: any, fnEndpoint: any): Promise<void> {
+		console.log(`in fetchFromEndpoint ${fnDtmi} | ${fnEndpoint}`)
+		const req: coreHttp.RequestPrepareOptions = {
+			url: dtmiConventions.dtmiToQualifiedPath(fnDtmi, fnEndpoint, false),
+			method: "GET"
+		}
+		const res: coreHttp.HttpOperationResponse = await client.sendRequest(req)
+		console.log(`${fnDtmi}: response received`)
+		const dtdlAsString = res.bodyAsText ? res.bodyAsText : ''
+		const dtdlAsJson = JSON.parse(dtdlAsString)
+		result[fnDtmi] = dtdlAsJson
+		const dtdlMetaData = modelMetadata.getModelMetadata(dtdlAsJson)
+		const deps = dtdlMetaData['componentSchemas']
+		if (deps && deps.length > 0) {
+			console.log(deps)
+			await Promise.all(deps.map(async (depDtmi) => {
+				console.log('calling fetchFromEndpoint')
+				try {
+					await fetchFromEndpoint(depDtmi, fnEndpoint)
+					console.log(result)
+				} catch (e) {
+					return e
+				}
+			}))
+		}
+
 	}
 
-	return fetchFromEndpoint(dtmi, targetUrl)
+	return fetchFromEndpoint(dtmi, endpoint)
+	.then(() => {
+		return result
+	}).catch(e => {
+		return e
+	})
 }
 
-function remoteModelFetcher (dtmi: string, targetUrl: string): Promise<{[dtmi: string]: any }> {
+function remoteModelFetcher (dtmi: string, endpoint: string, tryFromExpanded: boolean): Promise<{[dtmi: string]: any }> {
 	const client = new coreHttp.ServiceClient()
 
 	return new Promise((resolve, reject) => {
 		const req: coreHttp.RequestPrepareOptions = {
-			url: targetUrl,
+			url: dtmiConventions.dtmiToQualifiedPath(dtmi, endpoint, tryFromExpanded),
 			method: "GET"
 		}
 		client.sendRequest(req)
@@ -67,7 +74,23 @@ function remoteModelFetcher (dtmi: string, targetUrl: string): Promise<{[dtmi: s
 	})
 }
 
-function localModelFetcher (dtmi:string, targetPath: string): Promise<{ [dtmi: string]: JSON }> {
+async function remoteModelFetcherFromExpanded(dtmi: string, endpoint: string): Promise<{ [dtmi: string]: any }> {
+	try {
+		const result = await remoteModelFetcher(dtmi, endpoint, true)
+		let newResult = { [dtmi]: result[dtmi][0] }
+		result[dtmi].forEach((element: any) => {
+			newResult[element['@id']] = element
+		})
+		console.log(result)
+		return newResult
+	} catch {
+		return await remoteModelFetcherRecursive(dtmi, endpoint)
+	}
+}
+
+// NOTE: Currently there is no support for getting dependencies
+function localModelFetcher (dtmi: string, directory: string, tryFromExpanded: boolean): Promise<{ [dtmi: string]: JSON }> {
+	const targetPath = dtmiConventions.dtmiToQualifiedPath(dtmi, directory, tryFromExpanded)
 	return new Promise((resolve, reject) => {
 		fs.readFile(targetPath, 'utf8', function (err, data) {
 			if (err) {
@@ -79,20 +102,6 @@ function localModelFetcher (dtmi:string, targetPath: string): Promise<{ [dtmi: s
 			}
 		})
 	})
-}
-
-async function remoteModelFetcherFromExpanded(dtmi: string, targetUrl: string): Promise<{ [dtmi: string]: any }> {
-	try {
-		const result = await remoteModelFetcher(dtmi, targetUrl)
-		let newResult = { [dtmi]: result[dtmi][0] }
-		result[dtmi].forEach((element: any) => {
-			newResult[element['@id']] = element
-		})
-		console.log(result)
-		return newResult
-	} catch {
-		return await remoteModelFetcherRecursive(dtmi, targetUrl.replace('.expanded.json', '.json'))
-	}
 }
 
 function isLocalPath (p: string): boolean {
@@ -114,13 +123,16 @@ export function modelFetcher(dtmi: string, endpoint: string, resolveDependencies
 	const isLocal = isLocalPath(endpoint)
 
 	if (isLocal) {
+		if (resolveDependencies) {
+			return Promise.reject('Local Dependency Resolution is not supported. Disable resolution or use \'tryFromExpanded\'.')
+		}
 		const formattedEndpoint = endpoint.includes('file://') ? fileURLToPath(endpoint) : endpoint
-		return localModelFetcher(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, formattedEndpoint, tryFromExpanded))
+		return localModelFetcher(dtmi, formattedEndpoint, tryFromExpanded)
 	}
 	else if (tryFromExpanded) {
-		return remoteModelFetcherFromExpanded(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, endpoint, true))
+		return remoteModelFetcherFromExpanded(dtmi, endpoint)
 	} else if (resolveDependencies) {
-		return remoteModelFetcherRecursive(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, endpoint, tryFromExpanded))
+		return remoteModelFetcherRecursive(dtmi, endpoint)
 	}
-	return remoteModelFetcher(dtmi, dtmiConventions.dtmiToQualifiedPath(dtmi, endpoint, false))
+	return remoteModelFetcher(dtmi, endpoint, false)
 }

@@ -8,12 +8,12 @@
 let resolver = require('../../out/src/index.js')
 
 const repositoryEndpoint = 'devicemodels.azure.com'
-const dtmi = process.argv[2] || 'dtmi:azure:DeviceManagement:DeviceInformation;1'
+const dtmi = process.argv[2] || 'dtmi:com:example:TemperatureController;1'
 
 console.log(repositoryEndpoint, dtmi)
 
 async function main () {
-  const result = await resolver.resolve(dtmi, repositoryEndpoint, { resolveDependencies: 'tryFromExpanded' })
+  const result = await resolver.resolve(dtmi, repositoryEndpoint, { resolveDependencies: 'enabled' })
   console.log(result)
   console.log(`DTMI is: ${dtmi}`)
   console.log(`DTDL Display Name is: ${result[dtmi]['displayName']}`)

@@ -4,7 +4,7 @@
 "use strict"
 
 function getId(content: any): string {
-    const idElement = content['id']
+    const idElement = content['@id']
     return idElement
 }
 
@@ -20,7 +20,7 @@ function getComponentSchemas(content: any): string[] {
         contents.forEach((element: any) => {
             if (element['@type']
             && (typeof element['@type'] === 'string') &&
-            element['@type'] === 'component') {
+            (element['@type'] === 'Component')) {
                 if (element['schema'] && typeof element['schema'] === 'string') {
                     componentSchemas.push(element['schema'])
                 }
