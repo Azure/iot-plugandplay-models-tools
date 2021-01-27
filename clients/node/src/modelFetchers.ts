@@ -9,7 +9,7 @@ import * as coreHttp from '@azure/core-http'
 import * as fs from 'fs'
 import { fileURLToPath } from 'url'
 
-function remoteModelFetcherRecursive (dtmi: string, endpoint: string): Promise<{[dtmi: string]: JSON }> {
+async function remoteModelFetcherRecursive (dtmi: string, endpoint: string): Promise<{[dtmi: string]: JSON }> {
 	const client = new coreHttp.ServiceClient()
 	let result: {[dtmi: string]: JSON } = {}
 
@@ -32,43 +32,30 @@ function remoteModelFetcherRecursive (dtmi: string, endpoint: string): Promise<{
 				await fetchFromEndpoint(deps[i], fnEndpoint, result)
 			}
 		}
-
 	}
 
-	return fetchFromEndpoint(dtmi, endpoint, result)
-	.then(() => {
-		return result
-	}).catch(e => {
-		return e
-	})
+	await fetchFromEndpoint(dtmi, endpoint, result)
+	return result
 }
 
-function remoteModelFetcher (dtmi: string, endpoint: string, tryFromExpanded: boolean): Promise<{[dtmi: string]: any }> {
+async function remoteModelFetcher (dtmi: string, endpoint: string, tryFromExpanded: boolean): Promise<{[dtmi: string]: any }> {
 	const client = new coreHttp.ServiceClient()
-
-	return new Promise((resolve, reject) => {
-		const req: coreHttp.RequestPrepareOptions = {
-			url: dtmiConventions.dtmiToQualifiedPath(dtmi, endpoint, tryFromExpanded),
-			method: "GET"
-		}
-		client.sendRequest(req)
-		.then((res: coreHttp.HttpOperationResponse) => {
-			if (res.status >= 200 && res.status < 400) {
-				const dtdlAsString = res.bodyAsText ? res.bodyAsText : ''
-				const dtdlAsJson = JSON.parse(dtdlAsString)
-				resolve({[dtmi]: dtdlAsJson})
-			} else {
-				const respError = `${res.parsedBody}${res.status}`
-				reject(new Error(respError))
-			}
-		})
-		.catch((err) => {
-			reject(err)
-		})
-	})
+	const req: coreHttp.RequestPrepareOptions = {
+		url: dtmiConventions.dtmiToQualifiedPath(dtmi, endpoint, tryFromExpanded),
+		method: "GET"
+	}
+	const res: coreHttp.HttpOperationResponse = await client.sendRequest(req);
+	if (res.status >= 200 && res.status < 400) {
+		const dtdlAsString = res.bodyAsText ? res.bodyAsText : ''
+		const dtdlAsJson = JSON.parse(dtdlAsString)
+		return {[dtmi]: dtdlAsJson}
+	} else {
+		const respError = `${res.parsedBody}${res.status}`
+		throw new Error(`Error on HTTP Request: ${respError}`)
+	}
 }
 
-function localModelFetcherRecursive (dtmi: string, endpoint: string): Promise<{[dtmi: string]: JSON }> {
+async function localModelFetcherRecursive (dtmi: string, endpoint: string): Promise<{[dtmi: string]: JSON }> {
 	let result: {[dtmi: string]: JSON } = {}
 
 	const fetchFromEndpoint = async function (fnDtmi: string, fnEndpoint: string, result: any): Promise<void> {
@@ -87,29 +74,19 @@ function localModelFetcherRecursive (dtmi: string, endpoint: string): Promise<{[
 		}
 	}
 
-	return fetchFromEndpoint(dtmi, endpoint, result)
-	.then(() => {
-		return result
-	}).catch(e => {
-		return e
-	})
+	await fetchFromEndpoint(dtmi, endpoint, result)
+	return result
+
 }
 
 
 // NOTE: Currently there is no support for getting dependencies
-function localModelFetcher (dtmi: string, directory: string, tryFromExpanded: boolean): Promise<{ [dtmi: string]: any }> {
+async function localModelFetcher (dtmi: string, directory: string, tryFromExpanded: boolean): Promise<{ [dtmi: string]: any }> {
 	const targetPath = dtmiConventions.dtmiToQualifiedPath(dtmi, directory, tryFromExpanded)
-	return new Promise((resolve, reject) => {
-		fs.readFile(targetPath, 'utf8', function (err, data) {
-			if (err) {
-				reject(err)
-			} else {
-				const dtdlAsJson = JSON.parse(data)
-				const result = { [dtmi]: dtdlAsJson }
-				resolve(result)
-			}
-		})
-	})
+	const fileBuffer = fs.readFileSync(targetPath, 'utf8');
+	const dtdlAsJson = JSON.parse(fileBuffer)
+	const result = { [dtmi]: dtdlAsJson }
+	return result
 }
 
 function isLocalPath (p: string): boolean {
@@ -127,52 +104,43 @@ function isLocalPath (p: string): boolean {
 	}
 }
 
-export function modelFetcher(dtmi: string, endpoint: string, resolveDependencies: boolean, tryFromExpanded: boolean): Promise<{ [dtmi: string]: JSON | Array<JSON> }> {
-	const isLocal = isLocalPath(endpoint)
+function flattenedExpandedResult(jsonMapping: any, baseDtmi: string): {[dtmi: string]: JSON } {
+	if (jsonMapping[baseDtmi].length === 1) {
+		return { [baseDtmi]: jsonMapping[baseDtmi][0] }
+	} else {
+		let newResult = { [baseDtmi]: jsonMapping[baseDtmi][0] }
+		jsonMapping[baseDtmi].forEach((element: any) => {
+			newResult[element['@id']] = element
+		})
+		return newResult
+	}
+}
 
+export async function modelFetcher(dtmi: string, endpoint: string, resolveDependencies: boolean, tryFromExpanded: boolean): Promise<{ [dtmi: string]: JSON | Array<JSON> }> {
+	const isLocal = isLocalPath(endpoint)
 	if (isLocal) {
 		const formattedEndpoint = endpoint.includes('file://') ? fileURLToPath(endpoint) : endpoint
 		if (tryFromExpanded) {
-			return localModelFetcher(dtmi, formattedEndpoint, true)
-			.then((result) => {
-					if (result[dtmi].length === 1) {
-						return { [dtmi]: result[dtmi][0] }
-					} else {
-						let newResult = { [dtmi]: result[dtmi][0] }
-						result[dtmi].forEach((element: any) => {
-							newResult[element['@id']] = element
-						})
-						console.log(result)
-						return newResult
-					}})
-			.catch((reason) => {
-					console.log('resolving from expanded.json failed. Falling back on psuedo-parsing resolution.')
-					console.error(reason)
-					return localModelFetcherRecursive(dtmi, formattedEndpoint)
-				}
-			)
+			try {
+				const dtmiMapping = await localModelFetcher(dtmi, formattedEndpoint, true)
+				return flattenedExpandedResult(dtmiMapping, dtmi)
+			} catch (reason) {
+				console.log('resolving from expanded.json failed. Falling back on psuedo-parsing resolution.')
+				console.error(reason)
+				return await localModelFetcherRecursive(dtmi, formattedEndpoint)
+			}
 		}
 		return localModelFetcher(dtmi, formattedEndpoint, false)
 	} else {
 		if (tryFromExpanded) {
-			return remoteModelFetcher(dtmi, endpoint, true)
-			.then((result) => {
-					if (result[dtmi].length === 1) {
-						return { [dtmi]: result[dtmi][0] }
-					} else {
-						let newResult = { [dtmi]: result[dtmi][0] }
-						result[dtmi].forEach((element: any) => {
-							newResult[element['@id']] = element
-						})
-						console.log(result)
-						return newResult
-					}})
-			.catch((reason) => {
-					console.log('resolving from expanded.json failed. Falling back on psuedo-parsing resolution.')
-					console.error(reason)
-					return remoteModelFetcherRecursive(dtmi, endpoint)
-				}
-			)
+			try {
+				const dtmiMapping = await remoteModelFetcher(dtmi, endpoint, true)
+				return flattenedExpandedResult(dtmiMapping, dtmi)
+			} catch (reason) {
+				console.log('resolving from expanded.json failed. Falling back on psuedo-parsing resolution.')
+				console.error(reason)
+				return await remoteModelFetcherRecursive(dtmi, endpoint)
+			}
 		} else if (resolveDependencies) {
 			return remoteModelFetcherRecursive(dtmi, endpoint)
 		}
