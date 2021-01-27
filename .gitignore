@@ -358,3 +358,6 @@ MigrationBackup/
 .localRepository
 
 .vscode/
+
+.nyc_output
+coverage

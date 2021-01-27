@@ -13,7 +13,7 @@ function remoteModelFetcherRecursive (dtmi: string, endpoint: string): Promise<{
 	const client = new coreHttp.ServiceClient()
 	let result: {[dtmi: string]: JSON } = {}
 
-	const fetchFromEndpoint = async function (fnDtmi: any, fnEndpoint: any): Promise<void> {
+	const fetchFromEndpoint = async function (fnDtmi: string, fnEndpoint: string, result: any): Promise<void> {
 		console.log(`in fetchFromEndpoint ${fnDtmi} | ${fnEndpoint}`)
 		const req: coreHttp.RequestPrepareOptions = {
 			url: dtmiConventions.dtmiToQualifiedPath(fnDtmi, fnEndpoint, false),
@@ -28,20 +28,14 @@ function remoteModelFetcherRecursive (dtmi: string, endpoint: string): Promise<{
 		const deps = dtdlMetaData['componentSchemas']
 		if (deps && deps.length > 0) {
 			console.log(deps)
-			await Promise.all(deps.map(async (depDtmi) => {
-				console.log('calling fetchFromEndpoint')
-				try {
-					await fetchFromEndpoint(depDtmi, fnEndpoint)
-					console.log(result)
-				} catch (e) {
-					return e
-				}
-			}))
+			for (let i=0; i < deps.length; i++) {
+				await fetchFromEndpoint(deps[i], fnEndpoint, result)
+			}
 		}
 
 	}
 
-	return fetchFromEndpoint(dtmi, endpoint)
+	return fetchFromEndpoint(dtmi, endpoint, result)
 	.then(() => {
 		return result
 	}).catch(e => {
@@ -74,22 +68,36 @@ function remoteModelFetcher (dtmi: string, endpoint: string, tryFromExpanded: bo
 	})
 }
 
-async function remoteModelFetcherFromExpanded(dtmi: string, endpoint: string): Promise<{ [dtmi: string]: any }> {
-	try {
-		const result = await remoteModelFetcher(dtmi, endpoint, true)
-		let newResult = { [dtmi]: result[dtmi][0] }
-		result[dtmi].forEach((element: any) => {
-			newResult[element['@id']] = element
-		})
-		console.log(result)
-		return newResult
-	} catch {
-		return await remoteModelFetcherRecursive(dtmi, endpoint)
+function localModelFetcherRecursive (dtmi: string, endpoint: string): Promise<{[dtmi: string]: JSON }> {
+	let result: {[dtmi: string]: JSON } = {}
+
+	const fetchFromEndpoint = async function (fnDtmi: string, fnEndpoint: string, result: any): Promise<void> {
+		console.log(`in fetchFromEndpoint ${fnDtmi} | ${fnEndpoint}`)
+		const targetPath = dtmiConventions.dtmiToQualifiedPath(fnDtmi, fnEndpoint, false)
+		const data = fs.readFileSync(targetPath, 'utf8')
+		const dtdlAsJson = JSON.parse(data)
+		result[fnDtmi] = dtdlAsJson
+		const dtdlMetaData = modelMetadata.getModelMetadata(dtdlAsJson)
+		const deps = dtdlMetaData['componentSchemas']
+		if (deps && deps.length > 0) {
+			console.log(deps)
+			for (let i=0; i < deps.length; i++) {
+				await fetchFromEndpoint(deps[i], fnEndpoint, result)
+			}
+		}
 	}
+
+	return fetchFromEndpoint(dtmi, endpoint, result)
+	.then(() => {
+		return result
+	}).catch(e => {
+		return e
+	})
 }
 
+
 // NOTE: Currently there is no support for getting dependencies
-function localModelFetcher (dtmi: string, directory: string, tryFromExpanded: boolean): Promise<{ [dtmi: string]: JSON }> {
+function localModelFetcher (dtmi: string, directory: string, tryFromExpanded: boolean): Promise<{ [dtmi: string]: any }> {
 	const targetPath = dtmiConventions.dtmiToQualifiedPath(dtmi, directory, tryFromExpanded)
 	return new Promise((resolve, reject) => {
 		fs.readFile(targetPath, 'utf8', function (err, data) {
@@ -123,16 +131,51 @@ export function modelFetcher(dtmi: string, endpoint: string, resolveDependencies
 	const isLocal = isLocalPath(endpoint)
 
 	if (isLocal) {
-		if (resolveDependencies) {
-			return Promise.reject('Local Dependency Resolution is not supported. Disable resolution or use \'tryFromExpanded\'.')
-		}
 		const formattedEndpoint = endpoint.includes('file://') ? fileURLToPath(endpoint) : endpoint
-		return localModelFetcher(dtmi, formattedEndpoint, tryFromExpanded)
+		if (tryFromExpanded) {
+			return localModelFetcher(dtmi, formattedEndpoint, true)
+			.then((result) => {
+					if (result[dtmi].length === 1) {
+						return { [dtmi]: result[dtmi][0] }
+					} else {
+						let newResult = { [dtmi]: result[dtmi][0] }
+						result[dtmi].forEach((element: any) => {
+							newResult[element['@id']] = element
+						})
+						console.log(result)
+						return newResult
+					}})
+			.catch((reason) => {
+					console.log('resolving from expanded.json failed. Falling back on psuedo-parsing resolution.')
+					console.error(reason)
+					return localModelFetcherRecursive(dtmi, formattedEndpoint)
+				}
+			)
+		}
+		return localModelFetcher(dtmi, formattedEndpoint, false)
+	} else {
+		if (tryFromExpanded) {
+			return remoteModelFetcher(dtmi, endpoint, true)
+			.then((result) => {
+					if (result[dtmi].length === 1) {
+						return { [dtmi]: result[dtmi][0] }
+					} else {
+						let newResult = { [dtmi]: result[dtmi][0] }
+						result[dtmi].forEach((element: any) => {
+							newResult[element['@id']] = element
+						})
+						console.log(result)
+						return newResult
+					}})
+			.catch((reason) => {
+					console.log('resolving from expanded.json failed. Falling back on psuedo-parsing resolution.')
+					console.error(reason)
+					return remoteModelFetcherRecursive(dtmi, endpoint)
+				}
+			)
+		} else if (resolveDependencies) {
+			return remoteModelFetcherRecursive(dtmi, endpoint)
+		}
+		return remoteModelFetcher(dtmi, endpoint, false)
 	}
-	else if (tryFromExpanded) {
-		return remoteModelFetcherFromExpanded(dtmi, endpoint)
-	} else if (resolveDependencies) {
-		return remoteModelFetcherRecursive(dtmi, endpoint)
-	}
-	return remoteModelFetcher(dtmi, endpoint, false)
 }
