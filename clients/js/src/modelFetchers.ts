@@ -8,6 +8,7 @@ import * as modelMetadata from './modelMetadata'
 import * as coreHttp from '@azure/core-http'
 import * as fs from 'fs'
 import { fileURLToPath } from 'url'
+import * as path from 'path'
 
 async function remoteModelFetcherRecursive (dtmi: string, endpoint: string): Promise<{[dtmi: string]: JSON }> {
 	const client = new coreHttp.ServiceClient()
@@ -82,7 +83,10 @@ async function localModelFetcherRecursive (dtmi: string, endpoint: string): Prom
 
 // NOTE: Currently there is no support for getting dependencies
 async function localModelFetcher (dtmi: string, directory: string, tryFromExpanded: boolean): Promise<{ [dtmi: string]: any }> {
-	const targetPath = dtmiConventions.dtmiToQualifiedPath(dtmi, directory, tryFromExpanded)
+	// const targetPath = dtmiConventions.dtmiToQualifiedPath(dtmi, directory, tryFromExpanded)
+	const dtmiPath = dtmiConventions.dtmiToPath(dtmi);
+	const dtmiPathFormatted = tryFromExpanded ? dtmiPath.replace('.json', '.expanded.json') : dtmiPath 
+	const targetPath = path.join(directory, dtmiPathFormatted);
 	const fileBuffer = fs.readFileSync(targetPath, 'utf8');
 	const dtdlAsJson = JSON.parse(fileBuffer)
 	const result = { [dtmi]: dtdlAsJson }
