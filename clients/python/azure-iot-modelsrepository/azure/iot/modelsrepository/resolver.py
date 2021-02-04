@@ -43,35 +43,28 @@ def resolve(dtmi, endpoint, expanded=False, resolve_dependencies=False):
     if expanded:
         fully_qualified_dtmi = fully_qualified_dtmi.replace(".json", ".expanded.json")
 
-    # Check value of endpoint to determine if URL or local filesystem directory
-    parse_result = urllib.parse.urlparse(fully_qualified_dtmi)
-    if parse_result.scheme == "http" or parse_result.scheme == "https":
-        # HTTP URL
-        json = _resolve_from_remote_url(fully_qualified_dtmi)
-    elif parse_result.scheme == "file":
-        # File URI
-        # TODO: do we need to support files from localhost?
-        fully_qualified_dtmi = fully_qualified_dtmi[len("file://"):]
-        json = _resolve_from_local_file(fully_qualified_dtmi)
-    else:
-        # File location
-        json = _resolve_from_local_file(fully_qualified_dtmi)
+    json = _fetch_model(fully_qualified_dtmi)   # this isn't strictly a model if it's expanded?
 
-    # Expanded JSON will be in the form of a list of DTDLs
+    # Expanded JSON will be in the form of a list of DTDLs, otherwise will be a singular DTDL.
+    # Convert it to a DTDL map
     dtdl_map = {}
+    # If using expanded JSON, add an entry to the DTDL map for each DTDL
     if expanded:
         for dtdl in json:
             dtdl_map[dtdl["@id"]] = dtdl
-    # Otherwise, the JSON is a singular DTDL
+    # If resolving dependencies, will need to fetch component DTDLs
+    # NOTE: This is unnecessary if using expanded JSON because expanded JSON already has them
+    elif resolve_dependencies:
+        dtdl_map[dtmi] = json
+        _resolve_dtdl_components(json, dtdl_map, endpoint)
+    # Otherwise, just return a one-entry map of the returned JSON (singular DTDL)
     else:
         dtdl_map[dtmi] = json
-
-    # TODO: full resolution
 
     return dtdl_map
 
 def get_fully_qualified_dtmi(dtmi, endpoint):
-    """ Return a fully-qualified path for a DTMI at an endpoint
+    """Return a fully-qualified path for a DTMI at an endpoint
 
     :param str dtmi: DTMI to be make fully-qualified
     :param str endpoint: Either a URL or a local filesystem directory that corresponds to the DTMI
@@ -82,8 +75,44 @@ def get_fully_qualified_dtmi(dtmi, endpoint):
     fully_qualified_dtmi = endpoint + _convert_dtmi_to_path(dtmi)
     return fully_qualified_dtmi
 
+def _resolve_dtdl_components(dtdl, dtdl_map, endpoint):
+    """Retrieve all components of the provided DTDL from the provided endpoint, and add them
+    to the provided DTDL map. This recursively operates on the components as well, if there are
+    subcomponents, subsubcompoenents, etc."""
+    components = [item for item in dtdl["contents"] if item["@type"] == "Component"]
+    for component in components:
+        component_dtmi = component["schema"]
+        if component_dtmi not in dtdl_map:
+            fq_component_dtmi = get_fully_qualified_dtmi(component_dtmi, endpoint)
+            component_dtdl = _fetch_model(fq_component_dtmi)
+            dtdl_map[component_dtmi] = component_dtdl
+            _resolve_dtdl_components(component_dtdl, dtdl_map, endpoint)
 
-def _resolve_from_remote_url(url):
+def _fetch_model(resource_location):
+    """Return JSON from a specified resource location"""
+    # Check value of endpoint to determine if URL or local filesystem directory
+    parse_result = urllib.parse.urlparse(resource_location)
+
+    # If no protocol is specified, default to HTTPS
+    if parse_result.scheme == "":
+        resource_location = "https://" + resource_location
+        parse_result = urllib.parse.urlparse(resource_location)
+
+    if parse_result.scheme == "http" or parse_result.scheme == "https":
+        # HTTP URL
+        json = _fetch_model_from_remote_url(resource_location)
+    elif parse_result.scheme == "file":
+        # File URI
+        # TODO: do we need to support files from localhost?
+        resource_location = resource_location[len("file://"):]
+        json = _fetch_model_from_local_file(resource_location)
+    else:
+        # File location
+        json = _fetch_model_from_local_file(resource_location)
+
+    return json
+
+def _fetch_model_from_remote_url(url):
     """Return JSON from a specified remote URL"""
     logger.debug("Making GET request to {}".format(url))
     response = requests.get(url)
@@ -94,7 +123,7 @@ def _resolve_from_remote_url(url):
         raise ResolverError("Failed to resolve DTMI from URL. Status Code: {}".format(response.status_code))
 
 
-def _resolve_from_local_file(file):
+def _fetch_model_from_local_file(file):
     """Return JSON from specified local file"""
     logger.debug("Opening local file {}".format(file))
     with open(file) as f:
