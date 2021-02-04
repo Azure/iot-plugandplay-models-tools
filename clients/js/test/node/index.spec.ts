@@ -224,7 +224,7 @@ describe.only('resolver - node', () => {
         }).catch((err: any) => done(err))
       })
       
-      it('given no expanded format exists for the given DTMI, should fallback to resolution with dependencies', function (done) {
+      it.only('given no expanded format exists for the given DTMI, should fallback to resolution with dependencies', function (done) {
         const fakeDtmi1: string = 'dtmi:contoso:FakeDeviceManagement:temperaturecontroller;2'
         const fakeDtmi2: string = 'dtmi:contoso:FakeDeviceManagement:thermostat;1'
         const fakeDtmi3: string = 'dtmi:azure:DeviceManagement:deviceinformation;1'

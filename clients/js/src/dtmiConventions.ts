@@ -3,6 +3,9 @@
 
 'use strict'
 
+
+import { URL } from "url"
+
 export function isValidDtmi (dtmi: string) {
   if (dtmi) {
     const re = new RegExp("^dtmi:[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$")
@@ -23,13 +26,21 @@ export function dtmiToPath (dtmi: string) {
   }
 }
 
+function ensureStartsWithProtocol(text: string) {
+  const urlObject = new URL(text);
+  if (urlObject.protocol) {
+    return text
+  }
+  return `https://${text}`
+}
+
 export function dtmiToQualifiedPath (dtmi: string, endpoint: string, isExpanded ?: boolean) {
   const dtmiAsPath = dtmiToPath(dtmi)
   const endpointWithSlash = endpoint.endsWith('/') ? endpoint : `${endpoint}/`
-  const formattedEndpoint = endpointWithSlash.startsWith('http') ? endpointWithSlash : `https://${endpointWithSlash}`
+  const urlEndpoint = ensureStartsWithProtocol(endpointWithSlash);
   if (isExpanded) {
-    return `${formattedEndpoint}${dtmiAsPath.replace(/json$/, 'expanded.json')}`
+    return `${urlEndpoint}${dtmiAsPath.replace(/json$/, 'expanded.json')}`
   } else {
-    return `${formattedEndpoint}${dtmiAsPath}`
+    return `${urlEndpoint}${dtmiAsPath}`
   }
 }

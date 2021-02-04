@@ -3,21 +3,23 @@
 
 "use strict"
 
-function getId(content: any): string {
-    const idElement = content['@id']
+import { DTDL } from "./DTDL"
+
+function getId(input: DTDL): string {
+    const idElement = input['@id']
     return idElement
 }
 
-function getExtends(content: any): string {
-    const extendElement = content['extends']
+function getExtends(input: DTDL): string {
+    const extendElement = input['extends']
     return extendElement
 }
 
-function getComponentSchemas(content: any): string[] {
+function getComponentSchemas(input: DTDL): string[] {
     const componentSchemas: string[] = []
-    if (content['contents']) {
-        const contents: Array<string> = content['contents']
-        contents.forEach((element: any) => {
+    if (input['contents']) {
+        const contents = input['contents']
+        contents.forEach((element) => {
             if (element['@type']
             && (typeof element['@type'] === 'string') &&
             (element['@type'] === 'Component')) {
@@ -30,10 +32,10 @@ function getComponentSchemas(content: any): string[] {
     return componentSchemas
 }
 
-export  function getModelMetadata(content: JSON) {
-    const idElement: string = getId(content)
-    const extendsElement: string = getExtends(content)
-    const componentSchemas: string[] = getComponentSchemas(content)
+export  function getModelMetadata(input: DTDL) {
+    const idElement: string = getId(input)
+    const extendsElement: string = getExtends(input)
+    const componentSchemas: string[] = getComponentSchemas(input)
     return {
         id: idElement,
         extends: extendsElement,

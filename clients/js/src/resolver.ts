@@ -5,7 +5,7 @@
 
 // import logger from '@azure/logger'
 // logger.setLogLevel('info')
-import { modelFetcher } from './modelFetchers'
+import { modelFetcher } from './modelFetcherHandler'
 
 interface resolverOptions {
   resolveDependencies: 'disabled' | 'enabled' | 'tryFromExpanded'
