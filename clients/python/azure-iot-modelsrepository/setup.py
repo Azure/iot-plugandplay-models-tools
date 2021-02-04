@@ -55,7 +55,6 @@ setup(
         "urllib3>1.21.1,<1.26,!=1.25.0,!=1.25.1;python_version!='3.4'",
         # Actual project dependencies
         "requests>=2.22.0",
-        "requests-unixsocket",
     ],
     extras_require={":python_version<'3.0'": ["azure-iot-nspkg>=1.0.1"]},
     python_requires=">=3.5, <4",

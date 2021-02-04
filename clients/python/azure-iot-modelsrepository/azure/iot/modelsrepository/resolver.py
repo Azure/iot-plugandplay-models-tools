@@ -5,13 +5,11 @@
 # --------------------------------------------------------------------------
 import requests
 import logging
-import requests_unixsocket
 import re
 import os
 import json
 import urllib
 
-requests_unixsocket.monkeypatch()
 logger = logging.getLogger(__name__)
 
 
