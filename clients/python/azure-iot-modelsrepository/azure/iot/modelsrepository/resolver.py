@@ -15,6 +15,9 @@ requests_unixsocket.monkeypatch()
 logger = logging.getLogger(__name__)
 
 
+REMOTE_PROTOCOLS = ["http", "https", "ftp"]
+
+
 class ResolverError(Exception):
     pass
 
@@ -28,7 +31,7 @@ def resolve(dtmi, endpoint, expanded=False, resolve_dependencies=False):
     :param bool expanded: If True, will retrieve the expanded DTDL instead of the regular one
         (Default - False)
     :param bool resolve_dependencies: If True, will recursively resolve any addtional DTMIs
-        referenced from within the DTDL. (Default - False) <----- THIS IS NOT YET IMPLEMENTED!
+        for components (and subcomponents) referenced from within the DTDL (Default - False)
 
     :raises: ValueError if DTMI is invalid
     :raises: :class:`azure.iot.modelsrepository.resolver.ResolverError` if resolution of the DTMI
@@ -63,17 +66,27 @@ def resolve(dtmi, endpoint, expanded=False, resolve_dependencies=False):
 
     return dtdl_map
 
+
 def get_fully_qualified_dtmi(dtmi, endpoint):
     """Return a fully-qualified path for a DTMI at an endpoint
 
+    E.g:
+    dtmi:com:example:Thermostat;1, https://somedomain.com
+        -> https://somedomain.com/dtmi/com/example/thermostat-1.json
+
     :param str dtmi: DTMI to be make fully-qualified
     :param str endpoint: Either a URL or a local filesystem directory that corresponds to the DTMI
+
+    :returns: The fully qualified path for the specified DTMI at the specified endpoint
+    :rtype: str
     """
     # NOTE: does this belong in this library?
+    # NOTE: does this have the correct name? Is this really a DTMI path, or a DTDL path?
     if not endpoint.endswith("/"):
         endpoint += "/"
     fully_qualified_dtmi = endpoint + _convert_dtmi_to_path(dtmi)
     return fully_qualified_dtmi
+
 
 def _resolve_dtdl_components(dtdl, dtdl_map, endpoint):
     """Retrieve all components of the provided DTDL from the provided endpoint, and add them
@@ -88,29 +101,34 @@ def _resolve_dtdl_components(dtdl, dtdl_map, endpoint):
             dtdl_map[component_dtmi] = component_dtdl
             _resolve_dtdl_components(component_dtdl, dtdl_map, endpoint)
 
+
 def _fetch_model(resource_location):
     """Return JSON from a specified resource location"""
     # Check value of endpoint to determine if URL or local filesystem directory
     parse_result = urllib.parse.urlparse(resource_location)
 
-    # If no protocol is specified, default to HTTPS
-    if parse_result.scheme == "":
-        resource_location = "https://" + resource_location
-        parse_result = urllib.parse.urlparse(resource_location)
-
-    if parse_result.scheme == "http" or parse_result.scheme == "https":
-        # HTTP URL
+    if parse_result.scheme in REMOTE_PROTOCOLS:
+        # HTTP/HTTPS URL
         json = _fetch_model_from_remote_url(resource_location)
     elif parse_result.scheme == "file":
-        # File URI
-        # TODO: do we need to support files from localhost?
+        # Filesystem URI
         resource_location = resource_location[len("file://"):]
         json = _fetch_model_from_local_file(resource_location)
-    else:
-        # File location
+    elif parse_result.scheme == "" and (resource_location.startswith("/")):
+        # POSIX filesystem path
         json = _fetch_model_from_local_file(resource_location)
+    elif parse_result.scheme == "" and re.search(r"\.[a-zA-z]{2,63}$", resource_location[:resource_location.find("/")]):
+        # Web URL with protocol unspecified - default to HTTPS
+        resource_location = "https://" + resource_location
+        json = _fetch_model_from_remote_url(resource_location)
+    elif parse_result.scheme != "" and len(parse_result.scheme) == 1 and parse_result.scheme.isalpha():
+        # Filesystem path using drive letters (e.g. scheme == "C" or "F" or something)
+        json = _fetch_model_from_local_file(resource_location)
+    else:
+        raise ValueError("Unable to identify resource location: {}".format(resource_location))
 
     return json
+
 
 def _fetch_model_from_remote_url(url):
     """Return JSON from a specified remote URL"""
@@ -126,8 +144,11 @@ def _fetch_model_from_remote_url(url):
 def _fetch_model_from_local_file(file):
     """Return JSON from specified local file"""
     logger.debug("Opening local file {}".format(file))
-    with open(file) as f:
-        file_str = f.read()
+    try:
+        with open(file) as f:
+            file_str = f.read()
+    except Exception as e:
+        raise ResolverError("Failed to resolve DTMI from Filesystem") from e
     return json.loads(file_str)
 
 
