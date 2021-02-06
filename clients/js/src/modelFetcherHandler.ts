@@ -29,12 +29,14 @@ export async function modelFetcher(dtmi: string, endpoint: string, resolveDepend
 		if (tryFromExpanded || resolveDependencies) {
 			return localFetchers.recursiveFetcher(dtmi, formattedDirectory, tryFromExpanded);
 		} else {
+			console.log(`Fetching: ${dtmi}`)
 			return localFetchers.fetcher(dtmi, formattedDirectory, false)
 		}
 	}	else {
 		if (tryFromExpanded || resolveDependencies) {
 			return remoteFetchers.recursiveFetcher(dtmi, endpoint, tryFromExpanded);
 		}
+		console.log(`Fetching: ${dtmi}`)
 		return remoteFetchers.fetcher(dtmi, endpoint, false);
 	}
 }

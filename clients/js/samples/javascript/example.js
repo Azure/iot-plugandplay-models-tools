@@ -13,10 +13,13 @@ const dtmi = process.argv[2] || 'dtmi:com:example:TemperatureController;1'
 console.log(repositoryEndpoint, dtmi)
 
 async function main () {
-  const result = await resolver.resolve(dtmi, repositoryEndpoint, { resolveDependencies: 'enabled' })
-  console.log(result)
-  console.log(`DTMI is: ${dtmi}`)
-  console.log(`DTDL Display Name is: ${result[dtmi]['displayName']}`)
+  const result = await resolver.resolve(dtmi, repositoryEndpoint, { resolveDependencies: 'disabled' })
+  // console.log(result)
+  Object.keys(result).forEach((fetchedDtmi) => {
+    console.log(`DTMI is: ${fetchedDtmi}`)
+    console.log(`DTDL Display Name is: ${result[fetchedDtmi]['displayName']}`)
+    console.log(`DTDL Description is: ${result[fetchedDtmi]['description']}`)
+  })
 }
 
 main().catch((err) => {

@@ -14,11 +14,11 @@ async function recursiveFetcher (dtmi: string, directory: string, tryFromExpande
 	let dependencyModels: {[x:string]: DTDL} = {};
 	let fetchedModels: {[x: string]: DTDL };
 	try {
+		console.log(`Fetching: ${dtmi}`)
 		fetchedModels = await fetcher(dtmi, directory, tryFromExpanded);
 	} catch (error) {
 		if (tryFromExpanded && error.code === 'ENOENT') {
-			console.log(`ERROR ! ${error}`)
-			console.log('TryFromExpanded Failed on current DTMI. Attempting Non-expanded.');
+			console.log('Fetching from expanded failed. Trying without.')
 			fetchedModels = await fetcher(dtmi, directory, false);
 		} else {
 			throw error
@@ -31,7 +31,7 @@ async function recursiveFetcher (dtmi: string, directory: string, tryFromExpande
 		if (deps && deps.length > 0) {
 			for (let j=0; j<deps.length; j++) {
 				if (Object.keys(dependencyModels).includes(deps[j]) || Object.keys(fetchedModels).includes(deps[j])) {
-					console.log(`${deps[j]} already fetched`)
+					// do nothing
 				} else {
 					const fetchedDependencies = await recursiveFetcher(deps[j], directory, tryFromExpanded);
 					dependencyModels = {...dependencyModels, ...fetchedDependencies};
