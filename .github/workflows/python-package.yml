@@ -9,10 +9,6 @@ on:
   pull_request:
     branches: [ dev ]
 
-defaults:
-  run:
-    working-directory: ./clients/python/azure-iot-modelsrepository
-
 jobs:
   build:
 
@@ -28,6 +24,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
+      working-directory: clients/python/azure-iot-modelsrepository
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
