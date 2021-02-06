@@ -7,7 +7,7 @@
 
 let resolver = require('../../out/src/index.js')
 
-const repositoryEndpoint = 'devicemodels.azure.com'
+const repositoryEndpoint = 'https://devicemodels.azure.com/'
 const dtmi = process.argv[2] || 'dtmi:com:example:TemperatureController;1'
 
 console.log(repositoryEndpoint, dtmi)
