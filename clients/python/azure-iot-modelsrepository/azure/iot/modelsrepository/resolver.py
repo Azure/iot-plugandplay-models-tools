@@ -6,7 +6,6 @@
 import requests
 import logging
 import re
-import os
 import json
 import urllib
 
@@ -44,7 +43,7 @@ def resolve(dtmi, endpoint, expanded=False, resolve_dependencies=False):
     if expanded:
         fully_qualified_dtmi = fully_qualified_dtmi.replace(".json", ".expanded.json")
 
-    json = _fetch_model(fully_qualified_dtmi)   # this isn't strictly a model if it's expanded?
+    json = _fetch_model(fully_qualified_dtmi)  # this isn't strictly a model if it's expanded?
 
     # Expanded JSON will be in the form of a list of DTDLs, otherwise will be a singular DTDL.
     # Convert it to a DTDL map
@@ -110,16 +109,22 @@ def _fetch_model(resource_location):
         json = _fetch_model_from_remote_url(resource_location)
     elif parse_result.scheme == "file":
         # Filesystem URI
-        resource_location = resource_location[len("file://"):]
+        resource_location = resource_location[len("file://") :]
         json = _fetch_model_from_local_file(resource_location)
     elif parse_result.scheme == "" and (resource_location.startswith("/")):
         # POSIX filesystem path
         json = _fetch_model_from_local_file(resource_location)
-    elif parse_result.scheme == "" and re.search(r"\.[a-zA-z]{2,63}$", resource_location[:resource_location.find("/")]):
+    elif parse_result.scheme == "" and re.search(
+        r"\.[a-zA-z]{2,63}$", resource_location[: resource_location.find("/")]
+    ):
         # Web URL with protocol unspecified - default to HTTPS
         resource_location = "https://" + resource_location
         json = _fetch_model_from_remote_url(resource_location)
-    elif parse_result.scheme != "" and len(parse_result.scheme) == 1 and parse_result.scheme.isalpha():
+    elif (
+        parse_result.scheme != ""
+        and len(parse_result.scheme) == 1
+        and parse_result.scheme.isalpha()
+    ):
         # Filesystem path using drive letters (e.g. scheme == "C" or "F" or something)
         json = _fetch_model_from_local_file(resource_location)
     else:
@@ -136,7 +141,9 @@ def _fetch_model_from_remote_url(url):
     if response.status_code == 200:
         return response.json()
     else:
-        raise ResolverError("Failed to resolve DTMI from URL. Status Code: {}".format(response.status_code))
+        raise ResolverError(
+            "Failed to resolve DTMI from URL. Status Code: {}".format(response.status_code)
+        )
 
 
 def _fetch_model_from_local_file(file):
@@ -156,7 +163,9 @@ def _convert_dtmi_to_path(dtmi):
     E.g:
     dtmi:com:example:Thermostat;1 -> dtmi/com/example/thermostat-1.json
     """
-    pattern = re.compile("^dtmi:[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$")
+    pattern = re.compile(
+        "^dtmi:[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?(?::[A-Za-z](?:[A-Za-z0-9_]*[A-Za-z0-9])?)*;[1-9][0-9]{0,8}$"
+    )
     if not pattern.match(dtmi):
         raise ValueError("Invalid DTMI")
     else:
