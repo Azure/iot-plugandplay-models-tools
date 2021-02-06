@@ -11,7 +11,7 @@ on:
 
 defaults:
   run:
-    working-directory: clients/python/azure-iot-modelsrepository
+    working-directory: ./clients/python/azure-iot-modelsrepository
 
 jobs:
   build:
