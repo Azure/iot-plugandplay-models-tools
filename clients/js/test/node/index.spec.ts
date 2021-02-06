@@ -3,11 +3,11 @@
 
 import * as resolverTool from '../../src'
 import * as coreHttp from '@azure/core-http'
+import * as fs from 'fs'
 
 import { assert } from 'chai'
 import * as sinon from 'sinon'
 
-import * as fs from 'fs'
 import * as path from 'path'
 
 
@@ -18,7 +18,7 @@ describe.only('resolver - node', () => {
 
   describe('remote URL resolution', () => {
     describe('simple DTDL resolution', () => {
-      it('should return a promise that resolves to a mapping from a DTMI to a JSON object', function (done) {
+      it.only('should return a promise that resolves to a mapping from a DTMI to a JSON object', function (done) {
         const fakeDtmi: string = 'dtmi:contoso:FakeDeviceManagement:DeviceInformation;1'
         const fakeEndpoint = 'devicemodels.contoso.com'
         const expectedUri = 'https://devicemodels.contoso.com/dtmi/contoso/fakedevicemanagement/deviceinformation-1.json'
@@ -195,10 +195,11 @@ describe.only('resolver - node', () => {
     })
 
     describe('try from expanded (expanded.json)', () => {
-      it('should return a promise that resolves to a mapping from a DTMI to a JSON object', function (done) {
-        const fakeDtmi1: string = 'dtmi:contoso:FakeDeviceManagement:temperaturecontroller;1'
-        const fakeDtmi2: string = 'dtmi:contoso:FakeDeviceManagement:thermostat;1'
-        const fakeDtmi3: string = 'dtmi:azure:DeviceManagement:deviceinformation;1'
+      it('should return a promise that resolves to a mapping from the DTMIs to the JSON objects', function (done) {
+        
+        const fakeDtmi1: string = 'dtmi:contoso:FakeDeviceManagement:TemperatureController;1'
+        const fakeDtmi2: string = 'dtmi:contoso:FakeDeviceManagement:Thermostat;1'
+        const fakeDtmi3: string = 'dtmi:azure:DeviceManagement:DeviceInformation;1'
         const localDirectory = path.resolve('./test/node/testModelRepository')
         const pathToDtdl1 = path.join(localDirectory, 'dtmi/contoso/FakeDeviceManagement/temperaturecontroller-1.json')
         const pathToDtdl2 = path.join(localDirectory, 'dtmi/contoso/FakeDeviceManagement/thermostat-1.json')
@@ -206,16 +207,12 @@ describe.only('resolver - node', () => {
         const fakeDtdl1 = JSON.parse(fs.readFileSync(pathToDtdl1, 'utf-8'))
         const fakeDtdl2 = JSON.parse(fs.readFileSync(pathToDtdl2, 'utf-8'))
         const fakeDtdl3 = JSON.parse(fs.readFileSync(pathToDtdl3, 'utf-8'))
-
+        
         const expectedResult = {
           [fakeDtmi1]: fakeDtdl1,
           [fakeDtmi2]: fakeDtdl2,
           [fakeDtmi3]: fakeDtdl3
         }
-        // CHECK HERE THAT THE EXPANDED.JSON FILE IS CALLED USING A SPY OR SOMETHING
-        sinon.spy(fs, 'readFileSync')
-
-
         const resolveResult = resolverTool.resolve(fakeDtmi1, localDirectory, { resolveDependencies: 'tryFromExpanded' })
         assert(resolveResult instanceof Promise, 'resolve method did not return a promise')
         resolveResult.then((actualOutput: any) => {
@@ -224,10 +221,10 @@ describe.only('resolver - node', () => {
         }).catch((err: any) => done(err))
       })
       
-      it.only('given no expanded format exists for the given DTMI, should fallback to resolution with dependencies', function (done) {
+      it('given no expanded format exists for the given DTMI, should fallback to resolution with dependencies', function (done) {
         const fakeDtmi1: string = 'dtmi:contoso:FakeDeviceManagement:temperaturecontroller;2'
-        const fakeDtmi2: string = 'dtmi:contoso:FakeDeviceManagement:thermostat;1'
-        const fakeDtmi3: string = 'dtmi:azure:DeviceManagement:deviceinformation;1'
+        const fakeDtmi2: string = 'dtmi:contoso:FakeDeviceManagement:Thermostat;1'
+        const fakeDtmi3: string = 'dtmi:azure:DeviceManagement:DeviceInformation;1'
         const localDirectory = path.resolve('./test/node/testModelRepository')
         const pathToDtdl1 = path.join(localDirectory, 'dtmi/contoso/FakeDeviceManagement/temperaturecontroller-2.json')
         const pathToDtdl2 = path.join(localDirectory, 'dtmi/contoso/FakeDeviceManagement/thermostat-1.json')
@@ -244,13 +241,13 @@ describe.only('resolver - node', () => {
         const resolveResult = resolverTool.resolve(fakeDtmi1, localDirectory, { resolveDependencies: 'tryFromExpanded' })
         assert(resolveResult instanceof Promise, 'resolve method did not return a promise')
         resolveResult.then((actualOutput: any) => {
-          assert.deepStrictEqual(expectedResult, actualOutput, 'the expected dtmi mapping did not match the actual value.')
+          assert.deepEqual(Object.keys(expectedResult), Object.keys(actualOutput), 'the expected dtmis do not match');
+          Object.keys(expectedResult).forEach(dtmiKey => {
+            assert.deepEqual(expectedResult[dtmiKey], actualOutput[dtmiKey]);
+          });
           done()
         }).catch((err: any) => done(err))
       })
     })
-
-
-
   })
 })

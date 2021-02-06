@@ -3,8 +3,6 @@
 
 'use strict'
 
-import { Contents } from "./Contents";
-
 export interface DTDL extends JSON {
   '@context': any[],
   '@id': string,

@@ -1,7 +1,7 @@
 [
   {
     "@context": "dtmi:dtdl:context;2",
-    "@id": "dtmi:com:example:TemperatureController;1",
+    "@id": "dtmi:contoso:FakeDeviceManagement:TemperatureController;1",
     "@type": "Interface",
     "displayName": "Temperature Controller",
     "description": "Device with two thermostats and remote reboot.",
@@ -38,14 +38,14 @@
       },
       {
         "@type": "Component",
-        "schema": "dtmi:com:example:Thermostat;1",
+        "schema": "dtmi:contoso:FakeDeviceManagement:Thermostat;1",
         "name": "thermostat1",
         "displayName": "Thermostat One",
         "description": "Thermostat One of Two."
       },
       {
         "@type": "Component",
-        "schema": "dtmi:com:example:Thermostat;1",
+        "schema": "dtmi:contoso:FakeDeviceManagement:Thermostat;1",
         "name": "thermostat2",
         "displayName": "Thermostat Two",
         "description": "Thermostat Two of Two."
@@ -61,7 +61,7 @@
   },
   {
     "@context": "dtmi:dtdl:context;2",
-    "@id": "dtmi:com:example:Thermostat;1",
+    "@id": "dtmi:contoso:FakeDeviceManagement:Thermostat;1",
     "@type": "Interface",
     "displayName": "Thermostat",
     "description": "Reports current temperature and provides desired temperature control.",

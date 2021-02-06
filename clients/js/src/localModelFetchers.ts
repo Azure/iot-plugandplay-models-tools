@@ -6,41 +6,23 @@
 import * as dtmiConventions from './dtmiConventions'
 import * as modelMetadata from './modelMetadata'
 import { DTDL } from './DTDL'
-import * as fs from 'fs'
+import fs from 'fs';
 import * as path from 'path'
+import { flattenDtdlResponse } from './modelFetcherHelper';
 
-
-// TODO: CHANGE THIS TO FIX NEW DATA STRUCTURES
-function isFlat(x: {}) {
-	const keysOfX = Object.keys(x);
-	for (let i=0; i < keysOfX.length; i++) {
-		if (typeof(i) !== 'object') {
-			return false;
-		}
-	}
-	return true;
-}
-
-function flattenDtdlResponse(input: DTDL[]) {
-	let newResult: {[x: string]: DTDL} = {};
-	input.forEach((element: DTDL) => {
-		newResult[element['@id']] = element
-	})
-	return newResult
-}
-
-async function localModelFetcherRecursive (dtmi: string, directory: string, tryFromExpanded: boolean): Promise<{[x:string]: DTDL}> {
+async function recursiveFetcher (dtmi: string, directory: string, tryFromExpanded: boolean): Promise<{[x:string]: DTDL}> {
 	let dependencyModels: {[x:string]: DTDL} = {};
 	let fetchedModels: {[x: string]: DTDL };
 	try {
-		fetchedModels = await localModelFetcher(dtmi, directory, tryFromExpanded);
+		fetchedModels = await fetcher(dtmi, directory, tryFromExpanded);
 	} catch (error) {
-		if (tryFromExpanded) {
+		if (tryFromExpanded && error.code === 'ENOENT') {
 			console.log(`ERROR ! ${error}`)
 			console.log('TryFromExpanded Failed on current DTMI. Attempting Non-expanded.');
-			fetchedModels = await localModelFetcher(dtmi, directory, false);
+			fetchedModels = await fetcher(dtmi, directory, false);
+		} else {
+			throw error
 		}
-		throw error
 	}
 	const dtmis = Object.keys(fetchedModels) 
 	for (let i=0; i<dtmis.length; i++) {
@@ -48,8 +30,12 @@ async function localModelFetcherRecursive (dtmi: string, directory: string, tryF
 		const deps = modelMetadata.getModelMetadata(currentDtdl)['componentSchemas']
 		if (deps && deps.length > 0) {
 			for (let j=0; j<deps.length; j++) {
-				const fetchedDependencies = await localModelFetcherRecursive(deps[i], directory, tryFromExpanded);
-				dependencyModels = {...dependencyModels, ...fetchedDependencies};
+				if (Object.keys(dependencyModels).includes(deps[j]) || Object.keys(fetchedModels).includes(deps[j])) {
+					console.log(`${deps[j]} already fetched`)
+				} else {
+					const fetchedDependencies = await recursiveFetcher(deps[j], directory, tryFromExpanded);
+					dependencyModels = {...dependencyModels, ...fetchedDependencies};
+				}
 			}
 		}
 	}
@@ -59,13 +45,13 @@ async function localModelFetcherRecursive (dtmi: string, directory: string, tryF
 	return fetchedModels
 }
 
-async function localModelFetcher (dtmi: string, directory: string, tryFromExpanded: boolean): Promise<{ [dtmi: string]: DTDL }> {
+async function fetcher (dtmi: string, directory: string, tryFromExpanded: boolean): Promise<{ [dtmi: string]: DTDL }> {
 	const dtmiPath = dtmiConventions.dtmiToPath(dtmi);
 	const dtmiPathFormatted = tryFromExpanded ? dtmiPath.replace('.json', '.expanded.json') : dtmiPath 
 	const targetPath = path.join(directory, dtmiPathFormatted);
 	const dtdlFile = fs.readFileSync(targetPath, 'utf8');
 	let parsedDtdl: DTDL | DTDL[] = JSON.parse(dtdlFile);
-	if (!isFlat(parsedDtdl)) {
+	if (Array.isArray(parsedDtdl)) {
 		const result = flattenDtdlResponse(parsedDtdl as DTDL[])
 		return result
 	} else {
@@ -74,4 +60,4 @@ async function localModelFetcher (dtmi: string, directory: string, tryFromExpand
 	}
 }
 
-export { localModelFetcher, localModelFetcherRecursive }
+export { fetcher, recursiveFetcher }

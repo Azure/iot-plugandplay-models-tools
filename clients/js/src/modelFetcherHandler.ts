@@ -4,10 +4,9 @@
 "use strict"
 
 import * as fs from 'fs'
-import { fileURLToPath } from 'url'
-
-import { localModelFetcher, localModelFetcherRecursive } from './localModelFetchers'
-// import { remoteModelFetcher, remoteModelFetcherRecursive } from './remoteModelFetchers'
+import * as url from 'url'
+import * as localFetchers from './localModelFetchers';
+import * as remoteFetchers from './remoteModelFetchers';
 
 function isLocalPath (p: string): boolean {
 	if (p.startsWith('https://') || p.startsWith('http://')) {
@@ -25,34 +24,17 @@ function isLocalPath (p: string): boolean {
 }
 
 export async function modelFetcher(dtmi: string, endpoint: string, resolveDependencies: boolean, tryFromExpanded: boolean): Promise<{ [dtmi: string]: JSON | Array<JSON> }> {
-	const isLocal = isLocalPath(endpoint)
-	if (isLocal) {
-		const formattedDirectory = endpoint.includes('file://') ? fileURLToPath(endpoint) : endpoint
+	if (isLocalPath(endpoint)) {
+		const formattedDirectory = endpoint.includes('file://') ? url.fileURLToPath(endpoint) : endpoint
 		if (tryFromExpanded || resolveDependencies) {
-			return localModelFetcherRecursive(dtmi, formattedDirectory, tryFromExpanded);
+			return localFetchers.recursiveFetcher(dtmi, formattedDirectory, tryFromExpanded);
 		} else {
-			return localModelFetcher(dtmi, formattedDirectory, false)
+			return localFetchers.fetcher(dtmi, formattedDirectory, false)
 		}
+	}	else {
+		if (tryFromExpanded || resolveDependencies) {
+			return remoteFetchers.recursiveFetcher(dtmi, endpoint, tryFromExpanded);
+		}
+		return remoteFetchers.fetcher(dtmi, endpoint, false);
 	}
-	throw new Error('LOCAL!')
-	// else {
-	// 	if (tryFromExpanded) {
-	// 		try {
-	// 			const dtmiMapping = await remoteModelFetcher(dtmi, endpoint, true)
-	// 			if (typeof(dtmiMapping[dtmi]) !== 'object') {
-	// 				return flattenedExpandedResult(dtmiMapping, dtmi)
-	// 			} else {
-	// 				return dtmiMapping
-	// 			}
-	// 		} 
-	// 		catch (reason) {
-	// 			console.log('resolving from expanded.json failed. Falling back on psuedo-parsing resolution.')
-	// 			console.error(reason)
-	// 			return await remoteModelFetcherRecursive(dtmi, endpoint)
-	// 		}
-	// 	} else if (resolveDependencies) {
-	// 		return remoteModelFetcherRecursive(dtmi, endpoint)
-	// 	}
-	// 	return remoteModelFetcher(dtmi, endpoint, false)
-	// }
 }
