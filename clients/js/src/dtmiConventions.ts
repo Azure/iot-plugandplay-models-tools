@@ -25,7 +25,7 @@ export function dtmiToPath (dtmi: string) {
 
 function ensureStartsWithProtocol(text: string) {
   const re = new RegExp(/^http[s]?\:\/\//);
-  if (text.search(re)) {
+  if (text.search(re) != -1) {
     return text
   } else {
     return `https://${text}`
