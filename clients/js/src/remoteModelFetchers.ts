@@ -16,8 +16,9 @@ async function recursiveFetcher (dtmi: string, endpoint: string, tryFromExpanded
     console.log(`Fetching: ${dtmi}`)
     fetchedModels = await fetcher(dtmi, endpoint, tryFromExpanded)
   } catch (error) {
-    if (tryFromExpanded && error.code === 'ENOENT') {
+    if (tryFromExpanded && (error.code === 'ENOENT' || !(error.statusCode >= 200 && error.statusCode < 400))) {
       console.log('Fetching from expanded failed. Trying without.')
+      console.log(`Fetching: ${dtmi}`)
       fetchedModels = await fetcher(dtmi, endpoint, false)
     } else {
       throw error
@@ -62,8 +63,7 @@ async function fetcher (dtmi: string, endpoint: string, tryFromExpanded: boolean
       return result
     }
   } else {
-    const respError = `${res.parsedBody}${res.status}`
-    throw new Error(`Error on HTTP Request: ${respError}`)
+    throw new coreHttp.RestError('Error on HTTP Request in remote model fetcher', '404', 404, undefined, res)
   }
 }
 

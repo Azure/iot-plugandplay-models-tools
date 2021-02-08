@@ -21,9 +21,14 @@ $ cd samples/javascript
 $ node example.js
 ```
 
-## Troubleshooting
+## Run the temporary test script
 
-TODO
+```bash
+// FROM THIS DIRECTORY
+$ npm install
+$ npx tsc
+$ npm run temp-unit-test
+```
 
 ### General
 
