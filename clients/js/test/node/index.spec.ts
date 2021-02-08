@@ -10,13 +10,13 @@ import * as sinon from 'sinon'
 
 import * as path from 'path'
 
-describe.only('resolver - node', () => {
-  afterEach(() => {
+describe.only('resolver - node', function () {
+  afterEach(function () {
     sinon.restore()
   })
 
-  describe('remote URL resolution', () => {
-    describe('simple DTDL resolution', () => {
+  describe('remote URL resolution', function () {
+    describe('simple DTDL resolution', function () {
       it('should return a promise that resolves to a mapping from a DTMI to a JSON object', function (done) {
         const fakeDtmi: string = 'dtmi:contoso:FakeDeviceManagement:DeviceInformation;1'
         const fakeEndpoint = 'devicemodels.contoso.com'
@@ -41,7 +41,7 @@ describe.only('resolver - node', () => {
       })
     })
 
-    describe('depenency resolution (using pseudo-parsing)', () => {
+    describe('depenency resolution (using pseudo-parsing)', function () {
       it('given a DTMI whose DTDL has no dependencies, should return a promise that resolves to a mapping from a DTMI to a JSON object', function (done) {
         const fakeDtmi: string = 'dtmi:contoso:FakeDeviceManagement:DeviceInformation;1'
         const fakeEndpoint: string = 'devicemodels.contoso.com'
@@ -109,7 +109,7 @@ describe.only('resolver - node', () => {
       })
     })
 
-    describe('try from expanded (expanded.json)', () => {
+    describe('try from expanded (expanded.json)', function () {
       it('should return a promise that resolves to a mapping from a DTMI to a JSON object', function (done) {
         const fakeDtmi: string = 'dtmi:contoso:FakeDeviceManagement:DeviceInformation;1'
         const fakeEndpoint = 'devicemodels.contoso.com'
@@ -157,8 +157,8 @@ describe.only('resolver - node', () => {
     })
   })
 
-  describe('local file resolution', () => {
-    describe('simple DTDL resolution', () => {
+  describe('local file resolution', function () {
+    describe('simple DTDL resolution', function () {
       it('should return a promise that resolves to a mapping from a DTMI to a JSON object', function (done) {
         const fakeDtmi: string = 'dtmi:contoso:FakeDeviceManagement:thermostat;1'
         const localDirectory = path.resolve('./test/node/testModelRepository')
@@ -173,7 +173,7 @@ describe.only('resolver - node', () => {
       })
     })
 
-    describe('dependency resolution (using pseudo-parsing)', () => {
+    describe('dependency resolution (using pseudo-parsing)', function () {
       it('given a DTMI whose DTDL has dependencies, should return a promise that resolves to a mapping from DTMIs to JSON objects', function (done) {
         const fakeDtmi1: string = 'dtmi:contoso:FakeDeviceManagement:TemperatureController;1'
         const fakeDtmi2: string = 'dtmi:contoso:FakeDeviceManagement:Thermostat;1'
@@ -221,7 +221,7 @@ describe.only('resolver - node', () => {
       })
     })
 
-    describe('try from expanded (expanded.json)', () => {
+    describe('try from expanded (expanded.json)', function () {
       it('should return a promise that resolves to a mapping from the DTMIs to the JSON objects', function (done) {
         const fakeDtmi1: string = 'dtmi:contoso:FakeDeviceManagement:TemperatureController;1'
         const fakeDtmi2: string = 'dtmi:contoso:FakeDeviceManagement:Thermostat;1'
