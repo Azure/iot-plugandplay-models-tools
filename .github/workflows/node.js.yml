@@ -9,11 +9,11 @@ on:
   pull_request:
     branches: [ dev ]
 
-jobs:
-  defaults:
-    run:
-      working-directory: clients/js
+defaults:
+  run:
+    working-directory: clients/js
 
+jobs:
   build:
 
     runs-on: ubuntu-latest
