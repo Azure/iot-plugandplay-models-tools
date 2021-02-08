@@ -26,5 +26,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
+      working-directory: ./clients/js
     - run: npx tsc
+      working-directory: ./clients/js
     - run: npm temp-unit-test
+      working-directory: ./clients/js
