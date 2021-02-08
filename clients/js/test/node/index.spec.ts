@@ -11,7 +11,7 @@ import * as sinon from 'sinon'
 
 import * as path from 'path'
 
-describe.only('resolver - node', function () {
+describe('resolver - node', function () {
   afterEach(function () {
     sinon.restore()
   })

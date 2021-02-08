@@ -31,7 +31,7 @@ These are the optional parameters:
 
 - `expanded (type: boolean)` - Get the `.expanded.json` version of the dtdl (if the dtdl is in the device models repository, it will have an expanded version). This is a useful way to get dependencies in one network call, and is recommended if you want to resolve the full dependency tree of a dtdl stored in the device model repository.
 
-- `resolveDependencies (type: boolean)` - **NOT IMPLEMENTED YET** Using a psuedo-parser, scans the dtdls for dependencies and gets all dependencies. Will throw an error if a dependency does not exist in a given endpoint. In order to guarantee the full dependency tree exists at the endpoint, we recommend using the device models repository and the `expanded` optional parameter.
+- `resolveDependencies (type: boolean)` - Using a psuedo-parser, scans the dtdls for dependencies and gets all dependencies. Will throw an error if a dependency does not exist in a given endpoint. In order to guarantee the full dependency tree exists at the endpoint, we recommend using the device models repository and the `expanded` optional parameter.
 
 ## dtmiConventions.ts
 
@@ -49,7 +49,23 @@ Validates then converts the dtmi to a generic path.
 
 Validates the dtmi then converts the endpoint and dtmi to a fully qualified path. To get the `extended.json` version of a dtdl, there is a boolean parameter required.
 
+## DTDL.ts
 
-## modelFetchers.ts
+This is used to define an interface uesd in `dtmiConventions.ts`. Though it is an incomplete interface, it is just used to define the psuedo-parsing requirements.
 
-This is the main implementation of the resolver functionality. It will check the endpoint to see if it is a remote URL or a local file. Then, it will pass the parameters either to the remote fetcher or the local fetcher.
+## modelFetcherHandler.ts
+
+This handles figuring out which fetcher to use based on the type of endpoint and the options given. It will check the endpoint to see if it is a remote URL or a local file. Then, it will pass the parameters either to the remote fetcher or the local fetcher.
+
+
+## localModelFetchers.ts
+
+This contains the local `fetcher()` method and the `recursiveFetcher()` method. The regular `fetcher()` method is called when resolverOptions are set to `disabled`, and also used as the basic unit of fetching from a directory for the `recursiveFetcher()`. The `localModelFetchers.ts` and `remoteModelFetchers.ts` are fairly similar, except for handling the formatting of the endpoint/directory, and the use of `filesystem` in the case of the `localModelFetchers`.
+
+## remoteModelFetchers.ts
+
+This contains the `fetcher()` method and the `recursiveFetcher()` method for fetching DTDLs from remote endpoints. It is similarly structured to `localModelFetchers.ts`. In order to perform the HTTP requests it uses the Azure `coreHttp` implementation.
+
+## modelMetadata.ts
+
+Performs a psuedo-parsing of a given DTDL and gives back information primarily relevant for fetching dependencies.
