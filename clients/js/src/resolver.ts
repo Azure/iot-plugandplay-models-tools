@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-"use strict"
+'use strict'
 
 // import logger from '@azure/logger'
 // logger.setLogLevel('info')
@@ -11,14 +11,14 @@ interface resolverOptions {
   resolveDependencies: 'disabled' | 'enabled' | 'tryFromExpanded'
 }
 
-function checkIfTryFromExpanded(options?: resolverOptions): boolean {
+function checkIfTryFromExpanded (options?: resolverOptions): boolean {
   if (options && options.resolveDependencies && options.resolveDependencies === 'tryFromExpanded') {
     return true
   }
   return false
 }
 
-function checkIfResolveDependencies(options?: resolverOptions): boolean {
+function checkIfResolveDependencies (options?: resolverOptions): boolean {
   if (options && options.resolveDependencies && options.resolveDependencies === 'enabled') {
     return true
   }
@@ -36,12 +36,11 @@ function checkIfResolveDependencies(options?: resolverOptions): boolean {
  */
 function resolve(dtmi: string, endpoint: string): Promise<{ [dtmi: string]: any}>
 function resolve(dtmi: string, endpoint: string, options: resolverOptions): Promise<{ [dtmi: string]: any}>
-function resolve(dtmi: string, endpoint : string, options ?: resolverOptions): Promise<{ [dtmi: string]:any}> {
-  let tryFromExpanded = checkIfTryFromExpanded(options)
-  let resolveDependencies = checkIfResolveDependencies(options)
+function resolve (dtmi: string, endpoint : string, options ?: resolverOptions): Promise<{ [dtmi: string]:any}> {
+  const tryFromExpanded = checkIfTryFromExpanded(options)
+  const resolveDependencies = checkIfResolveDependencies(options)
 
   return modelFetcher(dtmi, endpoint, resolveDependencies, tryFromExpanded)
 }
-
 
 export { resolve }

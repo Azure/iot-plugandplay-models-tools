@@ -7,12 +7,15 @@
 
 let resolver = require('../../out/src/index.js')
 
+
+// You can change the endpoint and dtmi you'd like to access
 const repositoryEndpoint = 'https://devicemodels.azure.com/'
 const dtmi = process.argv[2] || 'dtmi:com:example:TemperatureController;1'
 
 console.log(repositoryEndpoint, dtmi)
 
 async function main () {
+  // This is where you can change the options for how you want to resolve the dependencies.
   const result = await resolver.resolve(dtmi, repositoryEndpoint, { resolveDependencies: 'enabled' })
   console.log(result)
   Object.keys(result).forEach((fetchedDtmi) => {

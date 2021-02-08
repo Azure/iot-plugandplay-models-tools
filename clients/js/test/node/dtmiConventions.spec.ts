@@ -5,27 +5,25 @@
 // import * as lib from '../../src/dtmiConventions'
 
 // fake class while lib not implemented
+import * as sinon from 'sinon'
+import { assert, expect } from 'chai'
+
 class lib {
-
   // @ts-ignore
-  static isValidDtmi(a: any): any {
+  static isValidDtmi (a: any): any {
     return null
   }
 
   // @ts-ignore
-  static dtmiToPath(a: any): any {
+  static dtmiToPath (a: any): any {
     return null
   }
 
   // @ts-ignore
-  static dtmiToQualifiedPath(a: any, b: any, c: any): any {
+  static dtmiToQualifiedPath (a: any, b: any, c: any): any {
     return null
   }
 }
-
-
-import * as sinon from 'sinon'
-import { assert, expect } from 'chai'
 
 describe('dtmiConventions', function () {
   afterEach(() => {

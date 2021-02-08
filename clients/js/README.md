@@ -9,7 +9,17 @@ The Azure IoT Resolver library for Javascript is written to interact with the Az
 
 ## Examples
 
-TODO
+*THIS WILL CHANGE WHEN MERGED INTO THE MONOREPO*
+
+To run the javascript examples, go to the samples directory:
+
+```bash
+// FROM THIS DIRECTORY
+$ npm install
+$ npx tsc
+$ cd samples/javascript
+$ node example.js
+```
 
 ## Troubleshooting
 

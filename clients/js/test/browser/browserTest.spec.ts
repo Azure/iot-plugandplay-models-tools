@@ -6,7 +6,7 @@ import * as lib from '../../src'
 import { assert } from 'chai'
 import * as sinon from 'sinon'
 
-describe("resolver -  browser", () => {
+describe('resolver -  browser', () => {
   afterEach(() => {
     sinon.restore()
   })
@@ -23,6 +23,6 @@ describe("resolver -  browser", () => {
         assert.deepStrictEqual({ [dtmi]: JSON.parse(fakeData) }, actualOutput)
         done()
       }).catch((err: any) => done(err))
-    });
-  });
-});
+    })
+  })
+})
