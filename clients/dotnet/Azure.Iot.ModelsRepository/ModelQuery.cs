@@ -60,6 +60,13 @@ namespace Azure.Iot.ModelsRepository
                             {
                                 dependencies.Add(extendElement.GetString());
                             }
+                            else if (extendElement.ValueKind == JsonValueKind.Object)
+                            {
+                                // extends can have multiple levels and can contain components.
+                                // TODO: Support object ctor - inefficient serialize.
+                                ModelMetadata nested_interface = new ModelQuery(JsonSerializer.Serialize(extendElement)).GetMetadata();
+                                dependencies.AddRange(nested_interface.Dependencies);
+                            }
                         }
                     }
                     else if (extends.ValueKind == JsonValueKind.String)
@@ -72,6 +79,7 @@ namespace Azure.Iot.ModelsRepository
             return dependencies;
         }
 
+        // TODO: Consider refactor to an object type based processing.
         public IList<string> GetComponentSchemas()
         {
             List<string> componentSchemas = new List<string>();
@@ -95,6 +103,26 @@ namespace Azure.Iot.ModelsRepository
                                         if (schema.ValueKind == JsonValueKind.String)
                                         {
                                             componentSchemas.Add(schema.GetString());
+                                        }
+                                        else if (schema.ValueKind == JsonValueKind.Array)
+                                        {
+                                            foreach (JsonElement schemaElement in schema.EnumerateArray())
+                                            {
+                                                if (schemaElement.ValueKind == JsonValueKind.String)
+                                                {
+                                                    componentSchemas.Add(schemaElement.GetString());
+                                                }
+                                            }
+                                        }
+                                        else if (schema.ValueKind == JsonValueKind.Object)
+                                        {
+                                            if (schema.TryGetProperty("extends", out JsonElement schemaObjExtends))
+                                            {
+                                                if (schemaObjExtends.ValueKind == JsonValueKind.String)
+                                                {
+                                                    componentSchemas.Add(schemaObjExtends.GetString());
+                                                }
+                                            }
                                         }
                                     }
                                 }

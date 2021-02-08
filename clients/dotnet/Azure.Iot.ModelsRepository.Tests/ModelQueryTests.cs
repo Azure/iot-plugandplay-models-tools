@@ -69,7 +69,7 @@ namespace Azure.Iot.ModelsRepository.Tests
             IList<string> componentSchemas = query.GetComponentSchemas();
             Assert.AreEqual(componentSchemas.Count, expectedDtmis.Length);
 
-            foreach(string schema in componentSchemas)
+            foreach (string schema in componentSchemas)
             {
                 Assert.Contains(schema, expectedDtmis);
             }
@@ -115,7 +115,32 @@ namespace Azure.Iot.ModelsRepository.Tests
                 ""schema"": ""dtmi:com:example:Camera;3""
             }],",
             "dtmi:com:example:Camera;3,dtmi:azure:DeviceManagement:DeviceInformation;1"
-        )]
+        ),
+        TestCase(
+            "\"@id\": \"dtmi:example:Interface1;1\",",
+            @"""extends"": [""dtmi:example:Interface2;1"", {
+              ""@id"": ""dtmi:example:Interface3;1"",
+              ""@type"": ""Interface"",
+              ""contents"": [{
+                  ""@type"": ""Component"",
+                  ""name"": ""comp1"",
+                  ""schema"": [""dtmi:example:Interface4;1""]
+                },
+                {
+                  ""@type"": ""Component"",
+                  ""name"": ""comp2"",
+                  ""schema"": {
+                    ""@id"": ""dtmi:example:Interface5;1"",
+                    ""@type"": ""Interface"",
+                    ""extends"": ""dtmi:example:Interface6;1""
+                  }
+                }
+              ]
+            }],",
+            "",
+            "dtmi:example:Interface2;1,dtmi:example:Interface4;1,dtmi:example:Interface6;1"
+        )
+        ]
         public void GetModelDependencies(string id, string extends, string contents, string expected)
         {
             string[] expectedDtmis = expected.Split(new[] { "," }, System.StringSplitOptions.RemoveEmptyEntries);
@@ -143,7 +168,7 @@ namespace Azure.Iot.ModelsRepository.Tests
 
             // Assert KPI's for TemperatureController;1.
             // Ensure transform of expanded content to dictionary is what we'd expect.
-            string[] expectedIds = new string[] { 
+            string[] expectedIds = new string[] {
                 "dtmi:azure:DeviceManagement:DeviceInformation;1",
                 "dtmi:com:example:Thermostat;1",
                 "dtmi:com:example:TemperatureController;1" };
