@@ -24,14 +24,18 @@ The `resolve` method takes two main arguments:
 The `resolve` method has optional parameters provided as a single object. You would use it as such:
 
 ```js
-resolve(myDtmi, myEndpoint, { 'foo': true, 'bar': false })
+resolve(myDtmi, myEndpoint, { 'resolveDependencies': 'disabled' })
 ```
 
-These are the optional parameters:
+Currently there is only one parameter in the optional object:
 
-- `expanded (type: boolean)` - Get the `.expanded.json` version of the dtdl (if the dtdl is in the device models repository, it will have an expanded version). This is a useful way to get dependencies in one network call, and is recommended if you want to resolve the full dependency tree of a dtdl stored in the device model repository.
+- `resolveDependencies (type: string)` - This is a useful way to get dependencies in one network call, and is recommended if you want to resolve the full dependency tree of a dtdl stored in the device model repository. These are the three options: 
+  - `disabled`
+  - `enabled`
+  - `tryFroExpanded`
 
-- `resolveDependencies (type: boolean)` - Using a psuedo-parser, scans the dtdls for dependencies and gets all dependencies. Will throw an error if a dependency does not exist in a given endpoint. In order to guarantee the full dependency tree exists at the endpoint, we recommend using the device models repository and the `expanded` optional parameter.
+
+
 
 ## dtmiConventions.ts
 

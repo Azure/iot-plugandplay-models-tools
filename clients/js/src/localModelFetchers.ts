@@ -27,7 +27,8 @@ async function recursiveFetcher (dtmi: string, directory: string, tryFromExpande
   const dtmis = Object.keys(fetchedModels)
   for (let i = 0; i < dtmis.length; i++) {
     const currentDtdl = fetchedModels[dtmis[i]]
-    const deps = modelMetadata.getModelMetadata(currentDtdl).componentSchemas
+    const metaModelData = modelMetadata.getModelMetadata(currentDtdl)
+    const deps = metaModelData.componentSchemas.concat(metaModelData.extends)
     if (deps && deps.length > 0) {
       for (let j = 0; j < deps.length; j++) {
         if (Object.keys(dependencyModels).includes(deps[j]) || Object.keys(fetchedModels).includes(deps[j])) {
