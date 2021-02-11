@@ -84,11 +84,7 @@ def bar_dtdl_json():
                 "displayName": "Buzz",
                 "schema": "dtmi:com:somedomain:example:BuzzDTDL;1",
             },
-            {
-                "@type": "Telemetry",
-                "name": "bartelemetry",
-                "schema": "double"
-            },
+            {"@type": "Telemetry", "name": "bartelemetry", "schema": "double"},
         ],
     }
 
@@ -103,7 +99,10 @@ def buzz_dtdl_json():
         "@id": "dtmi:com:somedomain:example:BuzzDTDL;1",
         "@type": "Interface",
         "displayName": "Buzz",
-        "extends": ["dtmi:com:somedomain:example:QuxDTDL;1", "dtmi:com:somedomain:example:QuzDTDL;1"],
+        "extends": [
+            "dtmi:com:somedomain:example:QuxDTDL;1",
+            "dtmi:com:somedomain:example:QuzDTDL;1",
+        ],
         "contents": [
             {
                 "@type": "Property",
@@ -114,6 +113,7 @@ def buzz_dtdl_json():
             },
         ],
     }
+
 
 @pytest.fixture
 def baz_dtdl_json():
@@ -139,8 +139,9 @@ def baz_dtdl_json():
                 "schema": "string",
                 "description": "A string representing some value. This isn't real",
             },
-        ]
+        ],
     }
+
 
 @pytest.fixture
 def qux_dtdl_json():
@@ -159,16 +160,13 @@ def qux_dtdl_json():
                     "name": "quxcommandtime",
                     "displayName": "Qux Command Time",
                     "description": "It's a command. For Qux.",
-                    "schema": "dateTime"
+                    "schema": "dateTime",
                 },
-                "response": {
-                    "name": "quxresponsetime",
-                    "schema": "dateTime"
-                }
+                "response": {"name": "quxresponsetime", "schema": "dateTime"},
             }
-
-        ]
+        ],
     }
+
 
 @pytest.fixture
 def quz_dtdl_json():
@@ -182,10 +180,18 @@ def quz_dtdl_json():
     }
 
 
-
 @pytest.fixture
-def foo_dtdl_expanded_json(foo_dtdl_json, bar_dtdl_json, buzz_dtdl_json, qux_dtdl_json, quz_dtdl_json, baz_dtdl_json):
-    return [foo_dtdl_json, bar_dtdl_json, buzz_dtdl_json, qux_dtdl_json, quz_dtdl_json, baz_dtdl_json]
+def foo_dtdl_expanded_json(
+    foo_dtdl_json, bar_dtdl_json, buzz_dtdl_json, qux_dtdl_json, quz_dtdl_json, baz_dtdl_json
+):
+    return [
+        foo_dtdl_json,
+        bar_dtdl_json,
+        buzz_dtdl_json,
+        qux_dtdl_json,
+        quz_dtdl_json,
+        baz_dtdl_json,
+    ]
 
 
 class ResolveFromRemoteURLEndpointTestConfig(object):
@@ -195,7 +201,15 @@ class ResolveFromRemoteURLEndpointTestConfig(object):
 
     @pytest.fixture
     def mock_http_get(
-        self, mocker, foo_dtdl_json, bar_dtdl_json, buzz_dtdl_json, baz_dtdl_json, qux_dtdl_json, quz_dtdl_json, foo_dtdl_expanded_json
+        self,
+        mocker,
+        foo_dtdl_json,
+        bar_dtdl_json,
+        buzz_dtdl_json,
+        baz_dtdl_json,
+        qux_dtdl_json,
+        quz_dtdl_json,
+        foo_dtdl_expanded_json,
     ):
         mock_http_get = mocker.patch.object(requests, "get")
         mock_response = mock_http_get.return_value
@@ -489,7 +503,17 @@ class TestResolveFromRemoteURLEndpointWithDependencyResolution(
     )
     # NOTE: these multiple URL parameters come from the definition of the DTDL fixtures.
     def test_http_get(
-        self, mocker, mock_http_get, endpoint, dtmi, expected_url1, expected_url2, expected_url3, expected_url4, expected_url5, expected_url6
+        self,
+        mocker,
+        mock_http_get,
+        endpoint,
+        dtmi,
+        expected_url1,
+        expected_url2,
+        expected_url3,
+        expected_url4,
+        expected_url5,
+        expected_url6,
     ):
         resolver.resolve(dtmi, endpoint, resolve_dependencies=True)
 
@@ -559,7 +583,15 @@ class ResolveFromLocalFilesystemEndpointTestConfig(object):
 
     @pytest.fixture
     def mock_open(
-        self, mocker, foo_dtdl_json, bar_dtdl_json, buzz_dtdl_json, qux_dtdl_json, quz_dtdl_json, baz_dtdl_json, foo_dtdl_expanded_json
+        self,
+        mocker,
+        foo_dtdl_json,
+        bar_dtdl_json,
+        buzz_dtdl_json,
+        qux_dtdl_json,
+        quz_dtdl_json,
+        baz_dtdl_json,
+        foo_dtdl_expanded_json,
     ):
         mock_open = mocker.patch("builtins.open", mocker.mock_open())
         fh_mock = mock_open.return_value
@@ -879,7 +911,17 @@ class TestResolveFromLocalFilesystemEndpointWithDependencyResolution(
         ],
     )
     def test_open(
-        self, mocker, mock_open, endpoint, dtmi, expected_path1, expected_path2, expected_path3, expected_path4, expected_path5, expected_path6
+        self,
+        mocker,
+        mock_open,
+        endpoint,
+        dtmi,
+        expected_path1,
+        expected_path2,
+        expected_path3,
+        expected_path4,
+        expected_path5,
+        expected_path6,
     ):
         resolver.resolve(dtmi, endpoint, resolve_dependencies=True)
 

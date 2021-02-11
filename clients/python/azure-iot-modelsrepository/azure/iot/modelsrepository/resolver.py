@@ -28,8 +28,7 @@ def resolve(dtmi, endpoint, expanded=False, resolve_dependencies=False):
     :param bool expanded: If True, will retrieve the model from the expanded DTDL instead of the
         regular one (Default - False)
     :param bool resolve_dependencies: If True, will recursively resolve any addtional DTMIs
-        for interfaces or components (and subcomponents) referenced from within the DTDL model
-        (Default - False)
+        for interfaces or components referenced from within the DTDL model (Default - False)
 
     :raises: ValueError if DTMI is invalid
     :raises: :class:`azure.iot.modelsrepository.resolver.ResolverError` if resolution of the DTMI
@@ -91,8 +90,7 @@ def get_fully_qualified_dtmi(dtmi, endpoint):
 def _resolve_model_dependencies(model, model_map, endpoint):
     """Retrieve all components and extended interfaces of the provided DTDL from the provided
     endpoint, and add them to the provided DTDL map.
-    This recursively operates on the components as well, if there are
-    subcomponents, subsubcompoenents, etc."""
+    This recursively operates on the retrieved dependencies as well"""
     if "contents" in model:
         components = [item["schema"] for item in model["contents"] if item["@type"] == "Component"]
     else:
@@ -106,8 +104,8 @@ def _resolve_model_dependencies(model, model_map, endpoint):
             interfaces = [model["extends"]]
     else:
         interfaces = []
-    
-    dependencies =  components + interfaces
+
+    dependencies = components + interfaces
     for dependency_dtmi in dependencies:
         if dependency_dtmi not in model_map:
             fq_dependency_dtmi = get_fully_qualified_dtmi(dependency_dtmi, endpoint)
