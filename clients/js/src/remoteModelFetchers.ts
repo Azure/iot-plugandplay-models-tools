@@ -53,7 +53,7 @@ async function fetcher (dtmi: string, endpoint: string, tryFromExpanded: boolean
   }
   const res: coreHttp.HttpOperationResponse = await client.sendRequest(req)
   if (res.status >= 200 && res.status < 400) {
-    const dtdlAsString = res.bodyAsText ? res.bodyAsText : ''
+    const dtdlAsString = res.bodyAsText || ''
     const parsedDtdl = JSON.parse(dtdlAsString)
     if (Array.isArray(parsedDtdl)) {
       const result = flattenDtdlResponse(parsedDtdl as DTDL[])

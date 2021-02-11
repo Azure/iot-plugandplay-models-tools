@@ -3,8 +3,6 @@
 
 'use strict'
 
-// import logger from '@azure/logger'
-// logger.setLogLevel('info')
 import { modelFetcher } from './modelFetcherHandler'
 
 interface resolverOptions {

@@ -9,7 +9,7 @@ const resolver = require('../../out/src/index.js')
 
 // You can change the endpoint and dtmi you'd like to access
 const repositoryEndpoint = 'https://devicemodels.azure.com/'
-const dtmi = process.argv[2] || 'dtmi:com:example:TemperatureController;1'
+const dtmi = process.argv[2] || 'dtmi:rigado:FlicButton;2'
 
 console.log(repositoryEndpoint, dtmi)
 
