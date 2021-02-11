@@ -54,12 +54,14 @@ def resolve(dtmi, endpoint, expanded=False, resolve_dependencies=False):
             model_map[model["@id"]] = model
     # If resolving dependencies, will need to fetch component models
     # NOTE: This (should) be unnecessary if using expanded DTDL because
-    # expanded DTDL (should) already have them
+    # expanded DTDL (should) already have all dependencies
     elif resolve_dependencies:
-        model_map[dtmi] = dtdl
-        _resolve_model_dependencies(dtdl, model_map, endpoint)
+        model = dtdl
+        model_map[dtmi] = model
+        _resolve_model_dependencies(model, endpoint, model_map)
     # Otherwise, just return a one-entry map of the returned DTDL (single model)
     else:
+        model = dtdl
         model_map[dtmi] = dtdl
 
     return model_map
@@ -78,7 +80,7 @@ def get_fully_qualified_dtmi(dtmi, endpoint):
     :returns: The fully qualified path for the specified DTMI at the specified endpoint
     :rtype: str
     """
-    # NOTE: does this belong in this library (resolver.py) as opposed to another library within
+    # NOTE: does this belong in this module (resolver.py) as opposed to another module within
     # the same package?
     # NOTE: does this have the correct name? Is this really a DTMI path, or is it a DTDL path?
     if not endpoint.endswith("/"):
@@ -87,9 +89,9 @@ def get_fully_qualified_dtmi(dtmi, endpoint):
     return fully_qualified_dtmi
 
 
-def _resolve_model_dependencies(model, model_map, endpoint):
-    """Retrieve all components and extended interfaces of the provided DTDL from the provided
-    endpoint, and add them to the provided DTDL map.
+def _resolve_model_dependencies(model, endpoint, model_map):
+    """Retrieve all components and extended interface dependencies in the provided model from the provided
+    endpoint, and add them to the provided model map.
     This recursively operates on the retrieved dependencies as well"""
     if "contents" in model:
         components = [item["schema"] for item in model["contents"] if item["@type"] == "Component"]
@@ -112,7 +114,7 @@ def _resolve_model_dependencies(model, model_map, endpoint):
             # The fetched DTDL will be a single model
             dependency_model = _fetch_dtdl(fq_dependency_dtmi)
             model_map[dependency_dtmi] = dependency_model
-            _resolve_model_dependencies(dependency_model, model_map, endpoint)
+            _resolve_model_dependencies(dependency_model, endpoint, model_map)
 
 
 def _fetch_dtdl(resource_location):
