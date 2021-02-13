@@ -52,7 +52,7 @@ namespace Azure.Iot.ModelsRepository
         private IList<string> ParseExtends(JsonElement root)
         {
             List<string> dependencies = new List<string>();
- 
+
             if (root.ValueKind != JsonValueKind.Object)
             {
                 return dependencies;
@@ -68,7 +68,7 @@ namespace Azure.Iot.ModelsRepository
                 dependencies.Add(extends.GetString());
             }
 
-            if (extends.ValueKind == JsonValueKind.Object && 
+            else if (extends.ValueKind == JsonValueKind.Object &&
                 extends.TryGetProperty(ModelProperties.Type, out JsonElement objectType) &&
                 objectType.ValueKind == JsonValueKind.String &&
                 objectType.GetString() == ModelProperties.TypeValueInterface)
@@ -77,7 +77,7 @@ namespace Azure.Iot.ModelsRepository
                 dependencies.AddRange(meta.Dependencies);
             }
 
-            if (extends.ValueKind == JsonValueKind.Array)
+            else if (extends.ValueKind == JsonValueKind.Array)
             {
                 foreach (JsonElement extendElement in extends.EnumerateArray())
                 {
@@ -86,7 +86,7 @@ namespace Azure.Iot.ModelsRepository
                         dependencies.Add(extendElement.GetString());
                     }
                     // Extends can have multiple levels and contain inline interfaces.
-                    if (extendElement.ValueKind == JsonValueKind.Object &&
+                    else if (extendElement.ValueKind == JsonValueKind.Object &&
                         extendElement.TryGetProperty(ModelProperties.Type, out JsonElement elementObjectType) &&
                         elementObjectType.ValueKind == JsonValueKind.String &&
                         elementObjectType.GetString() == ModelProperties.TypeValueInterface)
