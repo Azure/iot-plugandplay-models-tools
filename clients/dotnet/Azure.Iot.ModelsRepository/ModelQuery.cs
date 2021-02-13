@@ -19,59 +19,80 @@ namespace Azure.Iot.ModelsRepository
             };
         }
 
-        public ModelMetadata GetMetadata()
-        {
-            return new ModelMetadata(GetId(), GetExtends(), GetComponentSchemas());
-        }
-
-        public string GetId()
+        public ModelMetadata ParseModel()
         {
             using (JsonDocument document = JsonDocument.Parse(_content, _parseOptions))
             {
-                JsonElement _root = document.RootElement;
+                return ParseInterface(document.RootElement);
+            }
+        }
 
-                if (_root.ValueKind == JsonValueKind.Object && _root.TryGetProperty("@id", out JsonElement id))
+        private ModelMetadata ParseInterface(JsonElement root)
+        {
+            string rootDtmi = ParseRootDtmi(root);
+            IList<string> extends = ParseExtends(root);
+            IList<string> contents = ParseContents(root);
+
+            return new ModelMetadata(rootDtmi, extends, contents);
+        }
+
+        private string ParseRootDtmi(JsonElement root)
+        {
+            if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty(ModelProperties.Dtmi, out JsonElement id))
+            {
+                if (id.ValueKind == JsonValueKind.String)
                 {
-                    if (id.ValueKind == JsonValueKind.String)
-                    {
-                        return id.GetString();
-                    }
+                    return id.GetString();
                 }
             }
 
             return string.Empty;
         }
 
-        public IList<string> GetExtends()
+        private IList<string> ParseExtends(JsonElement root)
         {
             List<string> dependencies = new List<string>();
-
-            using (JsonDocument document = JsonDocument.Parse(_content, _parseOptions))
+ 
+            if (root.ValueKind != JsonValueKind.Object)
             {
-                JsonElement _root = document.RootElement;
+                return dependencies;
+            }
 
-                if (_root.ValueKind == JsonValueKind.Object && _root.TryGetProperty("extends", out JsonElement extends))
+            if (!root.TryGetProperty(ModelProperties.Extends, out JsonElement extends))
+            {
+                return dependencies;
+            }
+
+            if (extends.ValueKind == JsonValueKind.String)
+            {
+                dependencies.Add(extends.GetString());
+            }
+
+            if (extends.ValueKind == JsonValueKind.Object && 
+                extends.TryGetProperty(ModelProperties.Type, out JsonElement objectType) &&
+                objectType.ValueKind == JsonValueKind.String &&
+                objectType.GetString() == ModelProperties.TypeValueInterface)
+            {
+                ModelMetadata meta = ParseInterface(extends);
+                dependencies.AddRange(meta.Dependencies);
+            }
+
+            if (extends.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement extendElement in extends.EnumerateArray())
                 {
-                    if (extends.ValueKind == JsonValueKind.Array)
+                    if (extendElement.ValueKind == JsonValueKind.String)
                     {
-                        foreach (JsonElement extendElement in extends.EnumerateArray())
-                        {
-                            if (extendElement.ValueKind == JsonValueKind.String)
-                            {
-                                dependencies.Add(extendElement.GetString());
-                            }
-                            else if (extendElement.ValueKind == JsonValueKind.Object)
-                            {
-                                // extends can have multiple levels and can contain components.
-                                // TODO: Support object ctor - inefficient serialize.
-                                ModelMetadata nested_interface = new ModelQuery(JsonSerializer.Serialize(extendElement)).GetMetadata();
-                                dependencies.AddRange(nested_interface.Dependencies);
-                            }
-                        }
+                        dependencies.Add(extendElement.GetString());
                     }
-                    else if (extends.ValueKind == JsonValueKind.String)
+                    // Extends can have multiple levels and contain inline interfaces.
+                    if (extendElement.ValueKind == JsonValueKind.Object &&
+                        extendElement.TryGetProperty(ModelProperties.Type, out JsonElement elementObjectType) &&
+                        elementObjectType.ValueKind == JsonValueKind.String &&
+                        elementObjectType.GetString() == ModelProperties.TypeValueInterface)
                     {
-                        dependencies.Add(extends.GetString());
+                        ModelMetadata meta = ParseInterface(extendElement);
+                        dependencies.AddRange(meta.Dependencies);
                     }
                 }
             }
@@ -79,60 +100,85 @@ namespace Azure.Iot.ModelsRepository
             return dependencies;
         }
 
-        // TODO: Consider refactor to an object type based processing.
-        public IList<string> GetComponentSchemas()
+        private IList<string> ParseContents(JsonElement root)
         {
-            List<string> componentSchemas = new List<string>();
+            List<string> dependencies = new List<string>();
 
-            using (JsonDocument document = JsonDocument.Parse(_content, _parseOptions))
+            if (root.ValueKind != JsonValueKind.Object)
             {
-                JsonElement _root = document.RootElement;
+                return dependencies;
+            }
 
-                if (_root.ValueKind == JsonValueKind.Object && _root.TryGetProperty("contents", out JsonElement contents))
+            if (!root.TryGetProperty(ModelProperties.Contents, out JsonElement contents))
+            {
+                return dependencies;
+            }
+
+            if (contents.ValueKind != JsonValueKind.Array)
+            {
+                return dependencies;
+            }
+
+            foreach (JsonElement contentElement in contents.EnumerateArray())
+            {
+                if (contentElement.TryGetProperty(ModelProperties.Type, out JsonElement contentElementType) &&
+                    contentElementType.ValueKind == JsonValueKind.String &&
+                    contentElementType.GetString() == ModelProperties.TypeValueComponent)
                 {
-                    if (contents.ValueKind == JsonValueKind.Array)
+                    dependencies.AddRange(ParseComponent(contentElement));
+                }
+            }
+
+            return dependencies;
+        }
+
+        private IList<string> ParseComponent(JsonElement root)
+        {
+            // We already know root is an object of @type Component
+
+            List<string> dependencies = new List<string>();
+
+            if (!root.TryGetProperty(ModelProperties.Schema, out JsonElement componentSchema))
+            {
+                return dependencies;
+            }
+
+            if (componentSchema.ValueKind == JsonValueKind.String)
+            {
+                dependencies.Add(componentSchema.GetString());
+            }
+            else if (componentSchema.ValueKind == JsonValueKind.Object)
+            {
+                if (componentSchema.TryGetProperty(ModelProperties.Type, out JsonElement componentSchemaType) &&
+                    componentSchemaType.ValueKind == JsonValueKind.String &&
+                    componentSchemaType.GetString() == ModelProperties.TypeValueInterface)
+                {
+                    ModelMetadata meta = ParseInterface(componentSchema);
+                    dependencies.AddRange(meta.Dependencies);
+                }
+            }
+            else if (componentSchema.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement componentSchemaElement in componentSchema.EnumerateArray())
+                {
+                    if (componentSchemaElement.ValueKind == JsonValueKind.String)
                     {
-                        foreach (JsonElement element in contents.EnumerateArray())
+                        dependencies.Add(componentSchemaElement.GetString());
+                    }
+                    else if (componentSchemaElement.ValueKind == JsonValueKind.Object)
+                    {
+                        if (componentSchemaElement.TryGetProperty(ModelProperties.Type, out JsonElement componentSchemaElementType) &&
+                            componentSchemaElementType.ValueKind == JsonValueKind.String &&
+                            componentSchemaElementType.GetString() == ModelProperties.TypeValueInterface)
                         {
-                            if (element.TryGetProperty("@type", out JsonElement type))
-                            {
-                                if (type.ValueKind == JsonValueKind.String && type.GetString() == "Component")
-                                {
-                                    if (element.TryGetProperty("schema", out JsonElement schema))
-                                    {
-                                        if (schema.ValueKind == JsonValueKind.String)
-                                        {
-                                            componentSchemas.Add(schema.GetString());
-                                        }
-                                        else if (schema.ValueKind == JsonValueKind.Array)
-                                        {
-                                            foreach (JsonElement schemaElement in schema.EnumerateArray())
-                                            {
-                                                if (schemaElement.ValueKind == JsonValueKind.String)
-                                                {
-                                                    componentSchemas.Add(schemaElement.GetString());
-                                                }
-                                            }
-                                        }
-                                        else if (schema.ValueKind == JsonValueKind.Object)
-                                        {
-                                            if (schema.TryGetProperty("extends", out JsonElement schemaObjExtends))
-                                            {
-                                                if (schemaObjExtends.ValueKind == JsonValueKind.String)
-                                                {
-                                                    componentSchemas.Add(schemaObjExtends.GetString());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                            ModelMetadata meta = ParseInterface(componentSchemaElement);
+                            dependencies.AddRange(meta.Dependencies);
                         }
                     }
                 }
             }
 
-            return componentSchemas;
+            return dependencies;
         }
 
         public async Task<Dictionary<string, string>> ListToDictAsync()
@@ -158,7 +204,7 @@ namespace Azure.Iot.ModelsRepository
                                 {
                                     string serialized = await streamReader.ReadToEndAsync();
 
-                                    string id = new ModelQuery(serialized).GetId();
+                                    string id = new ModelQuery(serialized).ParseModel().Id;
                                     result.Add(id, serialized);
                                 }
                             }
