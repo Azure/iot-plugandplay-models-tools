@@ -37,8 +37,8 @@ jobs:
     - name: dotnet --info
       run: dotnet --info
 
-    - name: Build solution Azure.Iot.ModelsRepository
+    - name: Build solution Microsoft.IoT.ModelsRepository
       run: dotnet build clients/dotnet
 
-    - name: Execute solution Azure.Iot.ModelsRepository tests
+    - name: Execute solution Microsoft.IoT.ModelsRepository tests
       run: dotnet test --no-build --verbosity detailed clients/dotnet --framework ${{ matrix.tfm }} --blame-hang
