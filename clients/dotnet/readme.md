@@ -5,7 +5,7 @@
 
 ## Microsoft IoT Models Repository CLI
 
-This solution includes a CLI project `Azure.Iot.ModelsRepository.CLI` to interact with local and remote repositories. 
+This solution includes a CLI project `Microsoft.IoT.ModelsRepository.CLI` to interact with local and remote repositories. 
 
 ### Install dmr-client
 
