@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31009.191
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.IoT.ModelsRepository.Validator", "src\Microsoft.IoT.ModelsRepository.Validator.csproj", "{AC176E4D-1D96-4D00-B86D-A4171B7EAD13}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.IoT.ModelsRepository.Validator.UnitTests", "tests\Microsoft.IoT.ModelValidator.UnitTests\Microsoft.IoT.ModelsRepository.Validator.UnitTests.csproj", "{D333D1FA-2802-4265-B2D3-7D1F9B098AAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.IoT.ModelsRepository.Validator.UnitTests", "tests\Microsoft.IoT.ModelsRepository.Validator.UnitTests\Microsoft.IoT.ModelsRepository.Validator.UnitTests.csproj", "{D333D1FA-2802-4265-B2D3-7D1F9B098AAD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{AC176E4D-1D96-4D00-B86D-A4171B7EAD13} = {AC176E4D-1D96-4D00-B86D-A4171B7EAD13}
 	EndProjectSection
