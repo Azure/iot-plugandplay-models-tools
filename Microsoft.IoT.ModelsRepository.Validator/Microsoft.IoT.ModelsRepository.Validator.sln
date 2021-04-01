@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31009.191
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.IoT.ModelsRepository.Validator", "src\Microsoft.IoT.ModelsRepository.Validator.csproj", "{AC176E4D-1D96-4D00-B86D-A4171B7EAD13}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.IoT.ModelsRepository.Validator.UnitTests", "tests\Microsoft.IoT.ModelsRepository.Validator.UnitTests\Microsoft.IoT.ModelsRepository.Validator.UnitTests.csproj", "{D333D1FA-2802-4265-B2D3-7D1F9B098AAD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AC176E4D-1D96-4D00-B86D-A4171B7EAD13} = {AC176E4D-1D96-4D00-B86D-A4171B7EAD13}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AC176E4D-1D96-4D00-B86D-A4171B7EAD13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC176E4D-1D96-4D00-B86D-A4171B7EAD13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC176E4D-1D96-4D00-B86D-A4171B7EAD13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC176E4D-1D96-4D00-B86D-A4171B7EAD13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D333D1FA-2802-4265-B2D3-7D1F9B098AAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D333D1FA-2802-4265-B2D3-7D1F9B098AAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D333D1FA-2802-4265-B2D3-7D1F9B098AAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D333D1FA-2802-4265-B2D3-7D1F9B098AAD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5EBA8D7F-DEA4-452E-91E7-F8693C6811B1}
+	EndGlobalSection
+EndGlobal

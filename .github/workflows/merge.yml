@@ -42,3 +42,9 @@ jobs:
 
     - name: Execute solution Microsoft.IoT.ModelsRepository tests
       run: dotnet test --no-build --verbosity detailed clients/dotnet --framework ${{ matrix.tfm }} --blame-hang
+
+    - name: Build solution Microsoft.IoT.ModelsRepository.Validator
+      run: dotnet build Microsoft.IoT.ModelsRepository.Validator\src
+
+    - name: Execute solution Microsoft.IoT.ModelsRepository.Validator tests
+      run: dotnet test --no-build --verbosity detailed Microsoft.IoT.ModelsRepository.Validator\tests\Microsoft.IoT.ModelsRepository.Validator.UnitTests --framework ${{ matrix.tfm }} --blame-hang

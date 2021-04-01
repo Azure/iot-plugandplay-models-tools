@@ -1,0 +1,55 @@
+# action.yml
+name: 'Azure IoT Models Repository Validator'
+description: 'Action to support validation of DTDL model repositories implemented with Azure IoT conventions.'
+inputs:
+  token:
+    description: >
+      GitHub token for GitHub API requests.
+      Users shouldn't need to set this themselves.
+    required: true
+    default: ${{github.token}}
+  repositoryId:
+    description: >
+      Id of the Github repository from where the action is triggered
+    required: true
+    default: ${{github.event.repo.id}}
+  pullRequestId:
+    description: >
+      Id of the pull request submitted by the user.
+    required: true
+    default: ${{github.event.number}}
+  format:
+    description: >
+      Format of the steps output context.
+      Can be 'space_delimited', 'csv', or 'json'.
+    required: true
+    default: space_delimited
+
+runs:
+  using: 'docker'
+  image: 'Microsoft.IoT.ModelsRepository.Validator/src/dockerfile'
+  env:
+    TOKEN: ${{inputs.token}}
+    REPO_ID: ${{inputs.repositoryId}}
+    PULL_REQUEST_ID: ${{inputs.pullRequestId}}
+    FORMAT: ${{inputs.format}}
+
+outputs:
+  all:
+    description: >
+      Array of all changed files.
+  added:
+    description: >
+      Array of added files.
+  modified:
+    description: >
+      Array of modified files.
+  removed:
+    description: >
+      Array of removed files.
+  renamed:
+    description: >
+      Array of renamed files.
+  added_modified:
+    description: >
+      Array of all added and modified files.
