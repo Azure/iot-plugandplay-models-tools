@@ -3,14 +3,14 @@ using Xunit;
 using Octokit;
 using Moq;
 using System.Collections.Generic;
-using Microsoft.IoT.ModelValidator.Services;
-using Microsoft.IoT.ModelValidator.Models;
+using Microsoft.IoT.ModelsRepository.Validator.Services;
+using Microsoft.IoT.ModelsRepository.Validator.Models;
 
-namespace Microsoft.IoT.ModelValidator.UnitTests
+namespace Microsoft.IoT.ModelsRepository.Validator.UnitTests
 {
-    public class TestPullRequestFile : PullRequestFile
+    class TestPullRequestFile : PullRequestFile
     {
-        public TestPullRequestFile(string fileName, string status)
+        internal TestPullRequestFile(string fileName, string status)
         {
             FileName = fileName;
             Status = status;
@@ -24,7 +24,7 @@ namespace Microsoft.IoT.ModelValidator.UnitTests
 
         private static Mock<IGitHubClient> GitClientMoq = new Mock<IGitHubClient>();
 
-        private ModelValidationService ModelValidationService = new ModelValidationService(GitClientMoq.Object);
+        private IModelValidationService ModelValidationService = new ModelValidationService(GitClientMoq.Object);
 
         List<PullRequestFile> ModelRepositoryFileUpdates = new List<PullRequestFile>
         {

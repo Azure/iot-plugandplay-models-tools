@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.IoT.ModelValidator.Models
+namespace Microsoft.IoT.ModelsRepository.Validator.Models
 {
-    public class RepositoryUpdates
+    class RepositoryUpdates
     {
-        public IList<string> FilesAdded { get; set; }
-        public IList<string> FilesModified { get; set; }
-        public IList<string> FilesRemoved { get; set; }
-        public IList<string> FilesRenamed { get; set; }
-        public IList<string> FilesAddedModified { get; set; }
-        public IList<string> FilesAll { get; set; }
+        internal IList<string> FilesAdded { get; set; }
+        internal IList<string> FilesModified { get; set; }
+        internal IList<string> FilesRemoved { get; set; }
+        internal IList<string> FilesRenamed { get; set; }
+        internal IList<string> FilesAddedModified { get; set; }
+        internal IList<string> FilesAll { get; set; }
     }
 }

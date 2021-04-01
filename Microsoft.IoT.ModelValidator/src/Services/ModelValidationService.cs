@@ -1,25 +1,26 @@
-﻿using Microsoft.IoT.ModelValidator.Models;
+﻿using Microsoft.IoT.ModelsRepository.Validator.Models;
 using Newtonsoft.Json;
 using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Microsoft.IoT.ModelValidator.Services
+
+namespace Microsoft.IoT.ModelsRepository.Validator.Services
 {
-    public interface IModelValidationService
+    interface IModelValidationService
     {
         Task<RepositoryUpdatesFormatted> GetRepositoryUpdates(long repoId, int pullRequestId, OutputFormat outputFormat);
     }
 
-    public class ModelValidationService : IModelValidationService
+    class ModelValidationService : IModelValidationService
     {
         private IGitHubClient gitClient;
-        public ModelValidationService(IGitHubClient gitClient)
+        internal ModelValidationService(IGitHubClient gitClient)
         {
             this.gitClient = gitClient;
         }
-        public async Task<RepositoryUpdatesFormatted> GetRepositoryUpdates(long repoId, int pullRequestId, OutputFormat outputFormat)
+        async Task<RepositoryUpdatesFormatted> IModelValidationService.GetRepositoryUpdates(long repoId, int pullRequestId, OutputFormat outputFormat)
         {
             IEnumerable<PullRequestFile> allFiles = await gitClient.PullRequest.Files(repoId, pullRequestId);
 

@@ -1,20 +1,22 @@
-﻿using Microsoft.IoT.ModelValidator.Models;
-using Microsoft.IoT.ModelValidator.Services;
+﻿using Microsoft.IoT.ModelsRepository.Validator.Models;
+using Microsoft.IoT.ModelsRepository.Validator.Services;
 using Newtonsoft.Json;
 using Octokit;
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Microsoft.IoT.ModelValidator
+[assembly: InternalsVisibleTo("Microsoft.IoT.ModelsRepository.Validator.UnitTests")]
+namespace Microsoft.IoT.ModelsRepository.Validator
 {
-    public enum OutputFormat
+    enum OutputFormat
     {
         space_delimited,
         csv,
         json
     }
 
-    public enum FileChangeStatus
+    enum FileChangeStatus
     {
         added,
         removed,
@@ -25,13 +27,12 @@ namespace Microsoft.IoT.ModelValidator
 
     public class Program
     {
-        private static long REPO_ID = 295857906;
-
         static async Task Main(string[] args)
         {
             string authToken = args[0];
-            int pullRequestId = int.Parse(args[1]);
-            string format = args[2];
+            long repoId = long.Parse(args[1]);
+            int pullRequestId = int.Parse(args[2]);
+            string format = args[3];
 
             if (!Enum.IsDefined(typeof(OutputFormat), format))
             {
@@ -40,12 +41,12 @@ namespace Microsoft.IoT.ModelValidator
 
             OutputFormat outputFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), format);
 
-            GitHubClient gitClient = new GitHubClient(new ProductHeaderValue("model-validator"));
+            GitHubClient gitClient = new GitHubClient(new ProductHeaderValue("Microsoft.IoT.ModelsRepository.Validator"));
             gitClient.Credentials = new Credentials(authToken);
 
-            ModelValidationService modelValidationService = new ModelValidationService(gitClient);
+            IModelValidationService modelValidationService = new ModelValidationService(gitClient);
 
-            RepositoryUpdatesFormatted result = await modelValidationService.GetRepositoryUpdates(REPO_ID, pullRequestId, outputFormat);
+            RepositoryUpdatesFormatted result = await modelValidationService.GetRepositoryUpdates(repoId, pullRequestId, outputFormat);
 
             Console.WriteLine($"::set-output name=all::{result.FilesAllFormatted}");
             Console.WriteLine($"::set-output name=added::{result.FilesAddedFormatted}");

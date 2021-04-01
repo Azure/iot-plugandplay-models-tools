@@ -1,6 +1,6 @@
 # action.yml
-name: 'DTMI Model Validator'
-description: 'Action to validate changes to the DTMI models repository'
+name: 'Azure IoT Models Repository Validator'
+description: 'Action to support validation of DTDL model repositories implemented with Azure IoT conventions.'
 inputs:
   token:
     description: >
@@ -8,11 +8,16 @@ inputs:
       Users shouldn't need to set this themselves.
     required: true
     default: ${{github.token}}
+  repositoryId:
+    description: >
+      Id of the Github repository from where the action is triggered
+    required: true
+    default: ${{github.event.repo.id}}
   pullRequestId:
     description: >
       Id of the pull request submitted by the user.
     required: true
-    default: $${{github.event.number}}
+    default: ${{github.event.number}}
   format:
     description: >
       Format of the steps output context.
@@ -24,9 +29,10 @@ runs:
   using: 'docker'
   image: 'Microsoft.IoT.ModelValidator/src/dockerfile'
   env:
-    TOKEN: {{inputs.token}}
-    PULL_REQUEST_ID: {{inputs.pullRequestId}}
-    FORMAT: {{inputs.format}}
+    TOKEN: ${{inputs.token}}
+    REPO_ID: ${{inputs.repositoryId}}
+    PULL_REQUEST_ID: ${{inputs.pullRequestId}}
+    FORMAT: ${{inputs.format}}
 
 outputs:
   all:
