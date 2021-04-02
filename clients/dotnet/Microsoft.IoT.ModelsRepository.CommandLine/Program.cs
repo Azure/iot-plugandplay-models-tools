@@ -1,15 +1,15 @@
 ﻿using Azure.Core.Diagnostics;
+using Azure.IoT.ModelsRepository;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
+using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Diagnostics.Tracing;
-using Azure.Iot.ModelsRepository;
 
-namespace Microsoft.IoT.ModelsRepository.CLI
+namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
     class Program
     {
@@ -19,7 +19,7 @@ namespace Microsoft.IoT.ModelsRepository.CLI
         {
             RootCommand root = new RootCommand("parent")
             {
-                Description = $"Microsoft IoT Plug and Play Device Models Repository CLI v{Outputs.CliVersion}"
+                Description = $"Microsoft IoT Models Repository CommandLine v{Outputs.CliVersion}"
             };
 
             root.Add(BuildExportCommand());
@@ -35,10 +35,9 @@ namespace Microsoft.IoT.ModelsRepository.CLI
                 AzureEventSourceListener listener = null;
                 try
                 {
-                    Outputs.WriteHeader();
-
                     if (context.ParseResult.Tokens.Any(x => x.Type == TokenType.Option && x.Value == "--debug"))
                     {
+                        Outputs.WriteHeader();
                         listener = AzureEventSourceListener.CreateConsoleLogger(EventLevel.Verbose);
                         Outputs.WriteDebug(context.ParseResult.ToString());
                     }

@@ -1,10 +1,10 @@
-﻿using Azure.Iot.ModelsRepository;
+﻿using Azure.IoT.ModelsRepository;
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.IoT.ModelsRepository.CLI
+namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
     internal class ModelImporter
     {

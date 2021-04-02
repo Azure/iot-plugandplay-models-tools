@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Microsoft.IoT.ModelsRepository.CLI.Tests
+namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 {
     [NonParallelizable]
     public class CommandExportIntegrationTests
@@ -57,7 +57,6 @@ namespace Microsoft.IoT.ModelsRepository.CLI.Tests
 
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains("Error:"));
-            Assert.True(standardError.Contains(Outputs.StandardHeader));
 
             Parsing parsing = new Parsing(null);
             FileExtractResult extractResult = parsing.ExtractModels(standardOut);
@@ -87,7 +86,6 @@ namespace Microsoft.IoT.ModelsRepository.CLI.Tests
 
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode, standardError);
             Assert.False(standardError.Contains("Error:"));
-            Assert.True(standardError.Contains(Outputs.StandardHeader));
 
             Parsing parsing = new Parsing(null);
             FileExtractResult extractResult = parsing.ExtractModels(standardOut);
@@ -155,7 +153,7 @@ namespace Microsoft.IoT.ModelsRepository.CLI.Tests
                 ClientInvokator.Invoke($"export --silent --dtmi \"{dtmi}\" --repo \"{TestHelpers.TestLocalModelRepository}\"");
 
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
-            Assert.True(!standardError.Contains("Error:"));
+            Assert.False(standardError.Contains("Error:"));
             Assert.AreEqual(string.Empty, standardOut);
         }
 
@@ -167,6 +165,18 @@ namespace Microsoft.IoT.ModelsRepository.CLI.Tests
 
             Assert.AreEqual(Handlers.ReturnCodes.ResolutionError, returnCode);
             Assert.True(standardError.Contains($"Error: Failure handling \"{dtmi}\"."));
+        }
+
+        [TestCase("dtmi:com:example:Thermostat;1")]
+        public void ExportSupportsDebugHeaders(string dtmi)
+        {
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"export --silent --dtmi \"{dtmi}\" --repo \"{TestHelpers.TestLocalModelRepository}\" --debug");
+
+            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(string.Empty, standardOut);
+            Assert.False(standardError.Contains("Error:"));
+            Assert.True(standardError.Contains(Outputs.DebugHeader));
         }
     }
 }

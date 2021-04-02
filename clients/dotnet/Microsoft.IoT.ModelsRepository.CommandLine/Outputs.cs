@@ -1,17 +1,17 @@
-﻿using Azure.Iot.ModelsRepository;
+﻿using Azure.IoT.ModelsRepository;
 using Microsoft.Azure.DigitalTwins.Parser;
 using System;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace Microsoft.IoT.ModelsRepository.CLI
+namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
     internal class Outputs
     {
         public static readonly string ParserVersion = FileVersionInfo.GetVersionInfo(typeof(ModelParser).Assembly.Location).ProductVersion;
         public static readonly string RepositoryClientVersion = FileVersionInfo.GetVersionInfo(typeof(ModelsRepositoryClient).Assembly.Location).ProductVersion;
         public static readonly string CliVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
-        public static readonly string StandardHeader = $"dmr-client/{CliVersion} parser/{ParserVersion} resolver/{RepositoryClientVersion}";
+        public static readonly string DebugHeader = $"dmr-client/{CliVersion} parser/{ParserVersion} resolver/{RepositoryClientVersion}";
 
         public static void WriteError(string msg)
         {
@@ -23,7 +23,7 @@ namespace Microsoft.IoT.ModelsRepository.CLI
         public static void WriteHeader()
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Error.WriteLine(StandardHeader);
+            Console.Error.WriteLine(DebugHeader);
             Console.ResetColor();
         }
 

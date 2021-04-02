@@ -25,6 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.IoT.ModelsRepository.CLI\Microsoft.IoT.ModelsRepository.CLI.csproj" />
+    <ProjectReference Include="..\Microsoft.IoT.ModelsRepository.CommandLine\Microsoft.IoT.ModelsRepository.CommandLine.csproj" />
   </ItemGroup>
 </Project>
