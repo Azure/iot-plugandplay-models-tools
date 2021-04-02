@@ -3,4 +3,4 @@
 
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Microsoft.IoT.ModelsRepository.CLI.Tests")]
+[assembly: InternalsVisibleTo("Microsoft.IoT.ModelsRepository.CommandLine.Tests")]

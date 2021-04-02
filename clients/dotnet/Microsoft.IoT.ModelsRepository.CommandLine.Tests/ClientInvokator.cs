@@ -3,11 +3,11 @@ using System.Diagnostics;
 using System.IO;
 
 
-namespace Microsoft.IoT.ModelsRepository.CLI.Tests
+namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 {
     internal class ClientInvokator
     {
-        readonly static string cliProjectPath = Path.GetFullPath(@"../../../../Microsoft.IoT.ModelsRepository.CLI");
+        readonly static string cliProjectPath = Path.GetFullPath(@"../../../../Microsoft.IoT.ModelsRepository.CommandLine");
 
         public static (int, string, string) Invoke(string commandArgs)
         {

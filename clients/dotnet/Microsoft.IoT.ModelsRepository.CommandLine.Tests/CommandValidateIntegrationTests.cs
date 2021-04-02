@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System.IO;
 
-namespace Microsoft.IoT.ModelsRepository.CLI.Tests
+namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 {
     [NonParallelizable]
     public class CommandValidateIntegrationTests
@@ -21,7 +21,6 @@ namespace Microsoft.IoT.ModelsRepository.CLI.Tests
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
 
             Assert.False(standardError.Contains("Error:"));
-            Assert.True(standardError.Contains(Outputs.StandardHeader));
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
 
             if (strict)
@@ -224,6 +223,22 @@ namespace Microsoft.IoT.ModelsRepository.CLI.Tests
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
             Assert.True(!standardError.Contains("Error:"));
             Assert.AreEqual(string.Empty, standardOut);
+        }
+
+        [TestCase("dtmi/com/example/thermostat-1.json")]
+        public void ValidateModelSupportsDebugHeaders(string modelFilePath)
+        {
+            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"" +
+                $"validate --silent --model-file \"{qualifiedModelFilePath}\" " +
+                $"--repo \"{TestHelpers.TestLocalModelRepository}\" --debug");
+
+            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.True(!standardError.Contains("Error:"));
+            Assert.AreEqual(string.Empty, standardOut);
+            Assert.True(standardError.Contains(Outputs.DebugHeader));
         }
     }
 }

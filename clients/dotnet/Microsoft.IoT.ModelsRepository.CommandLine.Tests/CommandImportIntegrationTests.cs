@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 
-namespace Microsoft.IoT.ModelsRepository.CLI.Tests
+namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 {
     [NonParallelizable]
     public class CommandImportIntegrationTests
@@ -37,7 +37,6 @@ namespace Microsoft.IoT.ModelsRepository.CLI.Tests
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains("Error:"));
 
-            Assert.True(standardError.Contains(Outputs.StandardHeader));
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
             Assert.True(standardOut.Contains($"- Importing model \"{expectedDtmi}\"..."));
 
@@ -183,6 +182,21 @@ namespace Microsoft.IoT.ModelsRepository.CLI.Tests
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
             Assert.True(!standardError.Contains("Error:"));
             Assert.AreEqual(string.Empty, standardOut);
+        }
+
+        [TestCase("dtmi/com/example/thermostat-1.json")]
+        public void ImportSupportsDebugHeaders(string modelFilePath)
+        {
+            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+            string targetRepo = $"--local-repo \"{testImportRepo.FullName}\"";
+
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"import --silent --model-file \"{qualifiedModelFilePath}\" {targetRepo} --debug");
+
+            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.True(!standardError.Contains("Error:"));
+            Assert.AreEqual(string.Empty, standardOut);
+            Assert.True(standardError.Contains(Outputs.DebugHeader));
         }
     }
 }

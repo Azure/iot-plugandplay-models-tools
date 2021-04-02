@@ -1,12 +1,12 @@
-﻿using Azure.Iot.ModelsRepository;
+﻿using Azure.IoT.ModelsRepository;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace Microsoft.IoT.ModelsRepository.CLI
+namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
-    public static class Validations
+    internal class Validations
     {
         public static string EnsureValidModelFilePath(string modelFilePath, string modelContent, string repository)
         {

@@ -1,5 +1,5 @@
 ﻿using Azure;
-using Azure.Iot.ModelsRepository;
+using Azure.IoT.ModelsRepository;
 using Microsoft.Azure.DigitalTwins.Parser;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 
-namespace Microsoft.IoT.ModelsRepository.CLI
+namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
     internal static class Handlers
     {

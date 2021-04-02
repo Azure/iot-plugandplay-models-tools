@@ -1,10 +1,10 @@
-﻿using Azure.Iot.ModelsRepository;
+﻿using Azure.IoT.ModelsRepository;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Text.Json;
 
-namespace Microsoft.IoT.ModelsRepository.CLI
+namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
     internal class CommonOptions
     {

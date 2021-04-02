@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Microsoft.IoT.ModelsRepository.CLI.Tests
+namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 {
     public class EnsureSubDtmiNamespaceTests
     {

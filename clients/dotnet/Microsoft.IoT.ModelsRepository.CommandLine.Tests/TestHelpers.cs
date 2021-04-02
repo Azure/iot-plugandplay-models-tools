@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Reflection;
 
-namespace Microsoft.IoT.ModelsRepository.CLI.Tests
+namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 {
     public class TestHelpers
     {

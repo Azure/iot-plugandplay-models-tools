@@ -1,4 +1,4 @@
-﻿using Azure.Iot.ModelsRepository;
+﻿using Azure.IoT.ModelsRepository;
 using Microsoft.Azure.DigitalTwins.Parser;
 using System.Collections.Generic;
 using System.Linq;

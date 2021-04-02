@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json;
 
-namespace Microsoft.IoT.ModelsRepository.CLI
+namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
     internal class FileExtractResult
     {

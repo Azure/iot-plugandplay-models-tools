@@ -1,12 +1,12 @@
-﻿using Azure.Iot.ModelsRepository;
-using Microsoft.IoT.ModelsRepository.Extensions;
+﻿using Azure.IoT.ModelsRepository;
 using Microsoft.Azure.DigitalTwins.Parser;
+using Microsoft.IoT.ModelsRepository.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
-namespace Microsoft.IoT.ModelsRepository.CLI
+namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
     internal class Parsing
     {
