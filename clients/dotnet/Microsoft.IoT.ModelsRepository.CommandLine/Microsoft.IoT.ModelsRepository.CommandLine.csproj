@@ -8,9 +8,9 @@
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
     <Version>1.0.0-beta.2</Version>
-    <AssemblyName>dmr-client</AssemblyName>
+    <AssemblyName>modelsrepo</AssemblyName>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>dmr-client</ToolCommandName>
+    <ToolCommandName>modelsrepo</ToolCommandName>
     <PackageId>Microsoft.IoT.ModelsRepository.CommandLine</PackageId>
     <Product>Microsoft.IoT.ModelsRepository.CommandLine</Product>
     <RepositoryUrl>https://github.com/Azure/iot-plugandplay-models-tools</RepositoryUrl>
@@ -20,10 +20,6 @@
     <PackageReference Include="Azure.Iot.ModelsRepository" Version="1.0.0-preview.2" />
     <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.5" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.IoT.ModelsRepository.Extensions\Microsoft.IoT.ModelsRepository.Extensions.csproj" />
   </ItemGroup>
 
 </Project>
