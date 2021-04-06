@@ -96,10 +96,11 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
         }
 
         [TestCase]
-        public void ExpandModelsWillErrorsOnInvalidModelJson()
+        public void ExpandModelsWillErrorOnInvalidModelJson()
         {
             (int returnCode, string _, string standardError) =
-                ClientInvokator.Invoke($"expand");
+                ClientInvokator.Invoke($"expand --local-repo " +
+                $"{Path.Combine(TestHelpers.TestLocalModelRepository, "dtmi", "expandfail")}");
             Assert.AreEqual(Handlers.ReturnCodes.ProcessingError, returnCode);
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
         }
