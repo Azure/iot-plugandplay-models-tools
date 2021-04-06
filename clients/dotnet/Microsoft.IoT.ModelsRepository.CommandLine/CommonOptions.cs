@@ -2,7 +2,6 @@
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.IO;
-using System.Text.Json;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
@@ -14,7 +13,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             {
                 Option<string> dtmiOption = new Option<string>(
                     alias: "--dtmi",
-                    description: "Digital Twin Model Identifier. Example: \"dtmi:com:example:Thermostat;1\" ");
+                    description: "Digital Twin Model Identifier. Example: \"dtmi:com:example:Thermostat;1\".");
 
                 dtmiOption.AddValidator(option =>
                 {
@@ -41,7 +40,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             {
                 Option<string> repoOption = new Option<string>(
                     alias: "--repo",
-                    description: "Model Repository location. Supports remote endpoint or local directory. ",
+                    description: "Models repository location. Supports remote endpoint or local directory.",
                     getDefaultValue: () => new ModelsRepositoryClient().RepositoryUri.AbsoluteUri);
 
                 return repoOption;
@@ -54,7 +53,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             {
                 return new Option<DirectoryInfo>(
                   alias: "--local-repo",
-                  description: "Local Model Repository path. If no path is provided the current working directory is used. ",
+                  description: "Local models repository path. If no path is provided the current working directory is used.",
                   getDefaultValue: () => null)
                 {
                     Argument = new Argument<DirectoryInfo>()
@@ -62,12 +61,12 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             }
         }
 
-        public static Option<string> Output
+        public static Option<FileInfo> OutputFile
         {
             get
             {
-                return new Option<string>(
-                    aliases: new string[] { "--output", "-o" },
+                return new Option<FileInfo>(
+                    aliases: new string[] { "--output-file", "-o" },
                     description: "Desired file path to write result contents. ",
                     getDefaultValue: () => null
                     );
@@ -80,7 +79,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             {
                 return new Option<FileInfo>(
                     aliases: new string[] { "-m", "--model-file" },
-                    description: "Path to file containing Digital Twins model content. ")
+                    description: "Path to file containing Digital Twins model content.")
                 {
                     Argument = new Argument<FileInfo>().ExistingOnly()
                 };
@@ -134,40 +133,6 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                     {
                         Arity = ArgumentArity.ZeroOrOne
                     },
-                };
-            }
-        }
-
-        public static Option<ModelDependencyResolution> Deps
-        {
-            get
-            {
-                return new Option<ModelDependencyResolution>(
-                    alias: "--deps",
-                    description: "Indicates how model dependencies should be resolved. ",
-                    getDefaultValue: () => ModelDependencyResolution.Enabled);
-            }
-        }
-
-        public static JsonDocumentOptions DefaultJsonParseOptions
-        {
-            get
-            {
-                return new JsonDocumentOptions
-                {
-                    AllowTrailingCommas = true,
-                };
-            }
-        }
-
-        public static JsonSerializerOptions DefaultJsonSerializerOptions
-        {
-            get
-            {
-                return new JsonSerializerOptions
-                {
-                    AllowTrailingCommas = true,
-                    WriteIndented = true,
                 };
             }
         }

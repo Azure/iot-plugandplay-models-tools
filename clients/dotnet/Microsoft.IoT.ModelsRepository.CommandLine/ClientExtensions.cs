@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.IoT.ModelsRepository.Extensions
 {
-    public static class ModelsRepositoryClientExtensions
+    public static class ClientExtensions
     {
         public async static Task<IEnumerable<string>> ParserDtmiResolver(this ModelsRepositoryClient client, IReadOnlyCollection<Dtmi> dtmis)
         {

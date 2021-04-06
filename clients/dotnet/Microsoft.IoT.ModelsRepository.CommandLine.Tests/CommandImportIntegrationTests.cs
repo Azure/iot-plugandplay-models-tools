@@ -13,8 +13,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
         [OneTimeSetUp]
         public void ResetTestRepoDir()
         {
-            testImportRepo = new DirectoryInfo(Path.Combine(testDirectory, "MyModelRepo"));
-            if (testImportRepo.Exists && testImportRepo.Name == "MyModelRepo")
+            testImportRepo = new DirectoryInfo(Path.Combine(testDirectory, "MyImportModelsRepo"));
+            if (testImportRepo.Exists && testImportRepo.Name == "MyImportModelsRepo")
             {
                 testImportRepo.Delete(true);
             }
@@ -35,17 +35,15 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} {strictSwitch}");
 
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
-            Assert.False(standardError.Contains("Error:"));
+            Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
 
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
             Assert.True(standardOut.Contains($"- Importing model \"{expectedDtmi}\"..."));
 
-            Parsing parsing = new Parsing(null);
-
             FileInfo modelFile = new FileInfo(Path.GetFullPath(testImportRepo.FullName + "/" + modelFilePath));
             Assert.True(modelFile.Exists);
             DateTime lastWriteTimeUtc = modelFile.LastWriteTimeUtc;
-            Assert.AreEqual(expectedDtmi, parsing.GetRootId(modelFile));
+            Assert.AreEqual(expectedDtmi, ParsingUtils.GetRootId(modelFile));
 
             if (strict)
             {
@@ -84,16 +82,15 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             string[] paths = expectedPaths.Split(",", StringSplitOptions.RemoveEmptyEntries);
 
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
-            Assert.False(standardError.Contains("Error:"));
+            Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
 
-            Parsing parsing = new Parsing(null);
             for (int i = 0; i < dtmis.Length; i++)
             {
                 Assert.True(standardOut.Contains($"- Importing model \"{dtmis[i]}\"..."));
                 FileInfo modelFile = new FileInfo(Path.GetFullPath(testImportRepo.FullName + "/" + paths[i]));
                 Assert.True(modelFile.Exists);
-                Assert.AreEqual(dtmis[i], parsing.GetRootId(modelFile));
+                Assert.AreEqual(dtmis[i], ParsingUtils.GetRootId(modelFile));
             }
         }
 
@@ -108,7 +105,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
 
-            Assert.True(standardError.Contains("Error:"));
+            Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
         }
 
@@ -123,7 +120,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.AreEqual(Handlers.ReturnCodes.ResolutionError, returnCode);
 
-            Assert.True(standardError.Contains("Error:"));
+            Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
         }
 
@@ -140,7 +137,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
             Assert.True(standardOut.Contains($"- Ensuring DTMIs namespace conformance for model \"{rootDtmi}\"..."));
-            Assert.True(standardError.Contains($"Error: "));
+            Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardError.Contains(violationDtmi));
         }
 
@@ -154,7 +151,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
             Assert.AreEqual(Handlers.ReturnCodes.InvalidArguments, returnCode);
-            Assert.True(standardError.Contains("Error: Importing model file contents of kind String is not yet supported."));
+            Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} Importing model file contents of kind String is not yet supported."));
         }
 
         [TestCase("dtmi/strict/emptyarray-1.json")]
@@ -167,7 +164,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
             Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
-            Assert.True(standardError.Contains("Error: No models to import."));
+            Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} No models to import."));
         }
 
         [TestCase("dtmi/com/example/thermostat-1.json")]
@@ -180,7 +177,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 ClientInvokator.Invoke($"import --silent --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
-            Assert.True(!standardError.Contains("Error:"));
+            Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.AreEqual(string.Empty, standardOut);
         }
 
@@ -194,7 +191,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 ClientInvokator.Invoke($"import --silent --model-file \"{qualifiedModelFilePath}\" {targetRepo} --debug");
 
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
-            Assert.True(!standardError.Contains("Error:"));
+            Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.AreEqual(string.Empty, standardOut);
             Assert.True(standardError.Contains(Outputs.DebugHeader));
         }

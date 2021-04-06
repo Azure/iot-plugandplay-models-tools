@@ -10,10 +10,12 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
     {
         public static string EnsureValidModelFilePath(string modelFilePath, string modelContent, string repository)
         {
-            if (IsRelativePath(repository))
+            if (RepoProvider.IsRelativePath(repository))
+            {
                 repository = Path.GetFullPath(repository);
+            }
 
-            string rootId = new Parsing(null).GetRootId(modelContent);
+            string rootId = ParsingUtils.GetRootId(modelContent);
             Uri targetModelPathUri = DtmiConventions.GetModelUri(rootId, new Uri(repository));
             Uri modelFilePathUri = new Uri(modelFilePath);
 
@@ -42,7 +44,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
         public static List<string> EnsureSubDtmiNamespace(string fileText)
         {
             List<string> badIds = new List<string>();
-            string dtmiNamespace = GetDtmiNamespace(new Parsing(null).GetRootId(fileText));
+            string dtmiNamespace = GetDtmiNamespace(ParsingUtils.GetRootId(fileText));
 
             FindAllIds(fileText, (id) =>
             {
@@ -68,18 +70,6 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
         {
             var versionRegex = new Regex(";[1-9][0-9]{0,8}$");
             return versionRegex.Replace(rootId, "");
-        }
-
-        public static bool IsRelativePath(string repositoryPath)
-        {
-            bool validUri = Uri.TryCreate(repositoryPath, UriKind.Relative, out Uri testUri);
-            return validUri && testUri != null;
-        }
-
-        public static bool IsRemoteEndpoint(string repositoryPath)
-        {
-            bool validUri = Uri.TryCreate(repositoryPath, UriKind.Absolute, out Uri testUri);
-            return validUri && testUri != null && testUri.Scheme != "file";
         }
     }
 }

@@ -1,62 +1,62 @@
 {
   "profiles": {
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ExportRemote": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportRemote": {
       "commandName": "Project",
       "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ExportRemoteDebug": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportRemoteDebug": {
       "commandName": "Project",
       "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 --debug"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ExportLocal": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportLocal": {
       "commandName": "Project",
       "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 --repo ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ExportLocalDebug": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportLocalDebug": {
       "commandName": "Project",
       "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 --repo ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/ --debug"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ExportBasicSilent": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportBasicSilent": {
       "commandName": "Project",
       "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 --silent"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ExportBasicOutFile1": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportBasicOutFile1": {
       "commandName": "Project",
       "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1 -o mytestmodel.json"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ExportBasicOutFile2": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportBasicOutFile2": {
       "commandName": "Project",
       "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 -o mytestmodel.json"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ExportFail": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportFail": {
       "commandName": "Project",
       "commandLineArgs": "export --dtmi dtmi:com:example:Thermojax;999"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ExportFromFile": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportFromFile": {
       "commandName": "Project",
       "commandLineArgs": "export --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/temperaturecontroller-1.json --repo ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ExportFromFileFail": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportFromFileFail": {
       "commandName": "Project",
       "commandLineArgs": "export --repo ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ValidateBasic": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ValidateBasic": {
       "commandName": "Project",
       "commandLineArgs": "validate --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/temperaturecontroller-1.json --strict --debug"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ValidateFail1": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ValidateFail1": {
       "commandName": "Project",
       "commandLineArgs": "validate --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-1.json"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.SmokeTests.ValidateFail2": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ValidateFail2": {
       "commandName": "Project",
       "commandLineArgs": "validate --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.ImportModel": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.ImportModel": {
       "commandName": "Project",
       "commandLineArgs": "import --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/thermostat-1.json --local-repo ./localRepository"
     },
-    "Azure.IoT.DeviceModelsRepository.CLI.ImportModelInvalid": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.ImportModelInvalid": {
       "commandName": "Project",
       "commandLineArgs": "import --model-file ../../../../Azure.IoT.DeviceModelsRepository.Resolver.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json --local-repo ./localRepository/"
     }
