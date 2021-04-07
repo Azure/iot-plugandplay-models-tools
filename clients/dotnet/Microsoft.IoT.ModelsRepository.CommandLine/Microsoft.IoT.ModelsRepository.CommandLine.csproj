@@ -8,9 +8,9 @@
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
     <Version>1.0.0-beta.2</Version>
-    <AssemblyName>modelsrepo</AssemblyName>
+    <AssemblyName>dmr-client</AssemblyName>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>modelsrepo</ToolCommandName>
+    <ToolCommandName>dmr-client</ToolCommandName>
     <PackageId>Microsoft.IoT.ModelsRepository.CommandLine</PackageId>
     <Product>Microsoft.IoT.ModelsRepository.CommandLine</Product>
     <RepositoryUrl>https://github.com/Azure/iot-plugandplay-models-tools</RepositoryUrl>
