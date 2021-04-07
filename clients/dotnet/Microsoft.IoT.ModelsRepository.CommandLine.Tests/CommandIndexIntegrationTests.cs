@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -16,15 +17,25 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             indexableRepoPath = $"{Path.Combine(TestHelpers.TestLocalModelRepository, "indexable")}";
         }
 
-        // TODO: Consider paging strategy.
-        [TestCase("./dmr-index.json")]
-        public void IndexModels(string outfilePath)
+        [TestCase("./index.json", null)]
+        [TestCase("./index.json", 2)]
+        [TestCase("./super/index.json", 10)]
+        [TestCase("./index.json", 0)]
+        public void IndexModels(string rootOutfilePath, int? pageLimit)
         {
-            outfilePath = Path.GetFullPath(outfilePath);
-            string outfileArg = $"-o {outfilePath}";
+            rootOutfilePath = Path.GetFullPath(rootOutfilePath);
+            var indexDirectory = new FileInfo(rootOutfilePath).Directory.FullName;
+            string outfileArg = $"-o {rootOutfilePath}";
+            string pageLimitArg = pageLimit.HasValue ? $"--page-limit {pageLimit.Value}" : "";
 
-            (int returnCode, string standardOut, string standardError) =
-                ClientInvokator.Invoke($"index --local-repo {indexableRepoPath} {outfileArg}");
+            (int returnCode, string _, string standardError) =
+                ClientInvokator.Invoke($"index --local-repo {indexableRepoPath} {outfileArg} {pageLimitArg}");
+
+            if (pageLimit.HasValue && pageLimit.Value < 1)
+            {
+                Assert.AreEqual(Handlers.ReturnCodes.InvalidArguments, returnCode);
+                return;
+            }
 
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
@@ -41,31 +52,63 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 expectedIndexEntry.Add(ParsingUtils.ParseModelFileForIndex(new FileInfo(file)));
             }
 
-            string indexJson = File.ReadAllText(outfilePath);
+            // Process pages
+            var work = new Queue<string>();
+            work.Enqueue(rootOutfilePath);
+            var documentRefs = new List<JsonDocument>();
+            var modelRefs = new Dictionary<string, JsonElement>();
 
-            using JsonDocument document = JsonDocument.Parse(indexJson);
-            JsonElement root = document.RootElement;
-            Assert.AreEqual(root.ValueKind, JsonValueKind.Object);
+            while (work.Count != 0)
+            {
+                string indexFilePath = work.Dequeue();
+                string indexJson = File.ReadAllText(indexFilePath);
+                JsonDocument document = JsonDocument.Parse(indexJson);
+                documentRefs.Add(document);
+                JsonElement root = document.RootElement;
+                JsonElement models = root.GetProperty("models");
+                foreach(var model in models.EnumerateObject())
+                {
+                    modelRefs.Add(model.Name, model.Value);
+                }
+
+                if (root.TryGetProperty("links", out JsonElement links))
+                {
+                    if (links.TryGetProperty("next", out JsonElement next))
+                    {
+                        string relativeIndexPage = next.GetString();
+                        string qualifiedIndexPage = Path.Combine(indexDirectory, relativeIndexPage);
+                        work.Enqueue(qualifiedIndexPage);
+                    }
+                }
+            }
 
             foreach (ModelIndexEntry entry in expectedIndexEntry)
             {
-                JsonElement dtmiElement = root.GetProperty(entry.Dtmi);
+                JsonElement dtmiElement = modelRefs[entry.Dtmi];
                 if (entry.Description != null)
                 {
-                    /// System.Text.Json does not currently support deep object comparison.
+                    // System.Text.Json does not currently support deep object comparison.
                     string expectedDescJson = JsonSerializer.Serialize(entry.Description);
                     Assert.AreEqual(expectedDescJson, JsonSerializer.Serialize(dtmiElement.GetProperty("description")));
                 }
                 if (entry.DisplayName != null)
                 {
-                    /// System.Text.Json does not currently support deep object comparison.
+                    // System.Text.Json does not currently support deep object comparison.
                     string expectedDisplayNameJson = JsonSerializer.Serialize(entry.DisplayName);
                     Assert.AreEqual(expectedDisplayNameJson, JsonSerializer.Serialize(dtmiElement.GetProperty("displayName")));
                 }
             }
+
+            if (!pageLimit.HasValue)
+            {
+                pageLimit = (int)CommonOptions.PageLimit.Argument.GetDefaultValue();
+            }
+            // Assert page count. We are not losing any precision here.
+            Assert.AreEqual((int)Math.Ceiling((double)expectedIndexEntry.Count/pageLimit.Value), documentRefs.Count);
+            documentRefs.ForEach((doc) => doc.Dispose());
         }
 
-        [TestCase("./dmr-index.json")]
+        [TestCase("./index.json")]
         public void IndexModelsSupportsDebugHeaders(string outfilePath)
         {
             outfilePath = Path.GetFullPath(outfilePath);
@@ -75,7 +118,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.True(standardError.Contains(Outputs.DebugHeader));
         }
 
-        [TestCase("./dmr-index.json")]
+        [TestCase("./index.json")]
         public void IndexModelsSilentNoStandardOut(string outfilePath)
         {
             outfilePath = Path.GetFullPath(outfilePath);
