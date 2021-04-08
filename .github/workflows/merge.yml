@@ -37,6 +37,9 @@ jobs:
     - name: dotnet --info
       run: dotnet --info
 
+    - name: dotnet add source workaround
+      run: dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+
     - name: Build solution Microsoft.IoT.ModelsRepository
       run: dotnet build clients/dotnet
 
