@@ -265,7 +265,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return ReturnCodes.Success;
         }
 
-        public static int RepoIndex(DirectoryInfo localRepo, FileInfo outputFile)
+        public static int RepoIndex(DirectoryInfo localRepo, FileInfo outputFile, int pageLimit)
         {
             if (localRepo == null)
             {
@@ -278,7 +278,13 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 return ReturnCodes.InvalidArguments;
             }
 
-            var modelIndex = new ModelIndex();
+            int currentPageCount = 0;
+            FileInfo currentPageFile = outputFile;
+            var modelDictionary = new ModelDictionary();
+            var currentLinks = new ModelIndexLinks
+            {
+                Self = currentPageFile.FullName
+            };
 
             foreach (string file in Directory.EnumerateFiles(localRepo.FullName, "*.json",
                 new EnumerationOptions { RecurseSubdirectories = true }))
@@ -287,13 +293,36 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                     continue;
                 }
 
-                Outputs.WriteOut($"Processing: {file}");
+                // TODO: Debug plumbing.
+                // Outputs.WriteDebug($"Processing: {file}");
 
                 try
                 {
                     var modelFile = new FileInfo(file);
                     ModelIndexEntry indexEntry = ParsingUtils.ParseModelFileForIndex(modelFile);
-                    modelIndex.Add(indexEntry.Dtmi, indexEntry);
+                    modelDictionary.Add(indexEntry.Dtmi, indexEntry);
+                    currentPageCount += 1;
+
+                    if (currentPageCount == pageLimit)
+                    {
+                        var nextPageFile = new FileInfo(
+                            Path.Combine(
+                                currentPageFile.Directory.FullName,
+                                $"index.page.{Guid.NewGuid().ToString().Replace("-", "")}.json"));
+                        currentLinks.Next = nextPageFile.FullName;
+                        var nextLinks = new ModelIndexLinks
+                        {
+                            Self = nextPageFile.FullName,
+                            Prev = currentLinks.Self
+                        };
+
+                        var modelIndex = new ModelIndex(modelDictionary, currentLinks);
+                        IndexPageUtils.WritePage(modelIndex);
+                        currentPageCount -= pageLimit;
+                        modelDictionary = new ModelDictionary();
+                        currentPageFile = nextPageFile;
+                        currentLinks = nextLinks;
+                    }
                 }
                 catch(Exception e)
                 {
@@ -302,9 +331,11 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 }
             }
 
-            string indexJsonString = JsonSerializer.Serialize(modelIndex, ParsingUtils.DefaultJsonSerializerOptions);
-            Outputs.WriteToFile(outputFile, indexJsonString);
-            Outputs.WriteOut(indexJsonString);
+            if (modelDictionary.Count > 0)
+            {
+                var modelIndex = new ModelIndex(modelDictionary, currentLinks);
+                IndexPageUtils.WritePage(modelIndex);
+            }
 
             return ReturnCodes.Success;
         }

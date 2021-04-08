@@ -86,6 +86,29 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             }
         }
 
+        public static Option<int> PageLimit
+        {
+            get
+            {
+                Option<int> pageLimitOption = new Option<int>(
+                    alias: "--page-limit",
+                    getDefaultValue: () => 10000,
+                    description: "Maximum models per page.");
+
+                pageLimitOption.AddValidator(option =>
+                {
+                    int value = option.GetValueOrDefault<int>();
+                    if (value < 1)
+                    {
+                        return "Minimum page limit is 1.";
+                    }
+                    return null;
+                });
+
+                return pageLimitOption;
+            }
+        }
+
         public static Option<bool> Silent
         {
             get

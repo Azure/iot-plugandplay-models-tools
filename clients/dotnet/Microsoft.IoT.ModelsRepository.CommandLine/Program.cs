@@ -125,15 +125,18 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
         {
             var outputFileOption = CommonOptions.OutputFile;
             outputFileOption.IsRequired = true;
+            outputFileOption.Description = "File path to write root model index content. Index pages will be placed relative to this path.";
+            outputFileOption.Argument.SetDefaultValue("index.json");
 
             Command repoIndexCommand= new Command("index")
             {
                 CommonOptions.LocalRepo,
-                outputFileOption
+                outputFileOption,
+                CommonOptions.PageLimit,
             };
             repoIndexCommand.Description =
                 "Builds a model index file from the state of a target local models repository.";
-            repoIndexCommand.Handler = CommandHandler.Create<DirectoryInfo, FileInfo>(Handlers.RepoIndex);
+            repoIndexCommand.Handler = CommandHandler.Create<DirectoryInfo, FileInfo, int>(Handlers.RepoIndex);
 
             return repoIndexCommand;
         }
