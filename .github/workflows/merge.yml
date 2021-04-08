@@ -3,9 +3,15 @@ name: Merge
 on:
   push:
     branches: [ main, dev ]
+    paths:
+    - 'clients/dotnet/**'
+    - '!clients/dotnet/**.md'
 
   pull_request:
     branches: [ main, dev ]
+    paths:
+    - 'clients/dotnet/**'
+    - '!clients/dotnet/**.md'
 
 jobs:
   evaluating_dotnet_clients:
