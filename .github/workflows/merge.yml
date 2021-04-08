@@ -32,7 +32,7 @@ jobs:
       run: dotnet --info
 
     - name: dotnet clean workaround for nuget restore
-      run: dotnet clean && dotnet nuget locals all --clear
+      run: dotnet clean clients/dotnet && dotnet nuget locals all --clear
 
     - name: Build solution Microsoft.IoT.ModelsRepository
       run: dotnet build clients/dotnet
