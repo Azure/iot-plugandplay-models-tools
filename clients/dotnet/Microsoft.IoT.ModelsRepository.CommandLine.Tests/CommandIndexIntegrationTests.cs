@@ -31,10 +31,17 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string _, string standardError) =
                 ClientInvokator.Invoke($"index --local-repo {indexableRepoPath} {outfileArg} {pageLimitArg}");
 
-            if (pageLimit.HasValue && pageLimit.Value < 1)
+            if (pageLimit.HasValue)
             {
-                Assert.AreEqual(Handlers.ReturnCodes.InvalidArguments, returnCode);
-                return;
+                if (pageLimit.Value < 1)
+                {
+                    Assert.AreEqual(Handlers.ReturnCodes.InvalidArguments, returnCode);
+                    return;
+                }
+            }
+            else
+            {
+                pageLimit = (int)CommonOptions.PageLimit.Argument.GetDefaultValue();
             }
 
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
@@ -66,10 +73,6 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 documentRefs.Add(document);
                 JsonElement root = document.RootElement;
                 JsonElement models = root.GetProperty("models");
-                foreach(var model in models.EnumerateObject())
-                {
-                    modelRefs.Add(model.Name, model.Value);
-                }
 
                 if (root.TryGetProperty("links", out JsonElement links))
                 {
@@ -80,6 +83,15 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                         work.Enqueue(qualifiedIndexPage);
                     }
                 }
+
+                int pageModelCount = 0;
+                foreach (var model in models.EnumerateObject())
+                {
+                    modelRefs.Add(model.Name, model.Value);
+                    pageModelCount += 1;
+                }
+
+                Assert.LessOrEqual(pageModelCount, pageLimit);
             }
 
             foreach (ModelIndexEntry entry in expectedIndexEntry)
@@ -99,10 +111,6 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 }
             }
 
-            if (!pageLimit.HasValue)
-            {
-                pageLimit = (int)CommonOptions.PageLimit.Argument.GetDefaultValue();
-            }
             // Assert page count. We are not losing any precision here.
             Assert.AreEqual((int)Math.Ceiling((double)expectedIndexEntry.Count/pageLimit.Value), documentRefs.Count);
             documentRefs.ForEach((doc) => doc.Dispose());
