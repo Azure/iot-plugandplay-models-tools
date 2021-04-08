@@ -19,12 +19,12 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Setup .NET Core 3.1.x
-      uses: actions/setup-dotnet@v1.7.2
+      uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.x
 
     - name: Setup .NET 5.0.x
-      uses: actions/setup-dotnet@v1.7.2
+      uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
 
@@ -32,7 +32,10 @@ jobs:
       run: dotnet --info
 
     - name: dotnet add source workaround
-      run: dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+      run: |
+          dotnet nuget remove source -n nuget.org
+          dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org --configfile $env:APPDATA/NuGet/NuGet.Config
+      shell: pwsh
 
     - name: Build solution Microsoft.IoT.ModelsRepository
       run: dotnet build clients/dotnet
