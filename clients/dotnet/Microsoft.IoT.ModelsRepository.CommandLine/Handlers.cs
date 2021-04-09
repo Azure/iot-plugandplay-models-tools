@@ -381,7 +381,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 }
                 catch(Exception e)
                 {
-                    Outputs.WriteError($"Failure processing model file: {file}, {e.Message}");
+                    Outputs.WriteError($"Failure expanding model file: {file}, {e.Message}");
                     return ReturnCodes.ProcessingError;
                 }
             }
