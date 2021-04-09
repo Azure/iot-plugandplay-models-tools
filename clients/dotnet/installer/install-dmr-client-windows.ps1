@@ -20,7 +20,7 @@ else {
 
 Write-Host "Executing dmr-client install script for $framework_moniker..."
 mkdir "$source_archive_dir"
-Invoke-WebRequest -Uri "https://github.com/digimaun/iot-plugandplay-models-tools/archive/refs/tags/$dmr_client_ver.tar.gz" -OutFile "$source_archive_dir/snapshot"
+Invoke-WebRequest -Uri "https://github.com/Azure/iot-plugandplay-models-tools/archive/refs/tags/$dmr_client_ver.tar.gz" -OutFile "$source_archive_dir/snapshot"
 Push-Location
 Set-Location -Path "$source_archive_dir"
 tar -xf snapshot

@@ -20,7 +20,7 @@ fi
 
 echo "Executing dmr-client install script for $framework_moniker..."
 mkdir "$source_archive_dir"
-curl -L -# -o "$source_archive_dir/snapshot" "https://github.com/digimaun/iot-plugandplay-models-tools/archive/refs/tags/$dmr_client_ver.tar.gz"
+curl -L -# -o "$source_archive_dir/snapshot" "https://github.com/Azure/iot-plugandplay-models-tools/archive/refs/tags/$dmr_client_ver.tar.gz"
 cd "$source_archive_dir" && { tar -xf snapshot ; cd -; }
 root_cli_path="$source_archive_dir/iot-plugandplay-models-tools-$dmr_client_ver/clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine"
 
