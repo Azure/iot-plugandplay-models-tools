@@ -279,6 +279,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             }
 
             int currentPageCount = 0;
+            int pageIdentifier = 1;
             FileInfo currentPageFile = outputFile;
             var modelDictionary = new ModelDictionary();
             var currentLinks = new ModelIndexLinks
@@ -308,7 +309,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                         var nextPageFile = new FileInfo(
                             Path.Combine(
                                 currentPageFile.Directory.FullName,
-                                $"index.page.{Guid.NewGuid().ToString().Replace("-", "")}.json"));
+                                $"index.page.{pageIdentifier}.json"));
                         currentLinks.Next = nextPageFile.FullName;
                         var nextLinks = new ModelIndexLinks
                         {
@@ -322,6 +323,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                         modelDictionary = new ModelDictionary();
                         currentPageFile = nextPageFile;
                         currentLinks = nextLinks;
+                        pageIdentifier += 1;
                     }
                 }
                 catch(Exception e)
