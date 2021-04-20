@@ -1,0 +1,68 @@
+{
+  "profiles": {
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportRemote": {
+      "commandName": "Project",
+      "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportRemoteDebug": {
+      "commandName": "Project",
+      "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 --debug"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportLocal": {
+      "commandName": "Project",
+      "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 --repo ../../../../Microsoft.IoT.ModelsRepository.CommandLine.Tests/TestModelRepo/"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportLocalDebug": {
+      "commandName": "Project",
+      "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 --repo ../../../../Microsoft.IoT.ModelsRepository.CommandLine.Tests/TestModelRepo/ --debug"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportBasicSilent": {
+      "commandName": "Project",
+      "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 --silent"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportBasicOutFile1": {
+      "commandName": "Project",
+      "commandLineArgs": "export --dtmi dtmi:com:example:Thermostat;1 -o mytestmodel.json"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportBasicOutFile2": {
+      "commandName": "Project",
+      "commandLineArgs": "export --dtmi dtmi:com:example:TemperatureController;1 -o mytestmodel.json"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportFail": {
+      "commandName": "Project",
+      "commandLineArgs": "export --dtmi dtmi:com:example:Thermojax;999"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportFromFile": {
+      "commandName": "Project",
+      "commandLineArgs": "export --model-file ../../../../Microsoft.IoT.ModelsRepository.CommandLine.Tests/TestModelRepo/dtmi/com/example/temperaturecontroller-1.json --repo ../../../../Microsoft.IoT.ModelsRepository.CommandLine.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ExportFromFileFail": {
+      "commandName": "Project",
+      "commandLineArgs": "export --repo ../../../../Microsoft.IoT.ModelsRepository.CommandLine.Tests/TestModelRepo/ -o mytestmodel.expanded.json"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ValidateBasic": {
+      "commandName": "Project",
+      "commandLineArgs": "validate --model-file ../../../../Microsoft.IoT.ModelsRepository.CommandLine.Tests/TestModelRepo/dtmi/com/example/temperaturecontroller-1.json --strict --debug"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ValidateFail1": {
+      "commandName": "Project",
+      "commandLineArgs": "validate --model-file ../../../../Microsoft.IoT.ModelsRepository.CommandLine.Tests/TestModelRepo/dtmi/com/example/invalidmodel-1.json"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.SmokeTests.ValidateFail2": {
+      "commandName": "Project",
+      "commandLineArgs": "validate --model-file ../../../../Microsoft.IoT.ModelsRepository.CommandLine.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.ImportModel": {
+      "commandName": "Project",
+      "commandLineArgs": "import --model-file ../../../../Microsoft.IoT.ModelsRepository.CommandLine.Tests/TestModelRepo/dtmi/com/example/thermostat-1.json --local-repo ./localRepository"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.ImportModelInvalid": {
+      "commandName": "Project",
+      "commandLineArgs": "import --model-file ../../../../Microsoft.IoT.ModelsRepository.CommandLine.Tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json --local-repo ./localRepository/"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.IndexRepo": {
+      "commandName": "Project",
+      "commandLineArgs": "index --local-repo ../../../../Microsoft.IoT.ModelsRepository.CommandLine.Tests/TestModelRepo/indexable/ --page-limit 2"
+    }
+  }
+}
