@@ -2,7 +2,7 @@
 
 # Copyright (c) Microsoft Corporation MIT license
 
-dmr_client_ver="1.0.0-beta.2"
+dmr_client_ver="1.0.0-beta.3"
 
 source_archive_dir=dmr-tools-$(date +"%s")
 framework_version=$(dotnet --version)
