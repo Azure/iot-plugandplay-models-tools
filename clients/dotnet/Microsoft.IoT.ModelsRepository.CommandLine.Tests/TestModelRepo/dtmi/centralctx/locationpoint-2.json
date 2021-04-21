@@ -1,0 +1,20 @@
+{
+  "@context": [
+    "dtmi:dtdl:context;2",
+    "dtmi:iotcentral:context;2" 
+  ],
+  "@id": "dtmi:centralctx:locationpoint;2",
+  "@type": "Interface",
+  "displayName": "Location Test",
+  "contents": [
+    {
+      "@type": [
+        "Telemetry",
+        "Location" 
+      ],
+      "name": "deviceLocation",
+      "schema": "geopoint",
+      "description": "Should succeed since location/geopoint is in the central ctx that has been set"
+    }
+  ]
+}

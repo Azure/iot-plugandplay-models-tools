@@ -240,5 +240,28 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(string.Empty, standardOut);
             Assert.True(standardError.Contains(Outputs.DebugHeader));
         }
+
+        [TestCase("dtmi/centralctx/locationpoint-1.json", 2)]
+        [TestCase("dtmi/centralctx/locationpoint-2.json", 0)]
+        public void ValidateModelUsingCentralContext(string modelFilePath, int expectPass)
+        {
+            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"" +
+                $"validate --model-file \"{qualifiedModelFilePath}\" " +
+                $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
+
+            Assert.AreEqual(expectPass, returnCode);
+
+            if (expectPass==0)
+            {
+                Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
+            }
+            else
+            {
+                Assert.True(standardError.Contains("has value 'geopoint' that is not a DTMI or a DTDL term"));
+            }
+        }
     }
 }

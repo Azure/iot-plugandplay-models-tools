@@ -1,0 +1,17 @@
+{
+  "@context": "dtmi:dtdl:context;2",
+  "@id": "dtmi:centralctx:locationpoint;1",
+  "@type": "Interface",
+  "displayName": "Location Test",
+  "contents": [
+    {
+      "@type": [
+        "Telemetry",
+        "Location"
+      ],
+      "name": "deviceLocation",
+      "schema": "geopoint",
+      "description": "Should fail since location/geopoint is in the central ctx that has not been set"
+    }
+  ]
+}
