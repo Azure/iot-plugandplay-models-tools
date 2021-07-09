@@ -1,4 +1,7 @@
-﻿using Azure.Core.Diagnostics;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using Azure.Core.Diagnostics;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;

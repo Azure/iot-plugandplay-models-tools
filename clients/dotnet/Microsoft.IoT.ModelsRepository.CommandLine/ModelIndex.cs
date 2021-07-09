@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine
@@ -7,8 +10,10 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
     {
         [JsonIgnore]
         public string Dtmi { get; set; }
+
         [JsonPropertyName("displayName")]
         public object DisplayName { get; set; }
+
         [JsonPropertyName("description")]
         public object Description { get; set; }
     }
@@ -17,8 +22,10 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
     {
         [JsonPropertyName("next")]
         public string Next { get; set; }
+
         [JsonPropertyName("prev")]
         public string Prev { get; set; }
+
         [JsonPropertyName("self")]
         public string Self { get; set; }
     }
@@ -38,8 +45,10 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
 
         [JsonPropertyName("links")]
         public ModelIndexLinks Links { get; }
+
         [JsonPropertyName("models")]
         public ModelDictionary Models { get; }
+
         [JsonPropertyName("version")]
         public string Version { get; }
     }
