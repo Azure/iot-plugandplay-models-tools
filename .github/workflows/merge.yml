@@ -1,6 +1,8 @@
 name: Merge
 
 on:
+  workflow_dispatch:
+
   push:
     branches: [ main, dev ]
     paths:
@@ -41,7 +43,7 @@ jobs:
       run: dotnet build clients/dotnet
 
     - name: Execute solution Microsoft.IoT.ModelsRepository tests
-      run: dotnet test --no-build --verbosity detailed clients/dotnet --framework ${{ matrix.tfm }} --blame-hang
+      run: dotnet test --no-build clients/dotnet --framework ${{ matrix.tfm }} --blame-hang
 
     - name: Build solution Microsoft.IoT.ModelsRepository.Validator
       run: dotnet build Microsoft.IoT.ModelsRepository.Validator/src
