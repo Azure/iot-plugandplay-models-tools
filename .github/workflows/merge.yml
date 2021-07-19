@@ -39,11 +39,11 @@ jobs:
     - name: dotnet --info
       run: dotnet --info
 
-    - name: Build solution Microsoft.IoT.ModelsRepository
-      run: dotnet build clients/dotnet
+    - name: Build solution Microsoft.IoT.ModelsRepository.CommandLine
+      run: dotnet build clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine
 
-    - name: Execute solution Microsoft.IoT.ModelsRepository tests
-      run: dotnet test --no-build clients/dotnet --framework ${{ matrix.tfm }} --blame-hang
+    - name: Execute solution Microsoft.IoT.ModelsRepository.CommandLine tests
+      run: dotnet test --no-build clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine --framework ${{ matrix.tfm }} --blame-hang
 
     - name: Build solution Microsoft.IoT.ModelsRepository.Validator
       run: dotnet build Microsoft.IoT.ModelsRepository.Validator/src

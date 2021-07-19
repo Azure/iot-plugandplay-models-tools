@@ -20,7 +20,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
         public static readonly string CommandLineVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
         public static readonly string DebugHeader =
             $"ModelsRepositoryCommandLine/{CommandLineVersion} ModelsRepositoryClient/{RepositoryClientVersion} DTDLParser/{ParserVersion}";
-        public static string DefaultErrorToken = "[Error]:";
+        public const string DefaultErrorToken = "[Error]:";
+        public const string RootCommandName = "dmr-client";
 
         public static void WriteError(string msg)
         {

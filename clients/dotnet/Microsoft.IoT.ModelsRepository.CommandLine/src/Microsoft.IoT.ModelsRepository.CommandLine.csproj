@@ -4,21 +4,26 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Copyright>Microsoft Corporation. All rights reserved.</Copyright>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>1.0.0-beta.3</Version>
-    <AssemblyName>dmr-client</AssemblyName>
+    <Version>1.0.0-beta.4</Version>
+    <AssemblyName>Microsoft.IoT.ModelsRepository.CommandLine</AssemblyName>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dmr-client</ToolCommandName>
     <PackageId>Microsoft.IoT.ModelsRepository.CommandLine</PackageId>
     <Product>Microsoft.IoT.ModelsRepository.CommandLine</Product>
     <RepositoryUrl>https://github.com/Azure/iot-plugandplay-models-tools</RepositoryUrl>
+    <PackageTags>IoT;ModelsRepository;Pnp;DigitalTwins</PackageTags>
+    <PackageProjectUrl>https://github.com/Azure/iot-plugandplay-models-tools</PackageProjectUrl>
+    <Description>Command line for the Azure IoT Models Repository</Description>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>https://github.com/Azure/iot-plugandplay-models-tools/blob/1.0.0-beta.4/clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Iot.ModelsRepository" Version="1.0.0-preview.3" />
-    <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.6" />
+    <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.7" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
   </ItemGroup>
 

@@ -23,7 +23,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             {
                 Description = $"Microsoft IoT Models Repository CommandLine v{Outputs.CommandLineVersion}"
             };
-
+            root.Name = Outputs.RootCommandName;
             root.Add(BuildExportCommand());
             root.Add(BuildValidateCommand());
             root.Add(BuildImportModelCommand());
