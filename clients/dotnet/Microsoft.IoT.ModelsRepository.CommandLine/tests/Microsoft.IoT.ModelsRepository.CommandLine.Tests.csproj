@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <Version>0.0.1</Version>
+    <Authors>Microsoft</Authors>
+    <Company>Microsoft</Company>
+    <Copyright>Microsoft</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/Azure/iot-plugandplay-models-tools</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="TestModelRepo\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.13.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\Microsoft.IoT.ModelsRepository.CommandLine.csproj" />
+  </ItemGroup>
+</Project>

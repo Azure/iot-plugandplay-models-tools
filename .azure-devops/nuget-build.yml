@@ -1,0 +1,30 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+
+name: $(Date:yyyyMMdd)$(Rev:.r)_$(Build.DefinitionName)_${{ parameters.toolId }}
+trigger: none
+
+parameters:
+  - name: 'toolId'
+    displayName: 'Tool Identifier'
+    type: string
+    default: 'Microsoft.IoT.ModelsRepository.CommandLine'
+    values:
+      - 'Microsoft.IoT.ModelsRepository.CommandLine'
+  - name: 'toolVersion'
+    displayName: 'Tool Version'
+    type: string
+
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: build-tools
+      ref: refs/heads/signing_devloop
+
+jobs:
+- template: nuget-builder.yml@templates
+  parameters:
+    vmImage: 'ubuntu-20.04'
+    dotnetBuildConfiguration: 'Release'
+    toolId: ${{ parameters.toolId }}
+    toolVersion: ${{ parameters.toolVersion }}
