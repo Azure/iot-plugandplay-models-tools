@@ -12,9 +12,11 @@ This solution includes a command line project `Microsoft.IoT.ModelsRepository.Co
 The Device Models Repository command line tool (aka `dmr-client`) is published on [NuGet](https://www.nuget.org/packages/Microsoft.IoT.ModelsRepository.CommandLine) and requires `dotnet sdk 3.1` or `dotnet sdk 5.0`.
 > Note .NET 6 is not yet supported.
 
-You can use the `dotnet` command line via the  `dotnet tool install` command to install `dmr-client`. The following is an example to install `dmr-client` as a global tool:
+You can use the `dotnet` command line via the `dotnet tool install` command to install `dmr-client`. The following is an example to install `dmr-client` as a global tool:
 
 `dotnet tool install -g Microsoft.IoT.ModelsRepository.CommandLine --version 1.0.0-beta.4`
+
+To learn how to install `dmr-client` in a local context, please see [this guide](https://docs.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
 
 ### Usage of `dmr-client`
 
