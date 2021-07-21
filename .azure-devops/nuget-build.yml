@@ -19,7 +19,7 @@ resources:
     - repository: templates
       type: git
       name: build-tools
-      ref: refs/heads/signing_devloop
+      ref: refs/heads/main
 
 jobs:
 - template: nuget-builder.yml@templates

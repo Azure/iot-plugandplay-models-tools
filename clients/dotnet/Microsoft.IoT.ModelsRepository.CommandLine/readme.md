@@ -9,27 +9,17 @@ This solution includes a command line project `Microsoft.IoT.ModelsRepository.Co
 
 ### Install the dmr-client command line tool
 
-The tool is distributed as source code and requires `dotnet sdk 3.1` or `dotnet sdk 5.0` to build and install.
+The repository command line tool is published on [NuGet](https://www.nuget.org/packages/Microsoft.IoT.ModelsRepository.CommandLine) and requires `dotnet sdk 3.1` or `dotnet sdk 5.0`.
 
-> If you have a prior version of the tool installed, be sure to uninstall before running the below install scripts.
+You can use the `dotnet` command line via the  `dotnet tool install` command to install `dmr-client`. The following is an example to install `dmr-client` as a global tool:
 
-#### Linux/Bash install script
-
-```bash
-curl -L https://aka.ms/install-dmr-client-linux | bash
-```
-
-#### Windows/Powershell install script
-
-```powershell
-iwr https://aka.ms/install-dmr-client-windows -UseBasicParsing | iex
-```
+`dotnet tool install -g Microsoft.IoT.ModelsRepository.CommandLine --version 1.0.0-beta.4`
 
 ### Usage of `dmr-client`
 
 ```text
 dmr-client:
-  Microsoft IoT Models Repository CommandLine v1.0.0-beta.2
+  Microsoft IoT Models Repository CommandLine v1.0.0-beta.4
 
 Usage:
   dmr-client [options] [command]
