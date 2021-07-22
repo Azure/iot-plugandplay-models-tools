@@ -1,15 +1,11 @@
+# Microsoft IoT Models Repository Command Line
 
-# Microsoft IoT Models Repository Tools
+This solution includes a command line project `Microsoft.IoT.ModelsRepository.CommandLine` intended to be used as a `dotnet tool` to manage and interact with models repositories implemented with Azure IoT conventions.
 
-## :exclamation: WARNING: This project is under heavy active development - breaking changes may occur between versions
-
-## Microsoft IoT Models Repository CommandLine
-
-This solution includes a command line project `Microsoft.IoT.ModelsRepository.CommandLine` intended to be used as a `dotnet tool` to manage and interact with repositories implemented with Azure IoT conventions.
-
-### Install the dmr-client command line tool
+## Install the command line tool
 
 The Device Models Repository command line tool (aka `dmr-client`) is published on [NuGet](https://www.nuget.org/packages/Microsoft.IoT.ModelsRepository.CommandLine) and requires `dotnet sdk 3.1` or `dotnet sdk 5.0`.
+
 > Note .NET 6 is not yet supported.
 
 You can use the `dotnet` command line via the `dotnet tool install` command to install `dmr-client`. The following is an example to install `dmr-client` as a global tool:
@@ -18,7 +14,7 @@ You can use the `dotnet` command line via the `dotnet tool install` command to i
 
 To learn how to install `dmr-client` in a local context, please see [this guide](https://docs.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
 
-### Usage of `dmr-client`
+## Usage of `dmr-client`
 
 ```text
 dmr-client:
@@ -39,8 +35,8 @@ Commands:
               validating an array of models only the array contents is used for resolution.
   import      Imports models from a model file into the local repository. The local repository is used for model resolution.
   index       Builds a model index file from the state of a target local models repository.
-  expand      For each model in a local repository, generate expanded model files and insert them in-place. The expanded version of a model includes the model
-              with its full model dependency chain.
+  expand      For each model in a local repository, generate expanded model files and insert them in-place. The expanded version of a model includes the model with
+              its full model dependency chain.
 ```
 
 ## Examples
@@ -48,16 +44,18 @@ Commands:
 ### dmr-client export
 
 ```bash
-# Retrieves an interface from the default repo by DTMI
+# Retrieves a model definition by DTMI from the global repository https://devicemodels.azure.com.
 
 > dmr-client export --dtmi "dtmi:com:example:Thermostat;1"
+
+# This form will pipe the command output to the desired file specified in the -o argument.
 > dmr-client export --dtmi "dtmi:com:example:Thermostat;1" -o thermostat.json
 ```
 
->Note: The quotes are required to avoid the shell to split the param in the `;`
+> Note: Parsing of symbols by the shell is executed before input is passed to the command line tool. In this case, the quotes are used to avoid the shell splitting symbols around the semi-colon `;` character in the `--dtmi` argument `dtmi:com:example:Thermostat;1`
 
 ```bash
-# Retrieves an interface from a custom repo by DTMI
+# Retrieves a model definition by DTMI from a custom models repository
 
 > dmr-client export --dtmi "dtmi:com:example:Thermostat;1" --repo https://raw.githubusercontent.com/Azure/iot-plugandplay-models/main
 ```
@@ -65,9 +63,9 @@ Commands:
 ### dmr-client import
 
 ```bash
-# Adds an external file to the `dtmi` folder structure in the current working directory
+# Adds an external model to the target models repository (in this case the current working directory) following the DTMI to path convention.
 
-> dmr-client import --model-file "MyThermostat.json" --local-repo .
+> dmr-client import --model-file "MyExampleThermostat1.json" --local-repo .
 
 # Creates the path `./dtmi/com/example/thermostat-1.json`
 ```

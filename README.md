@@ -10,11 +10,11 @@ You can find the specs and design documents in the [Wiki](https://github.com/Azu
 
 ### Samples
 
-The folder [samples](https://github.com/Azure/iot-plugandplay-models-tools/tree/dev/samples) contains sample code for .NET and Node to *resolve* models from any model repository.
+The directory [samples](https://github.com/Azure/iot-plugandplay-models-tools/tree/dev/samples) contains sample code for .NET and Node to *resolve* models from any models repository following Azure IoT conventions.
 
 ### Clients (Work in Progress)
 
-The folder [clients](https://github.com/Azure/iot-plugandplay-models-tools/tree/dev/clients) contains the model repo client implementation, as a .NET library with a CLI.
+The directory [clients](https://github.com/Azure/iot-plugandplay-models-tools/tree/dev/clients) contains the model repo client implementation, as a .NET library with a CLI.
 
 More languages coming soon !!
 
