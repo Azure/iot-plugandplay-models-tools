@@ -12,17 +12,15 @@ You can find the specs and design documents in the [Wiki](https://github.com/Azu
 
 The directory [samples](https://github.com/Azure/iot-plugandplay-models-tools/tree/dev/samples) contains sample code for .NET and Node to *resolve* models from any models repository following Azure IoT conventions.
 
-### Clients (Work in Progress)
+### Clients
 
-The directory [clients](https://github.com/Azure/iot-plugandplay-models-tools/tree/dev/clients) contains the model repo client implementation, as a .NET library with a CLI.
-
-More languages coming soon !!
+The directory [clients](https://github.com/Azure/iot-plugandplay-models-tools/tree/dev/clients) contains client tools to accelerate integration and management of models repositories following Azure IoT conventions.
 
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+the rights to use your contribution. For details, visit the [Microsoft Open Source Contributor License Agreement](https://cla.opensource.microsoft.com).
 
 When you submit a pull request, a CLA bot will automatically determine whether you need to provide
 a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions

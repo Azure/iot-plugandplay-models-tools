@@ -2,11 +2,13 @@
 
 This solution includes a command line project `Microsoft.IoT.ModelsRepository.CommandLine` intended to be used as a `dotnet tool` to manage and interact with models repositories implemented with Azure IoT conventions.
 
-## Install the command line tool
+> Note: `Microsoft.IoT.ModelsRepository.CommandLine` is in preview and may contain breaking changes between preview versions until a GA release.
+
+## Install the dmr-client command line tool
 
 The Device Models Repository command line tool (aka `dmr-client`) is published on [NuGet](https://www.nuget.org/packages/Microsoft.IoT.ModelsRepository.CommandLine) and requires `dotnet sdk 3.1` or `dotnet sdk 5.0`.
 
-> Note .NET 6 is not yet supported.
+> Note: .NET 6 is not yet supported.
 
 You can use the `dotnet` command line via the `dotnet tool install` command to install `dmr-client`. The following is an example to install `dmr-client` as a global tool:
 
@@ -73,15 +75,15 @@ Commands:
 ### dmr-client validate
 
 ```bash
-# Validates a DTDLv2 model using the Digital Twins Parser and default model repository for resolution.
+# Validates a DTDL v2 model using the Digital Twins Parser and global models repository https://devicemodels.azure.com for model dependency resolution.
 
-> dmr-client validate --model-file file.json
+> dmr-client validate --model-file "/path/to/model/file.json"
 ```
 
 ```bash
-# Validates a DTDLv2 model using the Digital Twins Parser and custom repository endpoint for resolution.
+# Validates a DTDL v2 model using the Digital Twins Parser and custom models repository https://devicemodels.azure.com for model dependency resolution.
 
-> dmr-client validate --model-file ./my/model/file.json --repo "https://mycustom.domain"
+> dmr-client validate --model-file "/path/to/model/file.json" --repo "https://mycustom.domain"
 ```
 
 ### dmr-client index
@@ -95,20 +97,19 @@ Commands:
 ```bash
 # Build a model index with a custom page limit indicating max models per page.
 
-> dmr-client index --local-repo . --page-limit 100
+> dmr-client index --local-repo . --page-limit 2048
 ```
 
 ### dmr-client expand
 
 ```bash
-# Expand all models from the root directory of a local models repository following Azure IoT conventions.
-# Expanded models are inserted in-place.
+# Expand all models of a target local models repository following Azure IoT conventions. Expanded model definitions are inserted in-place.
 
-> dmr-client expand --local-repo .
+> dmr-client expand --local-repo "/path/to/models/repository"
 ```
 
 ```bash
-# The default --local-repo value is the current directory. Be sure to specifiy the root for --local-repo.
+# The default --local-repo value is the current directory. Be sure to specifiy the root path of the repository for --local-repo.
 
 > dmr-client expand
 ```
