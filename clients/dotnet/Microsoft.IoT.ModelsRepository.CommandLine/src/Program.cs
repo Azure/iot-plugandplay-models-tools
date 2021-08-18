@@ -129,7 +129,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             var outputFileOption = CommonOptions.OutputFile;
             outputFileOption.IsRequired = true;
             outputFileOption.Description = "File path to write root model index content. Index pages will be placed relative to this path.";
-            outputFileOption.Argument.SetDefaultValue("index.json");
+            outputFileOption.SetDefaultValue("index.json");
 
             Command repoIndexCommand= new Command("index")
             {

@@ -63,7 +63,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             }
             catch (System.Text.Json.JsonException jsonEx)
             {
-                Outputs.WriteError($"Parsing json-ld content. Details: {jsonEx.Message}");
+                Outputs.WriteError($"Failure parsing json-ld content. Details: {jsonEx.Message}");
                 return ReturnCodes.InvalidArguments;
             }
 
@@ -85,7 +85,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 }
 
                 ModelParser parser;
-                if (models.Count > 1)
+                if (models.Count >= 1 && extractResult.ContentKind == JsonValueKind.Array)
                 {
                     // Special case: when validating from an array, only use array contents for resolution.
                     // Setup vanilla parser with no resolution. We get a better error message when a delegate is assigned.
