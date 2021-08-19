@@ -44,7 +44,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             }
             else
             {
-                pageLimit = (int)CommonOptions.PageLimit.Argument.GetDefaultValue();
+                pageLimit = CommonOptions.DefaultPageLimit;
             }
 
             Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);

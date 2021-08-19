@@ -15,16 +15,14 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
     {
         readonly ModelsRepositoryClient _repositoryClient;
 
-        public RepoProvider(string repoLocationUri,
-            ModelDependencyResolution dependencyResolution = ModelDependencyResolution.Enabled)
+        public RepoProvider(string repoLocationUri)
         {
             if (IsRelativePath(repoLocationUri))
             {
                 repoLocationUri = Path.GetFullPath(repoLocationUri);
             }
 
-            _repositoryClient = new ModelsRepositoryClient(new Uri(repoLocationUri),
-                new ModelsRepositoryClientOptions(dependencyResolution: dependencyResolution));
+            _repositoryClient = new ModelsRepositoryClient(new Uri(repoLocationUri));
         }
 
         public async Task<List<string>> ExpandModel(FileInfo modelFile)

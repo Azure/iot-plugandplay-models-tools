@@ -10,6 +10,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
     internal class CommonOptions
     {
+        public const int DefaultPageLimit = 2048;
+
         public static Option<string> Dtmi
         {
             get
@@ -28,11 +30,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                     return null;
                 });
 
-                dtmiOption.Argument = new Argument<string>
-                {
-                    Arity = ArgumentArity.ZeroOrOne
-                };
-
+                dtmiOption.Arity = ArgumentArity.ZeroOrOne;
                 return dtmiOption;
             }
         }
@@ -42,7 +40,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             get
             {
                 Option<string> repoOption = new Option<string>(
-                    alias: "--repo",
+                    aliases: new string[] { "--repo", "-r" },
                     description: "Models repository location. Supports remote endpoint or local directory.",
                     getDefaultValue: () => new ModelsRepositoryClient().RepositoryUri.AbsoluteUri);
 
@@ -55,12 +53,9 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             get
             {
                 return new Option<DirectoryInfo>(
-                  alias: "--local-repo",
+                  aliases: new string[] { "--local-repo", "-r" },
                   description: "Local models repository path. If no path is provided the current working directory is used.",
-                  getDefaultValue: () => null)
-                {
-                    Argument = new Argument<DirectoryInfo>()
-                };
+                  getDefaultValue: () => null);
             }
         }
 
@@ -70,7 +65,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             {
                 return new Option<FileInfo>(
                     aliases: new string[] { "--output-file", "-o" },
-                    description: "Desired file path to write result contents. ",
+                    description: "Desired file path to write result contents.",
                     getDefaultValue: () => null
                     );
             }
@@ -82,10 +77,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             {
                 return new Option<FileInfo>(
                     aliases: new string[] { "-m", "--model-file" },
-                    description: "Path to file containing Digital Twins model content.")
-                {
-                    Argument = new Argument<FileInfo>().ExistingOnly()
-                };
+                    description: "Path to file containing Digital Twins model content.").ExistingOnly();
             }
         }
 
@@ -95,7 +87,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             {
                 Option<int> pageLimitOption = new Option<int>(
                     alias: "--page-limit",
-                    getDefaultValue: () => 1000,
+                    getDefaultValue: () => DefaultPageLimit,
                     description: "Maximum models per page.");
 
                 pageLimitOption.AddValidator(option =>
@@ -117,14 +109,11 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             get
             {
                 return new Option<bool>(
-                    alias: "--silent",
-                    description: "Silences command output on standard out.",
-                    getDefaultValue: () => false)
+                     alias: "--silent",
+                     description: "Silences command output on standard out.",
+                     getDefaultValue: () => false)
                 {
-                    Argument = new Argument<bool>
-                    {
-                        Arity = ArgumentArity.ZeroOrOne
-                    },
+                    Arity = ArgumentArity.ZeroOrOne
                 };
             }
         }
@@ -138,10 +127,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                     description: "Runs additional verifications for a model including file paths and DTMI scoping.",
                     getDefaultValue: () => false)
                 {
-                    Argument = new Argument<bool>
-                    {
-                        Arity = ArgumentArity.ZeroOrOne
-                    },
+                    Arity = ArgumentArity.ZeroOrOne
                 };
             }
         }
@@ -155,10 +141,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                     description: "Shows additional logs for debugging.",
                     getDefaultValue: () => false)
                 {
-                    Argument = new Argument<bool>
-                    {
-                        Arity = ArgumentArity.ZeroOrOne
-                    },
+                    Arity = ArgumentArity.ZeroOrOne
                 };
             }
         }

@@ -86,8 +86,9 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
         }
 
-        [TestCase("dtmi/com/example/incompleteexpanded-1.expanded.json")]
-        public void ValidateModelFileErrorIncompleteArrayOfModels(string modelFilePath)
+        [TestCase("dtmi/com/example/incompleteexpanded-1.expanded.json", "dtmi:azure:DeviceManagement:DeviceInformation;1")]
+        [TestCase("dtmi/com/example/incompleteexpanded-2.expanded.json", "dtmi:com:example:Thermostat;1 dtmi:azure:DeviceManagement:DeviceInformation;1")]
+        public void ValidateModelFileErrorIncompleteArrayOfModels(string modelFilePath, string missingReferences)
         {
             string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
 
@@ -98,7 +99,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.True(standardError.Contains(
                 $"{Outputs.DefaultErrorToken} DtmiResolver failed to resolve requisite references to element(s): " +
-                "dtmi:azure:DeviceManagement:DeviceInformation;1"));
+                missingReferences));
             Assert.AreEqual(Handlers.ReturnCodes.ResolutionError, returnCode);
         }
 

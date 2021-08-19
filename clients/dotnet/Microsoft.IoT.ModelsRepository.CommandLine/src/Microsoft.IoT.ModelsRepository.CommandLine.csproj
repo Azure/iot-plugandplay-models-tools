@@ -18,13 +18,13 @@
     <PackageProjectUrl>https://github.com/Azure/iot-plugandplay-models-tools</PackageProjectUrl>
     <Description>Command line for the Azure IoT Models Repository</Description>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>https://github.com/Azure/iot-plugandplay-models-tools/blob/1.0.0-beta.4/clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/Azure/iot-plugandplay-models-tools/blob/1.0.0-beta.5/clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Iot.ModelsRepository" Version="1.0.0-preview.3" />
+    <PackageReference Include="Azure.Iot.ModelsRepository" Version="1.0.0-preview.4" />
     <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.7" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.21308.1" />
   </ItemGroup>
 
 </Project>
