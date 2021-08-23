@@ -2,10 +2,14 @@
 // Licensed under the MIT License.
 
 using Azure.IoT.ModelsRepository;
+using Microsoft.Azure.DigitalTwins.Parser;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
@@ -73,6 +77,80 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
         {
             var versionRegex = new Regex(";[1-9][0-9]{0,8}$");
             return versionRegex.Replace(rootId, "");
+        }
+
+        public static async Task<int> ValidateModelFile(FileInfo modelFile, RepoProvider repoProvider, bool strict)
+        {
+            FileExtractResult extractResult = ParsingUtils.ExtractModels(modelFile);
+            List<string> models = extractResult.Models;
+
+            if (models.Count == 0)
+            {
+                Outputs.WriteError("No models to validate.");
+                return ReturnCodes.InvalidArguments;
+            }
+
+            ModelParser parser;
+            if (models.Count >= 1 && extractResult.ContentKind == JsonValueKind.Array)
+            {
+                // Special case: when validating from an array, only use array contents for resolution.
+                // Setup vanilla parser with no resolution. We get a better error message when a delegate is assigned.
+                parser = new ModelParser
+                {
+                    DtmiResolver = (IReadOnlyCollection<Dtmi> dtmis) =>
+                    {
+                        return Task.FromResult(Enumerable.Empty<string>());
+                    }
+                };
+            }
+            else
+            {
+                parser = repoProvider.GetDtdlParser();
+            }
+
+            // TODO: Extract strings
+            Outputs.WriteOut($"* Validating model file content conforms to DTDL.");
+            await parser.ParseAsync(models);
+
+            if (strict)
+            {
+                if (extractResult.ContentKind == JsonValueKind.Array || models.Count > 1)
+                {
+                    // Related to file path validation.
+                    Outputs.WriteError("Strict validation requires a single root model object.");
+                    return ReturnCodes.ValidationError;
+                }
+
+                string dtmi = ParsingUtils.GetRootId(models[0]);
+                Outputs.WriteOut($"* Ensuring DTMIs namespace conformance for model \"{dtmi}\".");
+                List<string> invalidSubDtmis = EnsureSubDtmiNamespace(models[0]);
+                if (invalidSubDtmis.Count > 0)
+                {
+                    Outputs.WriteError(
+                        $"The following DTMI's do not start with the root DTMI namespace:{Environment.NewLine}{string.Join($",{Environment.NewLine}", invalidSubDtmis)}");
+                    return ReturnCodes.ValidationError;
+                }
+
+                if (repoProvider.IsRemoteEndpoint())
+                {
+                    Outputs.WriteError($"Model file path validation requires a local repository.");
+                    return ReturnCodes.ValidationError;
+                }
+
+                Outputs.WriteOut($"* Ensuring model file path adheres to DMR path conventions.");
+                string filePathError = EnsureValidModelFilePath(modelFile.FullName, models[0], repoProvider.RepoLocationUri.LocalPath);
+
+                if (filePathError != null)
+                {
+                    Outputs.WriteError(
+                        $"File \"{modelFile.FullName}\" does not adhere to DMR path conventions. Expecting \"{filePathError}\".");
+                    return ReturnCodes.ValidationError;
+                }
+            }
+
+            Outputs.WriteOut();
+
+            return ReturnCodes.Success;
         }
     }
 }

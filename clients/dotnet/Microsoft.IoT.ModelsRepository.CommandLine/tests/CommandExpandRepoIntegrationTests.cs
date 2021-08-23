@@ -34,7 +34,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string _, string standardError) =
                 ClientInvokator.Invoke($"expand --local-repo {testExpandableRepo.FullName}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
 
             var modelFilePaths = new List<string>();
@@ -70,7 +70,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"expand --local-repo {testExpandableRepo.FullName} --silent");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.AreEqual(string.Empty, standardOut);
         }
@@ -82,7 +82,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string _, string standardError) =
                 ClientInvokator.Invoke($"expand --local-repo {testExpandableRepo.FullName} --debug");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardError.Contains(Outputs.DebugHeader));
         }
@@ -93,7 +93,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"expand --local-repo ./nonexistent_directory/");
 
-            Assert.AreEqual(Handlers.ReturnCodes.InvalidArguments, returnCode);
+            Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.AreEqual(string.Empty, standardOut);
         }
@@ -104,7 +104,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string _, string standardError) =
                 ClientInvokator.Invoke($"expand --local-repo " +
                 $"{Path.Combine(TestHelpers.TestLocalModelRepository, "dtmi", "expandfail")}");
-            Assert.AreEqual(Handlers.ReturnCodes.ProcessingError, returnCode);
+            Assert.AreEqual(ReturnCodes.ProcessingError, returnCode);
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
         }
     }

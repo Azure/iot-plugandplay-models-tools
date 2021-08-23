@@ -38,7 +38,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             {
                 if (pageLimit.Value < 1)
                 {
-                    Assert.AreEqual(Handlers.ReturnCodes.InvalidArguments, returnCode);
+                    Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
                     return;
                 }
             }
@@ -47,7 +47,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 pageLimit = CommonOptions.DefaultPageLimit;
             }
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
 
             var expectedIndexEntry = new List<ModelIndexEntry>();
@@ -125,7 +125,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             outfilePath = Path.GetFullPath(outfilePath);
             (int returnCode, string _, string standardError) =
                 ClientInvokator.Invoke($"index --local-repo {indexableRepoPath} -o {outfilePath} --debug");
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.True(standardError.Contains(Outputs.DebugHeader));
         }
 
@@ -135,7 +135,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             outfilePath = Path.GetFullPath(outfilePath);
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"index --local-repo {indexableRepoPath} -o {outfilePath} --silent");
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.True(string.IsNullOrEmpty(standardOut));
         }
 
@@ -144,7 +144,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
         {
             (int returnCode, string _, string standardError) =
                 ClientInvokator.Invoke($"index -o willfail.json");
-            Assert.AreEqual(Handlers.ReturnCodes.ProcessingError, returnCode);
+            Assert.AreEqual(ReturnCodes.ProcessingError, returnCode);
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
         }
 
@@ -153,7 +153,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
         {
             (int returnCode, string _, string standardError) =
                 ClientInvokator.Invoke($"index --local-repo ./nonexistent_directory/");
-            Assert.AreEqual(Handlers.ReturnCodes.InvalidArguments, returnCode);
+            Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
         }
     }
