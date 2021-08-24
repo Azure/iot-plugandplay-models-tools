@@ -1,4 +1,4 @@
-﻿using Microsoft.IoT.ModelsRepository.Validator.Models;
+﻿using Microsoft.IoT.ModelsRepository.ChangeCalc.Models;
 using Newtonsoft.Json;
 using Octokit;
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 
-namespace Microsoft.IoT.ModelsRepository.Validator.Services
+namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Services
 {
     interface IModelValidationService
     {

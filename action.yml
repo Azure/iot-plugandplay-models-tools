@@ -27,7 +27,7 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'Microsoft.IoT.ModelsRepository.Validator/src/dockerfile'
+  image: 'clients/dotnet/Microsoft.IoT.ModelsRepository.ChangeCalc/src/dockerfile'
   env:
     TOKEN: ${{inputs.token}}
     REPO_ID: ${{inputs.repositoryId}}

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Microsoft.IoT.ModelsRepository.Validator.Models
+namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Models
 {
     class RepositoryUpdates
     {
