@@ -3,6 +3,7 @@
 
 using NUnit.Framework;
 using System.IO;
+using System.Linq;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 {
@@ -21,15 +22,15 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"validate --model-file \"{qualifiedModelFilePath}\" " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\" " +
                 $"{strictSwitch}");
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
 
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
 
             if (strict)
             {
-                Assert.True(standardOut.Contains("- Ensuring DTMIs namespace conformance for model"));
-                Assert.True(standardOut.Contains("- Ensuring model file path adheres to DMR path conventions..."));
+                Assert.True(standardOut.Contains("* Ensuring DTMIs namespace conformance for model"));
+                Assert.True(standardOut.Contains("* Ensuring model file path adheres to DMR path conventions."));
             }
         }
 
@@ -49,14 +50,14 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"validate --model-file \"{qualifiedModelFilePath}\" {targetRepo} {strictSwitch}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
 
             if (strict)
             {
-                Assert.True(standardOut.Contains("- Ensuring DTMIs namespace conformance for model"));
-                Assert.True(standardOut.Contains("- Ensuring model file path adheres to DMR path conventions..."));
+                Assert.True(standardOut.Contains("* Ensuring DTMIs namespace conformance for model"));
+                Assert.True(standardOut.Contains("* Ensuring model file path adheres to DMR path conventions."));
             }
         }
 
@@ -75,15 +76,15 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             if (!strict)
             {
-                Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+                Assert.AreEqual(ReturnCodes.Success, returnCode);
                 Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
-                Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
+                Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
                 return;
             }
 
             // TODO: --strict validation is not fleshed out for an array of models.
             Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} Strict validation requires a single root model object."));
-            Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
+            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
         }
 
         [TestCase("dtmi/com/example/incompleteexpanded-1.expanded.json", "dtmi:azure:DeviceManagement:DeviceInformation;1")]
@@ -100,7 +101,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.True(standardError.Contains(
                 $"{Outputs.DefaultErrorToken} DtmiResolver failed to resolve requisite references to element(s): " +
                 missingReferences));
-            Assert.AreEqual(Handlers.ReturnCodes.ResolutionError, returnCode);
+            Assert.AreEqual(ReturnCodes.ResolutionError, returnCode);
         }
 
         [TestCase("dtmi/com/example/invalidmodel-2.json")]
@@ -113,10 +114,10 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"validate --model-file \"{qualifiedModelFilePath}\" " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
+            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
         }
 
         [TestCase("dtmi/com/example/invalidmodel-1.json")]
@@ -129,10 +130,10 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"validate --model-file \"{qualifiedModelFilePath}\" " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ResolutionError, returnCode);
+            Assert.AreEqual(ReturnCodes.ResolutionError, returnCode);
 
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
         }
 
         [TestCase("dtmi/strict/namespaceconflict-1.json", "dtmi:strict:namespaceconflict;1", "dtmi:com:example:acceleration;1")]
@@ -145,10 +146,10 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"validate --model-file \"{qualifiedModelFilePath}\" " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\" --strict");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
+            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
-            Assert.True(standardOut.Contains($"- Ensuring DTMIs namespace conformance for model \"{rootDtmi}\"..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains($"* Ensuring DTMIs namespace conformance for model \"{rootDtmi}\"."));
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardError.Contains(violationDtmi));
         }
@@ -163,11 +164,11 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"validate --model-file \"{qualifiedModelFilePath}\" " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\" --strict");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
+            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
-            Assert.True(standardOut.Contains($"- Ensuring DTMIs namespace conformance for model \"{rootDtmi}\"..."));
-            Assert.True(standardOut.Contains($"- Ensuring model file path adheres to DMR path conventions..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains($"* Ensuring DTMIs namespace conformance for model \"{rootDtmi}\"."));
+            Assert.True(standardOut.Contains($"* Ensuring model file path adheres to DMR path conventions."));
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardError.Contains($"File \"{Path.GetFullPath(qualifiedModelFilePath)}\" does not adhere to DMR path conventions. "));
         }
@@ -182,7 +183,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"validate --model-file \"{qualifiedModelFilePath}\" " +
                 $"--repo \"http://localhost\" --strict");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
+            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
             Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} Model file path validation requires a local repository."));
         }
 
@@ -196,8 +197,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"validate --model-file \"{qualifiedModelFilePath}\" " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\"");
 
-            Assert.AreEqual(Handlers.ReturnCodes.InvalidArguments, returnCode);
-            Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} Importing model file contents of kind String is not yet supported."));
+            Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
+            Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} Model file contents of json type 'String' is not supported."));
         }
 
         [TestCase("dtmi/strict/emptyarray-1.json")]
@@ -210,7 +211,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"validate --model-file \"{qualifiedModelFilePath}\" " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\"");
 
-            Assert.AreEqual(Handlers.ReturnCodes.InvalidArguments, returnCode);
+            Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
             Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} No models to validate."));
         }
 
@@ -224,7 +225,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"validate --silent --model-file \"{qualifiedModelFilePath}\" " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\"");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.True(!standardError.Contains(Outputs.DefaultErrorToken));
             Assert.AreEqual(string.Empty, standardOut);
         }
@@ -239,14 +240,14 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"validate --silent --model-file \"{qualifiedModelFilePath}\" " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\" --debug");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.True(!standardError.Contains(Outputs.DefaultErrorToken));
             Assert.AreEqual(string.Empty, standardOut);
             Assert.True(standardError.Contains(Outputs.DebugHeader));
         }
 
-        [TestCase("dtmi/centralctx/locationpoint-1.json", 2)]
-        [TestCase("dtmi/centralctx/locationpoint-2.json", 0)]
+        [TestCase("dtmi/centralctx/locationpoint-1.json", ReturnCodes.ValidationError)]
+        [TestCase("dtmi/centralctx/locationpoint-2.json", ReturnCodes.Success)]
         public void ValidateModelUsingCentralContext(string modelFilePath, int expectedReturnCode)
         {
             string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
@@ -258,13 +259,56 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.AreEqual(expectedReturnCode, returnCode);
 
-            if (expectedReturnCode == 2)
+            if (expectedReturnCode == ReturnCodes.ValidationError)
             {
                 Assert.True(standardError.Contains("has value 'geopoint' that is not a DTMI or a DTDL term"));
                 return;
             }
             
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+        }
+
+        [TestCase("indexable", "deviceinformation*", "deviceinformation-1.json", false, ReturnCodes.Success)]
+        [TestCase("indexable", "deviceinformation*", "deviceinformation-1.json", true, ReturnCodes.Success)]
+        [TestCase("indexable", "*xtag_*", "xtag_ble_acc-1.json,xtag_usb_acc-1.json", false, ReturnCodes.Success)]
+        [TestCase("indexable", "*xtag_*", "xtag_ble_acc-1.json,xtag_usb_acc-1.json", true, ReturnCodes.Success)]
+        [TestCase("indexable", null, null, false, ReturnCodes.Success)]
+        [TestCase("indexable", null, null, true, ReturnCodes.Success)]
+        [TestCase("dtmi", "badfilepath-1*", null, true, ReturnCodes.ValidationError)]
+        [TestCase("dtmi", "temperaturecontroller-1.expanded.json", null, true, ReturnCodes.ValidationError)]
+        [TestCase("dtmi", "nondtdl*", null, false, ReturnCodes.InvalidArguments)]
+        public void ValidateModelsDirectory(string directory, string pattern, string expectedFiles, bool isStrict, int expectedReturnCode)
+        {
+            string targetDirectoryPath = Path.Combine(TestHelpers.TestLocalModelRepository, directory);
+            string searchPattern = string.IsNullOrEmpty(pattern) ? "" : $"--search-pattern {pattern}";
+            string resolutionRepo = isStrict ? $"--repo {Path.Combine(TestHelpers.TestLocalModelRepository, "indexable")}" : "";
+            string strict = isStrict ? "--strict" : "";
+
+            (int returnCode, string standardOut, _) =
+                ClientInvokator.Invoke($"validate --directory \"{targetDirectoryPath}\" {searchPattern} {resolutionRepo} {strict}");
+
+            Assert.AreEqual(expectedReturnCode, returnCode);
+
+            if (!string.IsNullOrEmpty(expectedFiles))
+            {
+                string[] enumerateFiles = expectedFiles.Split(",");
+                foreach (string file in enumerateFiles)
+                {
+                    Assert.True(standardOut.Contains(file));
+                }
+
+                string[] validations = standardOut.Split("[Validating]:", System.StringSplitOptions.RemoveEmptyEntries);
+                Assert.AreEqual(enumerateFiles.Length, validations.Length);
+            }
+        }
+
+        [Test]
+        public void ValidateModelErrorsWithNoInput()
+        {
+            (int returnCode, _, string standardError) = ClientInvokator.Invoke($"validate");
+
+            Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
+            Assert.True(standardError.Contains("[Error]: Nothing to validate!"), "Missing expected error message.");
         }
     }
 }

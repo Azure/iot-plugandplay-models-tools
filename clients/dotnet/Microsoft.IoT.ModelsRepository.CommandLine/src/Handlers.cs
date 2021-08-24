@@ -16,16 +16,6 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
     internal static class Handlers
     {
-        // Alternative to enum to avoid casting.
-        public static class ReturnCodes
-        {
-            public const int Success = 0;
-            public const int InvalidArguments = 1;
-            public const int ValidationError = 2;
-            public const int ResolutionError = 3;
-            public const int ProcessingError = 4;
-        }
-
         public static async Task<int> Export(string dtmi, FileInfo modelFile, string repo, FileInfo outputFile)
         {
             // Check that we have either model file or dtmi
@@ -70,76 +60,35 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return ReturnCodes.Success;
         }
 
-        public static async Task<int> Validate(FileInfo modelFile, string repo, bool strict)
+        public static async Task<int> Validate(FileInfo modelFile, DirectoryInfo directory, string searchPattern, string repo, bool strict)
         {
             try
             {
                 RepoProvider repoProvider = new RepoProvider(repo);
-                FileExtractResult extractResult = ParsingUtils.ExtractModels(modelFile);
-                List<string> models = extractResult.Models;
-
-                if (models.Count == 0)
+                if (modelFile != null && modelFile.Exists)
                 {
-                    Outputs.WriteError("No models to validate.");
-                    return ReturnCodes.InvalidArguments;
+                    Outputs.WriteOut($"[Validating]: {modelFile.FullName}");
+                    return await Validations.ValidateModelFile(modelFile, repoProvider, strict);
                 }
 
-                ModelParser parser;
-                if (models.Count >= 1 && extractResult.ContentKind == JsonValueKind.Array)
+                if (directory != null && directory.Exists)
                 {
-                    // Special case: when validating from an array, only use array contents for resolution.
-                    // Setup vanilla parser with no resolution. We get a better error message when a delegate is assigned.
-                    parser = new ModelParser
+                    int result;
+                    foreach (string file in Directory.EnumerateFiles(directory.FullName, searchPattern,
+                        new EnumerationOptions { RecurseSubdirectories = true }))
                     {
-                        DtmiResolver = (IReadOnlyCollection<Dtmi> dtmis) =>
+                        var enumeratedFile = new FileInfo(file);
+                        Outputs.WriteOut($"[Validating]: {enumeratedFile.FullName}");
+                        result = await Validations.ValidateModelFile(enumeratedFile, repoProvider, strict);
+                        
+                        // TODO: Consider processing modes "return on first error", "return all errors"
+                        if (result != ReturnCodes.Success)
                         {
-                            return Task.FromResult(Enumerable.Empty<string>());
+                            return result;
                         }
-                    };
-                }
-                else
-                {
-                    parser = repoProvider.GetDtdlParser();
-                }
-
-                Outputs.WriteOut($"- Validating models conform to DTDL...");
-                await parser.ParseAsync(models);
-
-                if (strict)
-                {
-                    if (extractResult.ContentKind == JsonValueKind.Array || models.Count > 1)
-                    {
-                        // Related to file path validation.
-                        Outputs.WriteError("Strict validation requires a single root model object.");
-                        return ReturnCodes.ValidationError;
                     }
 
-                    string dtmi = ParsingUtils.GetRootId(models[0]);
-                    Outputs.WriteOut($"- Ensuring DTMIs namespace conformance for model \"{dtmi}\"...");
-                    List<string> invalidSubDtmis = Validations.EnsureSubDtmiNamespace(models[0]);
-                    if (invalidSubDtmis.Count > 0)
-                    {
-                        Outputs.WriteError(
-                            $"The following DTMI's do not start with the root DTMI namespace:{Environment.NewLine}{string.Join($",{Environment.NewLine}", invalidSubDtmis)}");
-                        return ReturnCodes.ValidationError;
-                    }
-
-                    // TODO: Evaluate changing how file path validation is invoked.
-                    if (RepoProvider.IsRemoteEndpoint(repo))
-                    {
-                        Outputs.WriteError($"Model file path validation requires a local repository.");
-                        return ReturnCodes.ValidationError;
-                    }
-
-                    Outputs.WriteOut($"- Ensuring model file path adheres to DMR path conventions...");
-                    string filePathError = Validations.EnsureValidModelFilePath(modelFile.FullName, models[0], repo);
-
-                    if (filePathError != null)
-                    {
-                        Outputs.WriteError(
-                            $"File \"{modelFile.FullName}\" does not adhere to DMR path conventions. Expecting \"{filePathError}\".");
-                        return ReturnCodes.ValidationError;
-                    }
+                    return ReturnCodes.Success;
                 }
             }
             catch (ResolutionException resolutionEx)
@@ -180,7 +129,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 return ReturnCodes.InvalidArguments;
             }
 
-            return ReturnCodes.Success;
+            Outputs.WriteError("Nothing to validate!");
+            return ReturnCodes.InvalidArguments;
         }
 
         public static async Task<int> Import(FileInfo modelFile, DirectoryInfo localRepo, bool strict)
