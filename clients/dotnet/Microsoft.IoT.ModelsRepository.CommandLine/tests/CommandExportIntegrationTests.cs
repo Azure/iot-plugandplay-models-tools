@@ -39,7 +39,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"export --dtmi \"{dtmi}\" {targetRepo}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
 
             FileExtractResult extractResult = ParsingUtils.ExtractModels(standardOut);
@@ -67,7 +67,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"export --model-file \"{qualifiedModelFilePath}\" --repo \"{TestHelpers.TestLocalModelRepository}\"");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode, standardError);
+            Assert.AreEqual(ReturnCodes.Success, returnCode, standardError);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
 
             FileExtractResult extractResult = ParsingUtils.ExtractModels(standardOut);
@@ -90,7 +90,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, _, string standardError) =
                 ClientInvokator.Invoke($"export -o \"{qualifiedPath}\" --dtmi \"{dtmi}\" --repo \"{TestHelpers.TestLocalModelRepository}\"");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
 
             FileExtractResult extractResult = ParsingUtils.ExtractModels(new FileInfo(qualifiedPath));
@@ -106,7 +106,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
         {
             (int returnCode, _, string standardError) = ClientInvokator.Invoke($"export --dtmi \"{dtmi}\"");
 
-            Assert.AreEqual(Handlers.ReturnCodes.InvalidArguments, returnCode);
+            Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
             Assert.True(standardError.Contains("Invalid dtmi format"));
         }
 
@@ -123,7 +123,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, _, string standardError) =
                 ClientInvokator.Invoke($"export --dtmi \"{dtmi}\" {targetRepo}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ResolutionError, returnCode);
+            Assert.AreEqual(ReturnCodes.ResolutionError, returnCode);
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
         }
 
@@ -133,7 +133,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"export --silent --dtmi \"{dtmi}\" --repo \"{TestHelpers.TestLocalModelRepository}\"");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.AreEqual(string.Empty, standardOut);
         }
@@ -144,7 +144,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, _, string standardError) =
                 ClientInvokator.Invoke($"export --dtmi \"{dtmi}\" --repo \"{TestHelpers.TestLocalModelRepository}\"");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ResolutionError, returnCode);
+            Assert.AreEqual(ReturnCodes.ResolutionError, returnCode);
             Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} Failure handling \"{dtmi}\"."));
         }
 
@@ -154,7 +154,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"export --silent --dtmi \"{dtmi}\" --repo \"{TestHelpers.TestLocalModelRepository}\" --debug");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.AreEqual(string.Empty, standardOut);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardError.Contains(Outputs.DebugHeader));

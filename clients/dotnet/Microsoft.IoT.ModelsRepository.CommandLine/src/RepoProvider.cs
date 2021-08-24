@@ -14,15 +14,19 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
     internal class RepoProvider
     {
         readonly ModelsRepositoryClient _repositoryClient;
+        readonly string _repoLocationUriStr;
+        readonly Uri _repoLocationUri;
 
-        public RepoProvider(string repoLocationUri)
+        public RepoProvider(string repoLocationUriStr)
         {
-            if (IsRelativePath(repoLocationUri))
+            _repoLocationUriStr = repoLocationUriStr;
+            if (IsRelativePath(_repoLocationUriStr))
             {
-                repoLocationUri = Path.GetFullPath(repoLocationUri);
+                _repoLocationUriStr = Path.GetFullPath(_repoLocationUriStr);
             }
 
-            _repositoryClient = new ModelsRepositoryClient(new Uri(repoLocationUri));
+            _repoLocationUri = new Uri(_repoLocationUriStr);
+            _repositoryClient = new ModelsRepositoryClient(_repoLocationUri);
         }
 
         public async Task<List<string>> ExpandModel(FileInfo modelFile)
@@ -58,16 +62,22 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return parser;
         }
 
+        // TODO: Convert to instance method.
         public static bool IsRelativePath(string repositoryPath)
         {
             bool validUri = Uri.TryCreate(repositoryPath, UriKind.Relative, out Uri testUri);
             return validUri && testUri != null;
         }
 
-        public static bool IsRemoteEndpoint(string repositoryPath)
+        public bool IsRemoteEndpoint()
         {
-            bool validUri = Uri.TryCreate(repositoryPath, UriKind.Absolute, out Uri testUri);
+            bool validUri = Uri.TryCreate(_repoLocationUriStr, UriKind.Absolute, out Uri testUri);
             return validUri && testUri != null && testUri.Scheme != "file";
+        }
+
+        public Uri RepoLocationUri
+        {
+            get { return _repoLocationUri; }
         }
     }
 }

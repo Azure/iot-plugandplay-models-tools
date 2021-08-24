@@ -76,8 +76,31 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             get
             {
                 return new Option<FileInfo>(
-                    aliases: new string[] { "-m", "--model-file" },
+                    aliases: new string[] { "--model-file", "-m" },
                     description: "Path to file containing Digital Twins model content.").ExistingOnly();
+            }
+        }
+
+        public static Option<DirectoryInfo> ModelsDirectory
+        {
+            get
+            {
+                return new Option<DirectoryInfo>(
+                    aliases: new string[] { "--directory" },
+                    description: "Path to directory containing Digital Twins model content.").ExistingOnly();
+            }
+        }
+
+        public static Option<string> ModelsDirectorySearchPattern
+        {
+            get
+            {
+                return new Option<string>(
+                    aliases: new string[] { "--search-pattern" },
+                    description: "The search string to match against the names of files in directory path. " +
+                    "This parameter can contain a combination of valid literal path and wildcard " +
+                    "(* and ?) characters, but it doesn't support regular expressions.",
+                    getDefaultValue: () => "*.json");
             }
         }
 

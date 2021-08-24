@@ -37,7 +37,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             Console.ResetColor();
         }
 
-        public static void WriteOut(string content, ConsoleColor? color=null)
+        public static void WriteOut(string content="", ConsoleColor? color=null)
         {
             if (color.HasValue)
             {
@@ -49,22 +49,15 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             if (color.HasValue)
             {
                 Console.ResetColor();
+                Console.Out.Flush();
             }
         }
 
-        public static void WriteDebug(string debug, ConsoleColor? color = null)
+        public static void WriteDebug(string debug)
         {
-            if (!color.HasValue)
-            {
-                Console.ForegroundColor = ConsoleColor.DarkCyan;
-            }
-
+            Console.ForegroundColor = ConsoleColor.DarkCyan;
             Console.Error.WriteLine(debug);
-
-            if (color.HasValue)
-            {
-                Console.ResetColor();
-            }
+            Console.ResetColor();
         }
 
         public static void WriteToFile(string filePath, string contents)

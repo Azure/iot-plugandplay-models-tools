@@ -26,7 +26,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             if (root.ValueKind == JsonValueKind.Object)
             {
                 result.Add(root.GetRawText());
-                return new FileExtractResult(result, root.ValueKind);
+                return new FileExtractResult(result, JsonValueKind.Object);
             }
             if (root.ValueKind == JsonValueKind.Array)
             {
@@ -34,10 +34,10 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 {
                     result.Add(element.GetRawText());
                 }
-                return new FileExtractResult(result, root.ValueKind);
+                return new FileExtractResult(result, JsonValueKind.Array);
             }
 
-            throw new ArgumentException($"Importing model file contents of kind {root.ValueKind} is not yet supported.");
+            throw new ArgumentException($"Model file contents of json type '{root.ValueKind}' is not supported.");
         }
 
         public static string GetRootId(FileInfo fileInfo)

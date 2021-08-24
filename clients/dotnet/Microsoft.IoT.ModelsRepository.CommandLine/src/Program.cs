@@ -85,12 +85,11 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
 
         private static Command BuildValidateCommand()
         {
-            var modelFileOption = CommonOptions.ModelFile;
-            modelFileOption.IsRequired = true; // Option is required for this command
-
             Command validateModelCommand = new Command("validate")
             {
-                modelFileOption,
+                CommonOptions.ModelFile,
+                CommonOptions.ModelsDirectory,
+                CommonOptions.ModelsDirectorySearchPattern,
                 CommonOptions.Repo,
                 CommonOptions.Strict,
             };
@@ -101,7 +100,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 "contents is used for resolution.";
 
             validateModelCommand.Handler =
-                CommandHandler.Create<FileInfo, string, bool>(Handlers.Validate);
+                CommandHandler.Create<FileInfo, DirectoryInfo, string, string, bool>(Handlers.Validate);
 
             return validateModelCommand;
         }
