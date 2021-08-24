@@ -37,7 +37,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} {strictSwitch}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
 
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
@@ -57,7 +57,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (returnCode, standardOut, _) =
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} {strictSwitch}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             modelFile = new FileInfo(Path.GetFullPath(testImportRepo.FullName + "/" + modelFilePath));
             Assert.AreEqual(lastWriteTimeUtc, modelFile.LastWriteTimeUtc);
             Assert.True(standardOut.Contains($"Skipping \"{expectedDtmi}\". Model file already exists in repository."));
@@ -84,7 +84,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             string[] dtmis = expectedDeps.Split(",", StringSplitOptions.RemoveEmptyEntries);
             string[] paths = expectedPaths.Split(",", StringSplitOptions.RemoveEmptyEntries);
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
 
@@ -106,7 +106,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
+            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
@@ -121,7 +121,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ResolutionError, returnCode);
+            Assert.AreEqual(ReturnCodes.ResolutionError, returnCode);
 
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
@@ -136,7 +136,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} --strict");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
+            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
             Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
             Assert.True(standardOut.Contains($"- Ensuring DTMIs namespace conformance for model \"{rootDtmi}\"..."));
@@ -153,8 +153,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, _, string standardError) =
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.InvalidArguments, returnCode);
-            Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} Importing model file contents of kind String is not yet supported."));
+            Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
+            Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} Model file contents of json type 'String' is not supported."));
         }
 
         [TestCase("dtmi/strict/emptyarray-1.json")]
@@ -166,7 +166,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, _, string standardError) =
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.ValidationError, returnCode);
+            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
             Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} No models to import."));
         }
 
@@ -179,7 +179,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"import --silent --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.AreEqual(string.Empty, standardOut);
         }
@@ -193,7 +193,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"import --silent --model-file \"{qualifiedModelFilePath}\" {targetRepo} --debug");
 
-            Assert.AreEqual(Handlers.ReturnCodes.Success, returnCode);
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.AreEqual(string.Empty, standardOut);
             Assert.True(standardError.Contains(Outputs.DebugHeader));
