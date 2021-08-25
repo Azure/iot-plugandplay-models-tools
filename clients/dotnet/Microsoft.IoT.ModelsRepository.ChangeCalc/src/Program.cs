@@ -1,13 +1,13 @@
-﻿using Microsoft.IoT.ModelsRepository.Validator.Models;
-using Microsoft.IoT.ModelsRepository.Validator.Services;
+﻿using Microsoft.IoT.ModelsRepository.ChangeCalc.Models;
+using Microsoft.IoT.ModelsRepository.ChangeCalc.Services;
 using Newtonsoft.Json;
 using Octokit;
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-[assembly: InternalsVisibleTo("Microsoft.IoT.ModelsRepository.Validator.UnitTests")]
-namespace Microsoft.IoT.ModelsRepository.Validator
+[assembly: InternalsVisibleTo("Microsoft.IoT.ModelsRepository.ChangeCalc.Tests")]
+namespace Microsoft.IoT.ModelsRepository.ChangeCalc
 {
     enum OutputFormat
     {
@@ -41,7 +41,7 @@ namespace Microsoft.IoT.ModelsRepository.Validator
 
             OutputFormat outputFormat = (OutputFormat)Enum.Parse(typeof(OutputFormat), format);
 
-            GitHubClient gitClient = new GitHubClient(new ProductHeaderValue("Microsoft.IoT.ModelsRepository.Validator"));
+            GitHubClient gitClient = new GitHubClient(new ProductHeaderValue("Microsoft.IoT.ModelsRepository.ChangeCalc"));
             gitClient.Credentials = new Credentials(authToken);
 
             IModelValidationService modelValidationService = new ModelValidationService(gitClient);

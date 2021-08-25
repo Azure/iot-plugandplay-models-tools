@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microsoft.IoT.ModelsRepository.Validator.csproj" />
+    <ProjectReference Include="..\src\Microsoft.IoT.ModelsRepository.ChangeCalc.csproj" />
   </ItemGroup>
 
 </Project>

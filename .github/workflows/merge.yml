@@ -45,8 +45,8 @@ jobs:
     - name: Execute solution Microsoft.IoT.ModelsRepository.CommandLine tests
       run: dotnet test --no-build clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine --framework ${{ matrix.tfm }} --blame-hang
 
-    - name: Build solution Microsoft.IoT.ModelsRepository.Validator
-      run: dotnet build Microsoft.IoT.ModelsRepository.Validator/src
+    - name: Build solution Microsoft.IoT.ModelsRepository.ChangeCalc
+      run: dotnet build clients/dotnet/Microsoft.IoT.ModelsRepository.ChangeCalc/src
 
-    - name: Execute solution Microsoft.IoT.ModelsRepository.Validator tests
-      run: dotnet test --no-build --verbosity detailed Microsoft.IoT.ModelsRepository.Validator/tests/Microsoft.IoT.ModelsRepository.Validator.UnitTests --framework ${{ matrix.tfm }} --blame-hang
+    - name: Execute solution Microsoft.IoT.ModelsRepository.ChangeCalc tests
+      run: dotnet test --no-build --verbosity detailed clients/dotnet/Microsoft.IoT.ModelsRepository.ChangeCalc/tests --framework ${{ matrix.tfm }} --blame-hang

@@ -3,10 +3,10 @@ using Xunit;
 using Octokit;
 using Moq;
 using System.Collections.Generic;
-using Microsoft.IoT.ModelsRepository.Validator.Services;
-using Microsoft.IoT.ModelsRepository.Validator.Models;
+using Microsoft.IoT.ModelsRepository.ChangeCalc.Services;
+using Microsoft.IoT.ModelsRepository.ChangeCalc.Models;
 
-namespace Microsoft.IoT.ModelsRepository.Validator.UnitTests
+namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
 {
     class TestPullRequestFile : PullRequestFile
     {
