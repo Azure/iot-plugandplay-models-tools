@@ -206,7 +206,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"import --directory \"{targetDirectoryPath}\" {searchPattern} {targetRepo}");
 
-            Assert.AreEqual(expectedReturnCode, returnCode);
+            Assert.AreEqual(expectedReturnCode, returnCode, standardError);
             if (expectedReturnCode == ReturnCodes.Success)
             {
                 Assert.False(standardError.Contains(Outputs.DefaultErrorToken), "Unexpected error token in stderr.");
