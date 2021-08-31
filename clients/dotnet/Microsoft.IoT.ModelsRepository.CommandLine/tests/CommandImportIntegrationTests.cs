@@ -193,7 +193,6 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
         }
 
         [TestCase("ontology", null, ReturnCodes.Success)]
-        [TestCase("ontology", "*irQuality*", ReturnCodes.Success)]
         [TestCase("indexable", "*.json", ReturnCodes.Success)]
         [TestCase("indexable", "*temperaturecontroller-1.*", ReturnCodes.Success)]
         [TestCase("dtmi", "*namespaceconflict-1.json", ReturnCodes.ValidationError)]
