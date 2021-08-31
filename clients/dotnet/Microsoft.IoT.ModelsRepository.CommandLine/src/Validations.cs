@@ -79,8 +79,16 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return versionRegex.Replace(rootId, "");
         }
 
-        public static async Task<int> ValidateModelFile(FileInfo modelFile, RepoProvider repoProvider, bool strict)
+        public static async Task<int> ValidateModelFileAsync(
+            FileInfo modelFile, RepoProvider repoProvider, ValidationRules rules = null)
         {
+            if (rules == null)
+            {
+                rules = new ValidationRules();
+            }
+
+            Outputs.WriteOut($"[Validating]: {modelFile.FullName}");
+
             FileExtractResult extractResult = ParsingUtils.ExtractModels(modelFile);
             List<string> models = extractResult.Models;
 
@@ -110,9 +118,13 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
 
             // TODO: Extract strings
             Outputs.WriteOut($"* Validating model file content conforms to DTDL.");
-            await parser.ParseAsync(models);
 
-            if (strict)
+            if (rules.ParseDtdl)
+            {
+                await parser.ParseAsync(models);
+            }
+
+            if (rules.EnsureContentRootType)
             {
                 if (extractResult.ContentKind == JsonValueKind.Array || models.Count > 1)
                 {
@@ -120,7 +132,10 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                     Outputs.WriteError("Strict validation requires a single root model object.");
                     return ReturnCodes.ValidationError;
                 }
+            }
 
+            if (rules.EnsureDtmiNamespace)
+            {
                 string dtmi = ParsingUtils.GetRootId(models[0]);
                 Outputs.WriteOut($"* Ensuring DTMIs namespace conformance for model \"{dtmi}\".");
                 List<string> invalidSubDtmis = EnsureSubDtmiNamespace(models[0]);
@@ -130,7 +145,10 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                         $"The following DTMI's do not start with the root DTMI namespace:{Environment.NewLine}{string.Join($",{Environment.NewLine}", invalidSubDtmis)}");
                     return ReturnCodes.ValidationError;
                 }
+            }
 
+            if (rules.EnsureFilePlacement)
+            {
                 if (repoProvider.IsRemoteEndpoint())
                 {
                     Outputs.WriteError($"Model file path validation requires a local repository.");
@@ -147,8 +165,6 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                     return ReturnCodes.ValidationError;
                 }
             }
-
-            Outputs.WriteOut();
 
             return ReturnCodes.Success;
         }

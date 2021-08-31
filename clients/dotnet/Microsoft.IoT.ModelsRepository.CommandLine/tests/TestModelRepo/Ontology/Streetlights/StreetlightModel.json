@@ -1,0 +1,241 @@
+{
+  "@id": "dtmi:digitaltwins:ngsi_ld:city:StreetlightModel;1",
+  "@type": "Interface",
+  "displayName": "StreetlightModel",
+  "extends": "dtmi:digitaltwins:ngsi_ld:city:NGSILDBaseModel;1",
+  "contents": [
+    {
+      "@type": "Property",
+      "name": "maxPowerConsumption",
+      "description": "Maximum power consumption supported by the lantern. Units:'Watts (W)'.",
+      "writable": true,
+      "schema": "double"
+    },
+    {
+      "@type": "Property",
+      "name": "minPowerConsumption",
+      "writable": true,
+      "schema": "double"
+    },
+    {
+      "@type": "Property",
+      "name": "columnBrandName",
+      "writable": true,
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "columnModelName",
+      "writable": true,
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "columnManufacturerName",
+      "writable": true,
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "columnMadeOf",
+      "schema": {
+        "@type": "Enum",
+        "valueSchema": "string",
+        "enumValues": [
+          {
+            "name": "steel",
+            "displayName": "steel",
+            "enumValue": "steel"
+          },
+          {
+            "name": "aluminium",
+            "displayName": "aluminium",
+            "enumValue": "aluminium"
+          },
+          {
+            "name": "wood",
+            "displayName": "wood",
+            "enumValue": "wood"
+          },
+          {
+            "name": "other",
+            "displayName": "other",
+            "enumValue": "other"
+          }
+        ]
+      },
+      "writable": true
+    },
+    {
+      "@type": "Property",
+      "name": "columnColor",
+      "writable": true,
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "lanternModelName",
+      "writable": true,
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "lanternBrandName",
+      "writable": true,
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "lanternManufacturerName",
+      "writable": true,
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "lanternWeight",
+      "writable": true,
+      "schema": "double"
+    },
+    {
+      "@type": "Property",
+      "name": "lampModelName",
+      "writable": true,
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "lampBrandName",
+      "writable": true,
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "lampManufacturerName",
+      "writable": true,
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "lampWeight",
+      "writable": true,
+      "schema": "double"
+    },
+    {
+      "@type": "Property",
+      "name": "workingLife",
+      "writable": true,
+      "schema": "integer"
+    },
+    {
+      "@type": "Property",
+      "name": "lampTechnology",
+      "schema": {
+        "@type": "Enum",
+        "valueSchema": "string",
+        "enumValues": [
+          {
+            "name": "LED",
+            "displayName": "LED",
+            "enumValue": "LED"
+          },
+          {
+            "name": "LPS",
+            "displayName": "LPS",
+            "enumValue": "LPS"
+          },
+          {
+            "name": "HPS",
+            "displayName": "HPS",
+            "enumValue": "HPS"
+          }
+        ]
+      },
+      "writable": true
+    },
+    {
+      "@type": "Property",
+      "name": "colorTemperature",
+      "description": "Correlated color temperature of the lamp. Units:'Kelvin degrees (K)'",
+      "writable": true,
+      "schema": "integer"
+    },
+    {
+      "@type": "Property",
+      "name": "colorRenderingIndex",
+      "description": "Color rendering index of the lamp.",
+      "writable": true,
+      "schema": "integer"
+    },
+    {
+      "@type": "Property",
+      "name": "luminousFlux",
+      "description": "Maximum light output which can be provided by the lamp. Units:'Lumens (lm)'.",
+      "writable": true,
+      "schema": "integer"
+    },
+    {
+      "@type": "Property",
+      "name": "powerConsumption",
+      "writable": true,
+      "schema": "double"
+    },
+    {
+      "@type": "Property",
+      "name": "compliantWith",
+      "description": "A list of standards to which this streetlight model is compliant with.",
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "category",
+      "writable": true,
+      "schema": {
+        "@type": "Enum",
+        "valueSchema": "string",
+        "enumValues": [
+          {
+            "name": "postTop",
+            "displayName": "postTop",
+            "enumValue": "postTop"
+          },
+          {
+            "name": "bollard",
+            "displayName": "bollard",
+            "enumValue": "bollard"
+          },
+          {
+            "name": "lamppost",
+            "displayName": "lampost",
+            "enumValue": "lamppost"
+          },
+          {
+            "name": "lightTower",
+            "displayName": "lightTower",
+            "enumValue": "lightTower"
+          },
+          {
+            "name": "flashingBeacon",
+            "displayName": "FlashingBeacon",
+            "enumValue": "flashingBeacon"
+          },
+          {
+            "name": "sideEntry",
+            "displayName": "sideEntry",
+            "enumValue": "sideEntry"
+          },
+          {
+            "name": "signLight",
+            "displayName": "signLight",
+            "enumValue": "signLight"
+          },
+          {
+            "name": "ornamentLantern",
+            "displayName": "ornamentLantern",
+            "enumValue": "ornamentLantern"
+          }
+        ]
+      }
+    }
+  ],
+  "@context": "dtmi:dtdl:context;2"
+}

@@ -3,7 +3,9 @@
 
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using Azure.IoT.ModelsRepository;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 {
@@ -24,38 +26,32 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
         }
 
         // TODO: Cheap ordering.
-        [TestCase("1", "dtmi/com/example/thermostat-1.json", "dtmi:com:example:Thermostat;1", true)]
-        [TestCase("2", "dtmi/azure/devicemanagement/deviceinformation-1.json", "dtmi:azure:DeviceManagement:DeviceInformation;1", false)]
-        [TestCase("3", "dtmi/com/example/temperaturecontroller-1.json", "dtmi:com:example:TemperatureController;1", true)]
-        public void ImportModelFileSingleModelObject(string _, string modelFilePath, string expectedDtmi, bool strict)
+        [TestCase("1", "dtmi/com/example/thermostat-1.json", "dtmi:com:example:Thermostat;1")]
+        [TestCase("2", "dtmi/azure/devicemanagement/deviceinformation-1.json", "dtmi:azure:DeviceManagement:DeviceInformation;1")]
+        [TestCase("3", "dtmi/com/example/temperaturecontroller-1.json", "dtmi:com:example:TemperatureController;1")]
+        public void ImportModelFileSingleModelObject(string _, string modelFilePath, string expectedDtmi)
         {
             string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
-            string strictSwitch = strict ? "--strict" : "";
-
             string targetRepo = $"--local-repo \"{testImportRepo.FullName}\"";
 
             (int returnCode, string standardOut, string standardError) =
-                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} {strictSwitch}");
+                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
             Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
 
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
-            Assert.True(standardOut.Contains($"- Importing model \"{expectedDtmi}\"..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Ensuring DTMIs namespace conformance for model"));
+            Assert.True(standardOut.Contains($"* Importing model \"{expectedDtmi}\"."));
 
             FileInfo modelFile = new FileInfo(Path.GetFullPath(testImportRepo.FullName + "/" + modelFilePath));
             Assert.True(modelFile.Exists);
             DateTime lastWriteTimeUtc = modelFile.LastWriteTimeUtc;
             Assert.AreEqual(expectedDtmi, ParsingUtils.GetRootId(modelFile));
 
-            if (strict)
-            {
-                Assert.True(standardOut.Contains("- Ensuring DTMIs namespace conformance for model"));
-            }
-
             // Import the same model to ensure its skipped.
             (returnCode, standardOut, _) =
-                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} {strictSwitch}");
+                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
             Assert.AreEqual(ReturnCodes.Success, returnCode);
             modelFile = new FileInfo(Path.GetFullPath(testImportRepo.FullName + "/" + modelFilePath));
@@ -66,31 +62,28 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
         [TestCase(
             "dtmi/com/example/temperaturecontroller-1.expanded.json",
             "dtmi:com:example:TemperatureController;1,dtmi:com:example:Thermostat;1,dtmi:azure:DeviceManagement:DeviceInformation;1",
-            "dtmi/com/example/temperaturecontroller-1.json,dtmi/com/example/thermostat-1.json,dtmi/azure/devicemanagement/deviceinformation-1.json",
-            true)]
-        public void ImportModelFileExpandedModelArray(string modelFilePath, string expectedDeps, string expectedPaths, bool strict)
+            "dtmi/com/example/temperaturecontroller-1.json,dtmi/com/example/thermostat-1.json,dtmi/azure/devicemanagement/deviceinformation-1.json")]
+        public void ImportModelFileExpandedModelArray(string modelFilePath, string expectedDeps, string expectedPaths)
         {
             // TODO: Revisit.
-            ResetTestRepoDir();
+            //ResetTestRepoDir();
 
             string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
-            string strictSwitch = strict ? "--strict" : "";
-
             string targetRepo = $"--local-repo \"{testImportRepo.FullName}\"";
 
             (int returnCode, string standardOut, string standardError) =
-                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} {strictSwitch}");
+                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
             string[] dtmis = expectedDeps.Split(",", StringSplitOptions.RemoveEmptyEntries);
             string[] paths = expectedPaths.Split(",", StringSplitOptions.RemoveEmptyEntries);
 
             Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
 
             for (int i = 0; i < dtmis.Length; i++)
             {
-                Assert.True(standardOut.Contains($"- Importing model \"{dtmis[i]}\"..."));
+                Assert.True(standardOut.Contains($"* Importing model \"{dtmis[i]}\"."));
                 FileInfo modelFile = new FileInfo(Path.GetFullPath(testImportRepo.FullName + "/" + paths[i]));
                 Assert.True(modelFile.Exists);
                 Assert.AreEqual(dtmis[i], ParsingUtils.GetRootId(modelFile));
@@ -109,7 +102,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
         }
 
         [TestCase("dtmi/com/example/invalidmodel-1.json")]
@@ -124,7 +117,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(ReturnCodes.ResolutionError, returnCode);
 
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
         }
 
         [TestCase("dtmi/strict/namespaceconflict-1.json", "dtmi:strict:namespaceconflict;1", "dtmi:com:example:acceleration;1")]
@@ -134,12 +127,12 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             string targetRepo = $"--local-repo \"{testImportRepo.FullName}\"";
 
             (int returnCode, string standardOut, string standardError) =
-                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} --strict");
+                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
             Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
-            Assert.True(standardOut.Contains("- Validating models conform to DTDL..."));
-            Assert.True(standardOut.Contains($"- Ensuring DTMIs namespace conformance for model \"{rootDtmi}\"..."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains($"* Ensuring DTMIs namespace conformance for model \"{rootDtmi}\"."));
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardError.Contains(violationDtmi));
         }
@@ -166,8 +159,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, _, string standardError) =
                 ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
 
-            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
-            Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} No models to import."));
+            Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
+            Assert.True(standardError.Contains($"{Outputs.DefaultErrorToken} No models to validate."));
         }
 
         [TestCase("dtmi/com/example/thermostat-1.json")]
@@ -197,6 +190,59 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.AreEqual(string.Empty, standardOut);
             Assert.True(standardError.Contains(Outputs.DebugHeader));
+        }
+
+        [TestCase("ontology", null, ReturnCodes.Success)]
+        [TestCase("ontology", "*irQuality*", ReturnCodes.Success)]
+        [TestCase("indexable", "*.json", ReturnCodes.Success)]
+        [TestCase("indexable", "*temperaturecontroller-1.*", ReturnCodes.Success)]
+        [TestCase("dtmi", "*namespaceconflict-1.json", ReturnCodes.ValidationError)]
+        [TestCase("dtmi", "*invalidformat.json", ReturnCodes.InvalidArguments)]
+        public void ImportModelsDirectory(string directory, string pattern, int expectedReturnCode)
+        {
+            string targetDirectoryPath = Path.Combine(TestHelpers.TestLocalModelRepository, directory);
+            string searchPattern = string.IsNullOrEmpty(pattern) ? "" : $"--search-pattern {pattern}";
+            string targetRepo = $"--local-repo \"{testImportRepo.FullName}\"";
+
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"import --directory \"{targetDirectoryPath}\" {searchPattern} {targetRepo}");
+
+            Assert.AreEqual(expectedReturnCode, returnCode);
+            if (expectedReturnCode == ReturnCodes.Success)
+            {
+                Assert.False(standardError.Contains(Outputs.DefaultErrorToken), "Unexpected error token in stderr.");
+
+                if (string.IsNullOrEmpty(pattern))
+                {
+                    pattern = "*.json";
+                }
+
+                var expectedImportedFiles = new List<FileInfo>();
+                foreach (string file in Directory.EnumerateFiles(targetDirectoryPath, pattern,
+                    new EnumerationOptions { RecurseSubdirectories = true }))
+                {
+                    expectedImportedFiles.Add(new FileInfo(file));
+                }
+
+                foreach (FileInfo expectedFile in expectedImportedFiles)
+                {
+                    string rootId = ParsingUtils.GetRootId(expectedFile);
+                    string createPath = DtmiConventions.GetModelUri(rootId, new Uri(testImportRepo.FullName)).LocalPath;
+                    Assert.True(new FileInfo(createPath).Exists, $"Expected model file import: '{createPath}' does not exist.");
+                    Assert.True(standardOut.Contains($"[Validating]: {expectedFile.FullName}"));
+                    Assert.True(standardOut.Contains($"* Ensuring DTMIs namespace conformance for model \"{rootId}\""));
+                    Assert.True(standardOut.Contains($"* Importing model \"{rootId}\""));
+                }
+            }
+        }
+
+        [Test]
+        public void ImportErrorsWithNoInput()
+        {
+            (int returnCode, _, string standardError) = ClientInvokator.Invoke($"import");
+
+            Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
+            Assert.True(standardError.Contains("[Error]: Nothing to import!"), "Missing expected error message.");
         }
     }
 }

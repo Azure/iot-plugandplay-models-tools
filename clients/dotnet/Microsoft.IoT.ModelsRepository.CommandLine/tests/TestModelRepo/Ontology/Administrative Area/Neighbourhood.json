@@ -1,0 +1,11 @@
+{
+    "@id": "dtmi:digitaltwins:s4city:city:Neighbourhood;1",
+    "@type": "Interface",
+    "displayName": "Neighbourhood",
+    "extends": "dtmi:digitaltwins:s4city:city:AdministrativeArea;1",
+    "description": "A neighbourhood (British English), or neighborhood (American English; see spelling differences), is a geographically localised community within a larger city, town, suburb or rural area. (https://en.wikipedia.org/wiki/Neighbourhood)",
+    "contents": [
+        
+    ],
+    "@context": "dtmi:dtdl:context;2"
+}

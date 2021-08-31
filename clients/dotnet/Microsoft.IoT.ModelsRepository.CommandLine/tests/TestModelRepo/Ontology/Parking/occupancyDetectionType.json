@@ -1,0 +1,43 @@
+{
+    "@id": "dtmi:digitaltwins:ngsi_ld:city:occupancyDetectionType;1",
+    "@type": "Interface",
+    "displayName": "OccupancyDetectionType",
+    "@context" : "dtmi:dtdl:context;2",
+    "contents":[
+        {
+            "@type": "Property",
+            "name": "occupancyDetectionType",
+            "schema": {
+                "@type": "Enum",
+                "valueSchema": "string",
+                "enumValues": [
+                    {
+                        "name": "balancing",
+                        "displayName": "Balancing",
+                        "enumValue": "balancing"
+                    },
+                    {
+                        "name": "manual",
+                        "displayName": "Manual",
+                        "enumValue": "manual"
+                    },
+                    {
+                        "name": "modelBased",
+                        "displayName": "ModelBased",
+                        "enumValue": "modelBased"
+                    },
+                    {
+                        "name": "none",
+                        "displayName": "None",
+                        "enumValue": "none"
+                    },
+                    {
+                        "name": "singleSpaceDetection",
+                        "displayName": "SingleSpaceDetection",
+                        "enumValue": "singleSpaceDetection"
+                    }
+                ]
+            }
+        }
+    ]
+}

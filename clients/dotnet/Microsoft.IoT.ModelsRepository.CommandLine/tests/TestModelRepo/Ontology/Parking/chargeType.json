@@ -1,0 +1,84 @@
+{
+    "@id": "dtmi:digitaltwins:ngsi_ld:city:chargeType;1",
+    "@type": "Interface",
+    "displayName": "ChargeType",
+    "@context" : "dtmi:dtdl:context;2",
+    "contents":[
+        { 
+            "@type": "Property",
+            "name": "chargeType",
+            "schema": 
+            {
+                "@type": "Enum",
+                "valueSchema": "string",
+                "enumValues": [
+                    {
+                        "name": "additionalIntervalPrice",
+                        "displayName": "AdditionalIntervalPrice",
+                        "enumValue": "additionalIntervalPrice"
+                    },
+                    {
+                        "name": "annualPayment",
+                        "displayName": "AnnualPayment",
+                        "enumValue": "annualPayment"
+                    },
+                    {
+                        "name": "firstIntervalPrice",
+                        "displayName": "FirstIntervalPrice",
+                        "enumValue": "firstIntervalPrice"
+                    },
+                    {
+                        "name": "flat",
+                        "displayName": "Flat",
+                        "enumValue": "flat"
+                    },
+                    {
+                        "name": "free",
+                        "displayName": "Free",
+                        "enumValue": "free"
+                    },
+                    {
+                        "name": "minimum",
+                        "displayName": "Minimum",
+                        "enumValue": "minimum"
+                    },
+                    {
+                        "name": "maximum",
+                        "displayName": "Maximum",
+                        "enumValue": "maximum"
+                    },
+                    {
+                        "name": "monthlyPayment",
+                        "displayName": "MonthlyPayment",
+                        "enumValue": "monthlyPayment"
+                    },
+                    {
+                        "name": "seasonTicket",
+                        "displayName": "SeasonTicket",
+                        "enumValue": "seasonTicket"
+                    },
+                    {
+                        "name": "temporaryFee",
+                        "displayName": "TemporaryFee",
+                        "enumValue": "temporaryFee"
+                    },
+                    {
+                        "name": "temporaryPrice",
+                        "displayName": "TemporaryPrice",
+                        "enumValue": "temporaryPrice"
+                    },
+                    {
+                        "name": "unknown",
+                        "displayName": "Unknown",
+                        "enumValue": "unknown"
+                    },
+                    {
+                        "name": "other",
+                        "displayName": "Other",
+                        "enumValue": "other"
+                    }
+                ]
+            }
+        }
+    ]
+}

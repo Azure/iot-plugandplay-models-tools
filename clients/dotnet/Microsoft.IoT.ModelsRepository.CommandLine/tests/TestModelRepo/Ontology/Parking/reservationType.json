@@ -1,0 +1,38 @@
+{
+    "@id": "dtmi:digitaltwins:ngsi_ld:city:reservationType;1",
+    "@type": "Interface",
+    "displayName": "ReservationType",
+    "@context" : "dtmi:dtdl:context;2",
+    "contents":[
+        {
+            "@type": "Property",
+            "name": "reservationType",
+            "schema": {
+                "@type": "Enum",
+                "valueSchema": "string",
+                "enumValues": [
+                    {
+                        "name": "mandatory",
+                        "displayName": "Mandatory",
+                        "enumValue": "mandatory"
+                    },
+                    {
+                        "name": "notAvailable",
+                        "displayName": "NotAvailable",
+                        "enumValue": "notAvailable"
+                    },
+                    {
+                        "name": "optional",
+                        "displayName": "Optional",
+                        "enumValue": "optional"
+                    },
+                    {
+                        "name": "partly",
+                        "displayName": "Partly",
+                        "enumValue": "partly"
+                    }
+                ]
+            }
+        }
+    ]
+}

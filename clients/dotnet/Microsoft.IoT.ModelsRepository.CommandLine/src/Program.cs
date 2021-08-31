@@ -107,18 +107,17 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
 
         private static Command BuildImportModelCommand()
         {
-            var modelFileOption = CommonOptions.ModelFile;
-            modelFileOption.IsRequired = true; // Option is required for this command
-
             Command importModelCommand = new Command("import")
             {
-                modelFileOption,
+                CommonOptions.ModelFile,
+                CommonOptions.ModelsDirectory,
+                CommonOptions.ModelsDirectorySearchPattern,
                 CommonOptions.LocalRepo,
-                CommonOptions.Strict,
             };
             importModelCommand.Description =
-                "Imports models from a model file into the local repository. The local repository is used for model resolution.";
-            importModelCommand.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, bool>(Handlers.Import);
+                "Imports models from a model file into the local repository. The local repository is used for model resolution. " +
+                "Target model files for import will first be validated to ensure adherence to IoT Models Repository conventions.";
+            importModelCommand.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, string, DirectoryInfo>(Handlers.Import);
 
             return importModelCommand;
         }
