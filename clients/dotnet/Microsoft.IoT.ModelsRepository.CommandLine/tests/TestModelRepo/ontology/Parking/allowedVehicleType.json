@@ -1,0 +1,103 @@
+{
+    "@id": "dtmi:digitaltwins:ngsi_ld:city:allowedVehicleType;1",
+    "@type": "Interface",
+    "displayName": "AllowedVehicleType",
+    "@context" : "dtmi:dtdl:context;2",
+    "contents":[
+        {
+            "@type": "Property",
+            "name": "allowedVehicleType",
+            "schema": {
+                "@type": "Enum",
+                "valueSchema": "string",
+                "enumValues": [
+                    {
+                        "name": "agriculturalVehicle",
+                        "displayName": "AgriculturalVehicle",
+                        "enumValue": "agriculturalVehicle"
+                    },
+                    {
+                        "name": "anyVehicle",
+                        "displayName": "AnyVehicle",
+                        "enumValue": "anyVehicle"
+                    },
+                    {
+                        "name": "bicycle",
+                        "displayName": "Bicycle",
+                        "enumValue": "bicycle"
+                    },
+                    {
+                        "name": "bus",
+                        "displayName": "Bus",
+                        "enumValue": "bus"
+                    },
+                    {
+                        "name": "car",
+                        "displayName": "Car",
+                        "enumValue": "car"
+                    },
+                    {
+                        "name": "caravan",
+                        "displayName": "Caravan",
+                        "enumValue": "caravan"
+                    },
+                    {
+                        "name": "carWithCaravan",
+                        "displayName": "CarWithCaravan",
+                        "enumValue": "carWithCaravan"
+                    },
+                    {
+                        "name": "carWithTrailer",
+                        "displayName": "CarWithTrailer",
+                        "enumValue": "carWithTrailer"
+                    },
+                    {
+                        "name": "constructionOrMaintenanceVehicle",
+                        "displayName": "ConstructionOrMaintenanceVehicle",
+                        "enumValue": "constructionOrMaintenanceVehicle"
+                    },
+                    {
+                        "name": "lorry",
+                        "displayName": "Lorry",
+                        "enumValue": "lorry"
+                    },
+                    {
+                        "name": "moped",
+                        "displayName": "Moped",
+                        "enumValue": "moped"
+                    },
+                    {
+                        "name": "motorcycle",
+                        "displayName": "Motorcycle",
+                        "enumValue": "motorcycle"
+                    },
+                    {
+                        "name": "motorcycleWithSideCar",
+                        "displayName": "MotorcycleWithSideCar",
+                        "enumValue": "motorcycleWithSideCar"
+                    },
+                    {
+                        "name": "motorscooter",
+                        "displayName": "Motorscooter",
+                        "enumValue": "motorscooter"
+                    },
+                    {
+                        "name": "tanker",
+                        "displayName": "Tanker",
+                        "enumValue": "tanker"
+                    },
+                    {
+                        "name": "trailer",
+                        "displayName": "Trailer",
+                        "enumValue": "trailer"
+                    },
+                    {
+                        "name": "van",
+                        "displayName": "Van",
+                        "enumValue": "van"
+                    }
+                ]
+            }
+        }
+    ]
+}

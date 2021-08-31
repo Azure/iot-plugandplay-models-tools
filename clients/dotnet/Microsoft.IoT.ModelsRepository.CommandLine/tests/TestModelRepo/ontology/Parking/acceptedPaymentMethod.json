@@ -1,0 +1,64 @@
+{
+    "@id": "dtmi:digitaltwins:ngsi_ld:city:acceptedPaymentMethod;1",
+    "@type": "Interface",
+    "displayName": "AcceptedPaymentMethod",
+    "@context" : "dtmi:dtdl:context;2",
+    "contents":[
+        { 
+            "@type": "Property",
+            "name": "acceptedPaymentMethod",
+            "schema": 
+            {  
+                "@type": "Enum",
+                "valueSchema": "string",
+                "enumValues": [
+                    {
+                        "name": "byBankTransferInAdvance",
+                        "displayName": "ByBankTransferInAdvance",
+                        "enumValue": "byBankTransferInAdvance"
+                    },
+                    {
+                        "name": "byInvoice",
+                        "displayName": "ByInvoice",
+                        "enumValue": "byInvoice"
+                    },
+                    {
+                        "name": "cash",
+                        "displayName": "Cash",
+                        "enumValue": "cash"
+                    },
+                    {
+                        "name": "checkInAdvance",
+                        "displayName": "CheckInAdvance",
+                        "enumValue": "checkInAdvance"
+                    },
+                    {
+                        "name": "COD",
+                        "displayName": "COD",
+                        "enumValue": "COD"
+                    },
+                    {
+                        "name": "directDebit",
+                        "displayName": "DirectDebit",
+                        "enumValue": "directDebit"
+                    },
+                    {
+                        "name": "GoogleCheckout",
+                        "displayName": "GoogleCheckout",
+                        "enumValue": "GoogleCheckout"
+                    },
+                    {
+                        "name": "PayPal",
+                        "displayName": "PayPal",
+                        "enumValue": "PayPal"
+                    },
+                    {
+                        "name": "PaySwarm",
+                        "displayName": "PaySwarm",
+                        "enumValue": "PaySwarm"
+                    }
+                ]
+            }
+        }
+    ]
+}

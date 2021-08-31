@@ -1,0 +1,11 @@
+{
+    "@id": "dtmi:digitaltwins:s4city:city:CityObject;1",
+    "@type": "Interface",
+    "displayName": "City Object",
+    "extends": "dtmi:digitaltwins:GeoSPARQL:Feature;1",
+    "description": "Generic class for describing city objects.",
+    "contents": [
+        
+    ],
+    "@context": "dtmi:dtdl:context;2"
+}

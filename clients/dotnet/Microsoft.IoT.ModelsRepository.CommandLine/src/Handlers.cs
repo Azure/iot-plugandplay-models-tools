@@ -64,11 +64,11 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
         {
             try
             {
+                ValidationRules validationRules = strict ? new ValidationRules() : ValidationRules.GetJustParseRules();
                 RepoProvider repoProvider = new RepoProvider(repo);
                 if (modelFile != null && modelFile.Exists)
                 {
-                    Outputs.WriteOut($"[Validating]: {modelFile.FullName}");
-                    return await Validations.ValidateModelFile(modelFile, repoProvider, strict);
+                    return await Validations.ValidateModelFileAsync(modelFile, repoProvider, validationRules);
                 }
 
                 if (directory != null && directory.Exists)
@@ -78,8 +78,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                         new EnumerationOptions { RecurseSubdirectories = true }))
                     {
                         var enumeratedFile = new FileInfo(file);
-                        Outputs.WriteOut($"[Validating]: {enumeratedFile.FullName}");
-                        result = await Validations.ValidateModelFile(enumeratedFile, repoProvider, strict);
+                        result = await Validations.ValidateModelFileAsync(enumeratedFile, repoProvider, validationRules);
                         
                         // TODO: Consider processing modes "return on first error", "return all errors"
                         if (result != ReturnCodes.Success)
@@ -133,7 +132,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return ReturnCodes.InvalidArguments;
         }
 
-        public static async Task<int> Import(FileInfo modelFile, DirectoryInfo localRepo, bool strict)
+        public static async Task<int> Import(FileInfo modelFile, DirectoryInfo directory, string searchPattern, DirectoryInfo localRepo)
         {
             if (localRepo == null)
             {
@@ -143,38 +142,57 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             try
             {
                 RepoProvider repoProvider = new RepoProvider(localRepo.FullName);
-                FileExtractResult extractResult = ParsingUtils.ExtractModels(modelFile);
-                List<string> models = extractResult.Models;
-
-                if (models.Count == 0)
+                if (modelFile != null && modelFile.Exists)
                 {
-                    Outputs.WriteError("No models to import.");
-                    return ReturnCodes.ValidationError;
+                    var importFileValidationRules = new ValidationRules(
+                        parseDtdl: true,
+                        ensureFilePlacement: false,
+                        ensureContentRootType: false,
+                        ensureDtmiNamespace: true);
+
+                    return await ModelImporter.ImportFileAsync(modelFile, localRepo, repoProvider, importFileValidationRules);
                 }
 
-                Outputs.WriteOut($"- Validating models conform to DTDL...");
-                ModelParser parser = repoProvider.GetDtdlParser();
-                await parser.ParseAsync(models);
-
-                if (strict)
+                // When importing models from an arbitrary directory we have to extract all models content
+                // and parse all at once because arbitrary model directories do not have consistent model file
+                // placement compared to DMR-like repositories when resolving model dependencies.
+                if (directory != null && directory.Exists)
                 {
-                    foreach (string content in models)
+                    var contentMap = new Dictionary<FileInfo, List<string>>();
+                    foreach (string file in Directory.EnumerateFiles(directory.FullName, searchPattern,
+                        new EnumerationOptions { RecurseSubdirectories = true }))
                     {
-                        string dtmi = ParsingUtils.GetRootId(content);
-                        Outputs.WriteOut($"- Ensuring DTMIs namespace conformance for model \"{dtmi}\"...");
-                        List<string> invalidSubDtmis = Validations.EnsureSubDtmiNamespace(content);
-                        if (invalidSubDtmis.Count > 0)
+                        var enumeratedFile = new FileInfo(file);
+                        FileExtractResult extractResult = ParsingUtils.ExtractModels(enumeratedFile);
+                        List<string> models = extractResult.Models;
+                        contentMap.Add(enumeratedFile, models);
+                    }
+
+                    var flatModelsContent = new List<string>();
+                    foreach(KeyValuePair<FileInfo, List<string>> entry in contentMap)
+                    {
+                        flatModelsContent.AddRange(entry.Value);
+                    }
+                    ModelParser parser = repoProvider.GetDtdlParser();
+                    await parser.ParseAsync(flatModelsContent);
+
+                    var importDirectoryValidationRules = new ValidationRules(
+                        parseDtdl: false, // All the directory models content is parsed at once earlier.
+                        ensureFilePlacement: false,
+                        ensureContentRootType: false,
+                        ensureDtmiNamespace: true);
+
+                    int result;
+                    foreach (KeyValuePair<FileInfo, List<string>> entry in contentMap)
+                    {
+                        result = await ModelImporter.ImportFileAsync(entry.Key, localRepo, repoProvider, importDirectoryValidationRules);
+                        if (result != ReturnCodes.Success)
                         {
-                            Outputs.WriteError(
-                                $"The following DTMI's do not start with the root DTMI namespace:{Environment.NewLine}{string.Join($",{Environment.NewLine}", invalidSubDtmis)}");
-                            return ReturnCodes.ValidationError;
+                            return result;
                         }
                     }
-                }
 
-                foreach (string content in models)
-                {
-                    ModelImporter.Import(content, localRepo);
+                    return ReturnCodes.Success;
                 }
             }
             catch (ResolutionException resolutionEx)
@@ -215,7 +233,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 return ReturnCodes.InvalidArguments;
             }
 
-            return ReturnCodes.Success;
+            Outputs.WriteError("Nothing to import!");
+            return ReturnCodes.InvalidArguments;
         }
 
         public static int RepoIndex(DirectoryInfo localRepo, FileInfo outputFile, int pageLimit)

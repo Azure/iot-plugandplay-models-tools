@@ -1,0 +1,258 @@
+{
+    "@id": "dtmi:digitaltwins:ngsi_ld:city:ParkingGroup;1",
+    "@type": "Interface",
+    "displayName": "ParkingGroup",
+    "@context": "dtmi:dtdl:context;2",
+    "extends": "dtmi:digitaltwins:ngsi_ld:city:NGSILDBaseModel;1",
+    "contents": [
+        {
+            "@type": "Property",
+            "name": "allowedVehicleType",
+            "schema": {
+                "@type": "Enum",
+                "valueSchema": "string",
+                "enumValues": [
+                    {
+                        "name": "bicycle",
+                        "displayName": "Bicycle",
+                        "enumValue": "bicycle"
+                    },
+                    {
+                        "name": "bus",
+                        "displayName": "Bus",
+                        "enumValue": "bus"
+                    },
+                    {
+                        "name": "car",
+                        "displayName": "Car",
+                        "enumValue": "car"
+                    },
+                    {
+                        "name": "caravan",
+                        "displayName": "Caravan",
+                        "enumValue": "caravan"
+                    },
+                    {
+                        "name": "motorcycle",
+                        "displayName": "Motorcycle",
+                        "enumValue": "motorcycle"
+                    },
+                    {
+                        "name": "motorscooter",
+                        "displayName": "Motorscooter",
+                        "enumValue": "motorscooter"
+                    },
+                    {
+                        "name": "truck",
+                        "displayName": "Truck",
+                        "enumValue": "truck"
+                    }
+                ]
+            },
+            "writable": true
+        },
+        {
+            "@type": "Property",
+            "name": "category",
+            "schema": {
+                "@type": "Enum",
+                "valueSchema": "string",
+                "enumValues": [
+                    {
+                        "name": "adjacentSpaces",
+                        "displayName": "AdjacentSpaces",
+                        "enumValue": "adjacentSpaces"
+                    },
+                    {
+                        "name": "blueZone",
+                        "displayName": "BlueZone",
+                        "enumValue": "blueZone"
+                    },
+                    {
+                        "name": "completeFloor",
+                        "displayName": "CompleteFloor",
+                        "enumValue": "completeFloor"
+                    },
+                    {
+                        "name": "free",
+                        "displayName": "Free",
+                        "enumValue": "free"
+                    },
+                    {
+                        "name": "feeCharged",
+                        "displayName": "FeeCharged",
+                        "enumValue": "feeCharged"
+                    },
+                    {
+                        "name": "greenZone",
+                        "displayName": "GreenZone",
+                        "enumValue": "greenZone"
+                    },
+                    {
+                        "name": "loadUnloadZone",
+                        "displayName": "LoadUnloadZone",
+                        "enumValue": "loadUnloadZone"
+                    },
+                    {
+                        "name": "nonAdjacentSpaces",
+                        "displayName": "NonAdjacentSpaces",
+                        "enumValue": "nonAdjacentSpaces"
+                    },
+                    {
+                        "name": "offStreet",
+                        "displayName": "OffStreet",
+                        "enumValue": "offStreet"
+                    },
+                    {
+                        "name": "onlyDisabled",
+                        "displayName": "OnlyDisabled",
+                        "enumValue": "onlyDisabled"
+                    },
+                    {
+                        "name": "onlyElectricalCharging",
+                        "displayName": "OnlyElectricalCharging",
+                        "enumValue": "onlyElectricalCharging"
+                    },
+                    {
+                        "name": "onlyResidents",
+                        "displayName": "OnlyResidents",
+                        "enumValue": "onlyResidents"
+                    },
+                    {
+                        "name": "onlyWithPermit",
+                        "displayName": "OnlyWithPermit",
+                        "enumValue": "onlyWithPermit"
+                    },
+                    {
+                        "name": "onStreet",
+                        "displayName": "OnStreet",
+                        "enumValue": "OnStreet"
+                    },
+                    {
+                        "name": "particularConditionsSpaces",
+                        "displayName": "ParticularConditionsSpaces",
+                        "enumValue": "particularConditionsSpaces"
+                    },
+                    {
+                        "name": "shortTermMediumTermLongTerm",
+                        "displayName": "ShortTermMediumTermLongTerm",
+                        "enumValue": "shortTermMediumTermLongTerm"
+                    },
+                    {
+                        "name": "statisticsOnly",
+                        "displayName": "StatisticsOnly",
+                        "enumValue": "statisticsOnly"
+                    },
+                    {
+                        "name": "vehicleTypeSpaces",
+                        "displayName": "VehicleTypeSpaces",
+                        "enumValue": "vehicleTypeSpaces"
+                    }
+                ]
+            },
+            "writable": true
+        },
+        {
+            "@type": "Property",
+            "name": "permitActiveHours",
+            "schema": {
+                "@type": "Map",
+                "mapKey": {
+                    "name": "permit",
+                    "schema": "string"
+                },
+                "mapValue": {
+                    "name": "activeHours",
+                    "schema": "string"
+                }
+            },
+            "writable": true
+        },
+        {
+            "@type": "Property",
+            "name": "requiredPermit",
+            "schema": "string",
+            "writable": true
+        },
+        {
+            "@type": "Component",
+            "name": "areBordersMarked",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:areBordersMarked;1"
+        },
+        {
+            "@type": "Component",
+            "name": "availableSpotNumber",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:availableSpotNumber;1"
+        },
+        {
+            "@type": "Component",
+            "name": "averageSpotLength",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:averageSpotLength;1"
+        },
+        {
+            "@type": "Component",
+            "name": "averageSpotWidth",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:averageSpotWidth;1"
+        },
+        {
+            "@type": "Component",
+            "name": "maximumAllowedHeight",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:maximumAllowedHeight;1"
+        },
+        {
+            "@type": "Component",
+            "name": "maximumAllowedWidth",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:maximumAllowedWidth;1"
+        },
+        {
+            "@type": "Component",
+            "name": "maximumParkingDuration",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:maximumParkingDuration;1"
+        },
+        {
+            "@type": "Component",
+            "name": "occupancyDetectionType",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:occupancyDetectionType;1"
+        },
+        {
+            "@type": "Component",
+            "name": "parkingMode",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:parkingMode;1"
+        },
+        {
+            "@type": "Component",
+            "name": "reservationType",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:reservationType;1"
+        },
+        {
+            "@type": "Component",
+            "name": "chargeType",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:chargeType;1"
+        },
+        {
+            "@type": "Component",
+            "name": "totalSpotNumber",
+            "schema": "dtmi:digitaltwins:ngsi_ld:city:totalSpotNumber;1"
+        },
+        {
+            "@type": "Relationship",
+            "name": "refOnStreetParking",
+            "minMultiplicity": 0,
+            "maxMultiplicity": 1,
+            "target": "dtmi:digitaltwins:ngsi_ld:city:OnStreetParking;1"
+        },
+        {
+            "@type": "Relationship",
+            "name": "refOffStreetParking",
+            "minMultiplicity": 0,
+            "maxMultiplicity": 1,
+            "target": "dtmi:digitaltwins:ngsi_ld:city:OffStreetParking;1"
+        },
+        {
+            "@type": "Relationship",
+            "name": "refParkingSpot",
+            "minMultiplicity": 0,
+            "target": "dtmi:digitaltwins:ngsi_ld:city:ParkingSpot;1"
+        }
+    ]
+}

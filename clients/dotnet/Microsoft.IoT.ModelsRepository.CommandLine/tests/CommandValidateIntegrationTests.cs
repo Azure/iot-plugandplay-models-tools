@@ -284,10 +284,15 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             string resolutionRepo = isStrict ? $"--repo {Path.Combine(TestHelpers.TestLocalModelRepository, "indexable")}" : "";
             string strict = isStrict ? "--strict" : "";
 
-            (int returnCode, string standardOut, _) =
+            (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"validate --directory \"{targetDirectoryPath}\" {searchPattern} {resolutionRepo} {strict}");
 
             Assert.AreEqual(expectedReturnCode, returnCode);
+
+            if (expectedReturnCode == ReturnCodes.Success)
+            {
+                Assert.False(standardError.Contains(Outputs.DefaultErrorToken), "Unexpected error token in stderr.");
+            }
 
             if (!string.IsNullOrEmpty(expectedFiles))
             {

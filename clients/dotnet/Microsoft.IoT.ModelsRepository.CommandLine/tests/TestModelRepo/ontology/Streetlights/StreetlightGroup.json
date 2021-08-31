@@ -1,0 +1,151 @@
+{
+  "@id": "dtmi:digitaltwins:ngsi_ld:city:StreetlightGroup;1",
+  "@type": "Interface",
+  "displayName": "StreetlightGroup",
+  "extends": "dtmi:digitaltwins:ngsi_ld:city:NGSILDBaseModel;1",
+  "contents": [
+    {
+      "@type": "Relationship",
+      "name": "refStreetLight",
+      "description": "Relationship. List of streetlight entities belonging to this group. List of references to entities for type Streetlight. Allowed values: There must topographical integrity between the location of the group and of the individual streetlights.",
+      "target": "dtmi:digitaltwins:ngsi_ld:city:Streetlight;1"
+    },
+    {
+      "@type": "Relationship",
+      "name": "refStreetlightControlCabinet",
+      "description": "Streetlight group's control cabinet",
+      "target": "dtmi:digitaltwins:ngsi_ld:city:StreetlightControlCabinet;1"
+    },
+    {
+      "@type": "Property",
+      "name": "powerState",
+      "description": "Streetlight group's power state. Enum:'on, off, low, bootingUp'.",
+      "schema": {
+        "@type": "Enum",
+        "valueSchema": "string",
+        "enumValues": [
+          {
+            "name": "on",
+            "displayName": "ON",
+            "enumValue": "on"
+          },
+          {
+            "name": "off",
+            "displayName": "OFF",
+            "enumValue": "off"
+          },
+          {
+            "name": "low",
+            "displayName": "LOW",
+            "enumValue": "low"
+          },
+          {
+            "name": "bootingUp",
+            "displayName": "BootingUp",
+            "enumValue": "bootingUp"
+          }
+        ]
+      },
+      "writable": true
+    },
+    {
+      "@type": "Property",
+      "name": "dateLastSwitchingOn",
+      "writable": true,
+      "schema": "dateTime"
+    },
+    {
+      "@type": "Property",
+      "name": "dateLastSwitchingOff",
+      "writable": true,
+      "schema": "dateTime"
+    },
+    {
+      "@type": "Property",
+      "name": "switchingOnHours",
+      "schema": {
+        "@type": "Object",
+        "fields": [
+          {
+            "name": "from",
+            "schema": "string"
+          },
+          {
+            "name": "to",
+            "schema": "string"
+          },
+          {
+            "name": "hours",
+            "schema": "string"
+          }
+        ]
+      },
+      "writable": true
+    },
+    {
+      "@type": "Property",
+      "name": "switchingMode",
+      "schema": {
+        "@type": "Enum",
+        "valueSchema": "string",
+        "enumValues": [
+          {
+            "name": "nightON",
+            "displayName": "night-ON",
+            "enumValue": "nightON"
+          },
+          {
+            "name": "nightOFF",
+            "displayName": "night-OFF",
+            "enumValue": "nightOFF"
+          },
+          {
+            "name": "nightLOW",
+            "displayName": "night-LOW",
+            "enumValue": "nightLOW"
+          },
+          {
+            "name": "alwaysON",
+            "displayName": "always-ON",
+            "enumValue": "alwaysON"
+          },
+          {
+            "name": "dayON",
+            "displayName": "day-ON",
+            "enumValue": "dayON"
+          },
+          {
+            "name": "dayOFF",
+            "displayName": "day-OFF",
+            "enumValue": "dayOFF"
+          },
+          {
+            "name": "dayLOW",
+            "displayName": "day-LOW",
+            "enumValue": "dayLOW"
+          }
+        ]
+      },
+      "writable": true
+    },
+    {
+      "@type": "Property",
+      "name": "illuminanceLevel",
+      "description": "Relative illuminance level setting for the group. Allowed values: A number between 0 and 1.",
+      "writable": true,
+      "schema": "double"
+    },
+    {
+      "@type": "Property",
+      "name": "activeProgramId",
+      "description": "Identifier of the active program for this streetlight group.",
+      "schema": "string"
+    },
+    {
+      "@type": "Property",
+      "name": "annotations",
+      "schema": "string"
+    }
+  ],
+  "@context": "dtmi:dtdl:context;2"
+}
