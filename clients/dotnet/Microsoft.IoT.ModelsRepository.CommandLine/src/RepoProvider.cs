@@ -7,6 +7,7 @@ using Microsoft.IoT.ModelsRepository.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine
@@ -35,10 +36,36 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return await ExpandModel(dtmi);
         }
 
+        /// <summary>
+        /// Uses a combination of the Model Parser and DMR Client to produce expanded model format.
+        /// This method is implemented such that the Model Parser will drive model dependency resolution,
+        /// as opposed to the DMR client doing so.
+        /// </summary>
         public async Task<List<string>> ExpandModel(string dtmi)
         {
-            IDictionary<string, string> modelResult = await _repositoryClient.GetModelsAsync(dtmi);
-            return ConvertToExpanded(dtmi, modelResult);
+            var dependentReferences = new Dictionary<string, string>();
+            IDictionary<string, string> rootGetModelsResult = await _repositoryClient.GetModelsAsync(dtmi, ModelDependencyResolution.Disabled);
+            dependentReferences.Add(dtmi, rootGetModelsResult[dtmi]);
+
+            var parser = new ModelParser
+            {
+                DtmiResolver = async (IReadOnlyCollection<Dtmi> dtmis) =>
+                {
+                    IEnumerable<string> dtmiStrings = dtmis.Select(s => s.AbsoluteUri);
+                    IDictionary<string, string> getModelsResult =
+                        await _repositoryClient.GetModelsAsync(dtmiStrings, ModelDependencyResolution.Disabled);
+                    foreach (KeyValuePair<string, string> model in getModelsResult)
+                    {
+                        if (!dependentReferences.ContainsKey(model.Key))
+                        {
+                            dependentReferences.Add(model.Key, model.Value);
+                        }
+                    }
+                    return getModelsResult.Values.ToList();
+                }
+            };
+            await parser.ParseAsync(rootGetModelsResult.Values.ToList());
+            return ConvertToExpanded(dtmi, dependentReferences);
         }
 
         private List<string> ConvertToExpanded(string rootDtmi, IDictionary<string, string> models)
@@ -55,7 +82,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
 
         public ModelParser GetDtdlParser()
         {
-            ModelParser parser = new ModelParser
+            var parser = new ModelParser
             {
                 DtmiResolver = _repositoryClient.ParserDtmiResolver
             };
