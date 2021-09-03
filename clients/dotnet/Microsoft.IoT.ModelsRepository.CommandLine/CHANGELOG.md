@@ -1,6 +1,6 @@
 # Release History
 
-## 1.0.0-beta.5 (unreleased)
+## 1.0.0-beta.5 (2021-09-02)
 
 - The `validate` command supports validation of directory model files (recursive) with file search pattern.
 - The `import` command supports the import of directory model files (recursive) with file search pattern.
