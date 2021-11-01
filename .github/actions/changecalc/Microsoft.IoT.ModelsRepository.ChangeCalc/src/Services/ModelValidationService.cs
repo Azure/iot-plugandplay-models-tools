@@ -10,7 +10,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Services
 {
     interface IModelValidationService
     {
-        Task<RepositoryUpdatesFormatted> GetRepositoryUpdates(long repoId, int pullRequestId, OutputFormat outputFormat);
+        Task<RepositoryUpdatesFormatted> GetRepositoryUpdates(string repositoryOwner, string repositoryName, int pullRequestId, OutputFormat outputFormat);
     }
 
     class ModelValidationService : IModelValidationService
@@ -20,9 +20,9 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Services
         {
             this.gitClient = gitClient;
         }
-        async Task<RepositoryUpdatesFormatted> IModelValidationService.GetRepositoryUpdates(long repoId, int pullRequestId, OutputFormat outputFormat)
+        async Task<RepositoryUpdatesFormatted> IModelValidationService.GetRepositoryUpdates(string repositoryOwner, string repositoryName, int pullRequestId, OutputFormat outputFormat)
         {
-            IEnumerable<PullRequestFile> allFiles = await gitClient.PullRequest.Files(repoId, pullRequestId);
+            IEnumerable<PullRequestFile> allFiles = await gitClient.PullRequest.Files(repositoryOwner, repositoryName, pullRequestId);
 
             var repoUpdates = new RepositoryUpdates
             {

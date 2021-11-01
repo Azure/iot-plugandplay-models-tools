@@ -1,6 +1,5 @@
 ﻿using Microsoft.IoT.ModelsRepository.ChangeCalc.Models;
 using Microsoft.IoT.ModelsRepository.ChangeCalc.Services;
-using Newtonsoft.Json;
 using Octokit;
 using System;
 using System.Runtime.CompilerServices;
@@ -27,12 +26,14 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc
 
     public class Program
     {
-        static async Task Main(string[] args)
+        static async Task Main()
         {
-            string authToken = args[0];
-            long repoId = long.Parse(args[1]);
-            int pullRequestId = int.Parse(args[2]);
-            string format = args[3];
+            string[] repositoryParts = Environment.GetEnvironmentVariable("GITHUB_REPOSITORY").Split("/");
+            string githubRepositoryOwner = repositoryParts[0];
+            string githubRepositoryName = repositoryParts[1];
+            int pullRequestId = int.Parse(Environment.GetEnvironmentVariable("INPUT_PULLREQUESTID"));
+            string format = Environment.GetEnvironmentVariable("INPUT_FORMAT");
+            string authToken = Environment.GetEnvironmentVariable("INPUT_TOKEN");
 
             if (!Enum.IsDefined(typeof(OutputFormat), format))
             {
@@ -46,7 +47,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc
 
             IModelValidationService modelValidationService = new ModelValidationService(gitClient);
 
-            RepositoryUpdatesFormatted result = await modelValidationService.GetRepositoryUpdates(repoId, pullRequestId, outputFormat);
+            RepositoryUpdatesFormatted result = await modelValidationService.GetRepositoryUpdates(githubRepositoryOwner, githubRepositoryName, pullRequestId, outputFormat);
 
             Console.WriteLine($"::set-output name=all::{result.FilesAllFormatted}");
             Console.WriteLine($"::set-output name=added::{result.FilesAddedFormatted}");

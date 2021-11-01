@@ -1,38 +1,30 @@
-# action.yml
-name: 'Azure IoT Models Repository Validator'
-description: 'Action to support validation of DTDL model repositories implemented with Azure IoT conventions.'
+# Copyright (c) Microsoft. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: 'FileChangeCalc'
+description: 'Action to calculate file changes in pull request commits.'
 inputs:
   token:
     description: >
       GitHub token for GitHub API requests.
       Users shouldn't need to set this themselves.
     required: true
-    default: ${{github.token}}
-  repositoryId:
-    description: >
-      Id of the Github repository from where the action is triggered
-    required: true
-    default: ${{github.event.repo.id}}
+    default: ${{ github.token }}
   pullRequestId:
     description: >
       Id of the pull request submitted by the user.
     required: true
-    default: ${{github.event.number}}
+    default: ${{ github.event.number }}
   format:
     description: >
       Format of the steps output context.
       Can be 'space_delimited', 'csv', or 'json'.
     required: true
-    default: space_delimited
-
+    default: json
 runs:
   using: 'docker'
-  image: 'clients/dotnet/Microsoft.IoT.ModelsRepository.ChangeCalc/src/dockerfile'
-  env:
-    TOKEN: ${{inputs.token}}
-    REPO_ID: ${{inputs.repositoryId}}
-    PULL_REQUEST_ID: ${{inputs.pullRequestId}}
-    FORMAT: ${{inputs.format}}
+  image: 'Microsoft.IoT.ModelsRepository.ChangeCalc/src/Dockerfile'
+  entrypoint: '/entrypoint.sh'
 
 outputs:
   all:
