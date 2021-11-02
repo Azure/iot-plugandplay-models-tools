@@ -17,7 +17,7 @@ runs:
       uses: actions/checkout@v2
     - name: 'Calculate changed files'
       id: files
-      uses: 'digimaun/iot-plugandplay-models-tools/.github/actions/changecalc@dev'
+      uses: 'Azure/iot-plugandplay-models-tools/.github/actions/changecalc@dev'
     - name: 'Model Ingestion Validation'
       env:
         added: ${{ steps.files.outputs.added }}
