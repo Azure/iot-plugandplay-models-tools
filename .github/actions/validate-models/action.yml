@@ -1,0 +1,28 @@
+# Copyright (c) Microsoft. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: 'Azure IoT Models Repository Validator'
+description: 'Action to support validation of models submitted to DTDL model repositories implemented with Azure IoT conventions.'
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Install Microsoft.IoT.ModelsRepository.CommandLine (dmr-client) from NuGet'
+      run: |
+        dotnet tool install -g Microsoft.IoT.ModelsRepository.CommandLine --version 1.0.0-beta.5
+      shell: bash
+    - uses: 'actions/setup-python@v2'
+      with:
+        python-version: '3.8.x'
+    - name: 'Checkout repository models'
+      uses: actions/checkout@v2
+    - name: 'Calculate changed files'
+      id: files
+      uses: 'digimaun/iot-plugandplay-models-tools/.github/actions/changecalc@dev'
+    - name: 'Model Ingestion Validation'
+      env:
+        added: ${{ steps.files.outputs.added }}
+        modified: ${{ steps.files.outputs.modified }}
+        removed: ${{ steps.files.outputs.removed }}
+        renamed: ${{ steps.files.outputs.renamed }}
+      run: python ${{ github.action_path }}/main.py
+      shell: bash

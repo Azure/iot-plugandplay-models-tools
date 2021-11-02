@@ -19,8 +19,9 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
 
     public class RepositoryUpdatesFetchAndFormatTests
     {
-        private const long RepoId = 0;
-        private const int PullRequestId = 0;
+        private const string repositoryOwner = "Azure";
+        private const string repositoryName = "iot-plugandplay-modelz";
+        private const int pullRequestId = 0;
 
         private static Mock<IGitHubClient> GitClientMoq = new Mock<IGitHubClient>();
 
@@ -40,7 +41,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
         [Fact]
         public async void GetRepositoryUpdates_ResultsFormatted_Csv()
         {
-            GitClientMoq.Setup(client => client.PullRequest.Files(RepoId, PullRequestId)).ReturnsAsync(ModelRepositoryFileUpdates);
+            GitClientMoq.Setup(client => client.PullRequest.Files(repositoryOwner, repositoryName, pullRequestId)).ReturnsAsync(ModelRepositoryFileUpdates);
 
             RepositoryUpdatesFormatted expectedRepoUpdates = new RepositoryUpdatesFormatted
             {
@@ -52,7 +53,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
                 FilesAllFormatted = "dtmi/test_company_1/test_device_1_interface_1.json,dtmi/test_company_1/test_device_1_interface_2.json,dtmi/test_company_1/test_device_2_interface_1.json,dtmi/test_company_1/test_device_2_interface_2.json,dtmi/test_company_1/test_device_3_interface_1.json,dtmi/test_company_1/test_device_3_interface_2.json,dtmi/test_company_1/test_device_3_interface_3.json"
             };
 
-            RepositoryUpdatesFormatted actualRepoUpdates = await ModelValidationService.GetRepositoryUpdates(RepoId, PullRequestId, OutputFormat.csv);
+            RepositoryUpdatesFormatted actualRepoUpdates = await ModelValidationService.GetRepositoryUpdates(repositoryOwner, repositoryName, pullRequestId, OutputFormat.csv);
 
             AssertRepoUpdates(expectedRepoUpdates, actualRepoUpdates);
         }
@@ -60,7 +61,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
         [Fact]
         public async void GetRepositoryUpdates_ResultsFormatted_SpaceDelimited()
         {
-            GitClientMoq.Setup(client => client.PullRequest.Files(RepoId, PullRequestId)).ReturnsAsync(ModelRepositoryFileUpdates);
+            GitClientMoq.Setup(client => client.PullRequest.Files(repositoryOwner, repositoryName, pullRequestId)).ReturnsAsync(ModelRepositoryFileUpdates);
 
             RepositoryUpdatesFormatted expectedRepoUpdates = new RepositoryUpdatesFormatted
             {
@@ -72,7 +73,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
                 FilesAllFormatted = "dtmi/test_company_1/test_device_1_interface_1.json dtmi/test_company_1/test_device_1_interface_2.json dtmi/test_company_1/test_device_2_interface_1.json dtmi/test_company_1/test_device_2_interface_2.json dtmi/test_company_1/test_device_3_interface_1.json dtmi/test_company_1/test_device_3_interface_2.json dtmi/test_company_1/test_device_3_interface_3.json"
             };
 
-            RepositoryUpdatesFormatted actualRepoUpdates = await ModelValidationService.GetRepositoryUpdates(RepoId, PullRequestId, OutputFormat.space_delimited);
+            RepositoryUpdatesFormatted actualRepoUpdates = await ModelValidationService.GetRepositoryUpdates(repositoryOwner, repositoryName, pullRequestId, OutputFormat.space_delimited);
 
             AssertRepoUpdates(expectedRepoUpdates, actualRepoUpdates);
         }
@@ -80,7 +81,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
         [Fact]
         public async void GetRepositoryUpdates_ResultsFormatted_Json()
         {
-            GitClientMoq.Setup(client => client.PullRequest.Files(RepoId, PullRequestId)).ReturnsAsync(ModelRepositoryFileUpdates);
+            GitClientMoq.Setup(client => client.PullRequest.Files(repositoryOwner, repositoryName, pullRequestId)).ReturnsAsync(ModelRepositoryFileUpdates);
 
             RepositoryUpdatesFormatted expectedRepoUpdates = new RepositoryUpdatesFormatted
             {
@@ -92,7 +93,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
                 FilesAllFormatted = "[\"dtmi/test_company_1/test_device_1_interface_1.json\",\"dtmi/test_company_1/test_device_1_interface_2.json\",\"dtmi/test_company_1/test_device_2_interface_1.json\",\"dtmi/test_company_1/test_device_2_interface_2.json\",\"dtmi/test_company_1/test_device_3_interface_1.json\",\"dtmi/test_company_1/test_device_3_interface_2.json\",\"dtmi/test_company_1/test_device_3_interface_3.json\"]"
             };
 
-            RepositoryUpdatesFormatted actualRepoUpdates = await ModelValidationService.GetRepositoryUpdates(RepoId, PullRequestId, OutputFormat.json);
+            RepositoryUpdatesFormatted actualRepoUpdates = await ModelValidationService.GetRepositoryUpdates(repositoryOwner, repositoryName, pullRequestId, OutputFormat.json);
 
             AssertRepoUpdates(expectedRepoUpdates, actualRepoUpdates);
         }
@@ -100,7 +101,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
         [Fact]
         public async void GetRepositoryUpdates_HandlesEmptyPullRequestFiles()
         {
-            GitClientMoq.Setup(client => client.PullRequest.Files(RepoId, PullRequestId)).ReturnsAsync(new List<PullRequestFile>());
+            GitClientMoq.Setup(client => client.PullRequest.Files(repositoryOwner, repositoryName, pullRequestId)).ReturnsAsync(new List<PullRequestFile>());
 
             RepositoryUpdatesFormatted expectedRepoUpdates = new RepositoryUpdatesFormatted
             {
@@ -112,7 +113,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
                 FilesAllFormatted = ""
             };
 
-            RepositoryUpdatesFormatted actualRepoUpdates = await ModelValidationService.GetRepositoryUpdates(RepoId, PullRequestId, OutputFormat.space_delimited);
+            RepositoryUpdatesFormatted actualRepoUpdates = await ModelValidationService.GetRepositoryUpdates(repositoryOwner, repositoryName, pullRequestId, OutputFormat.space_delimited);
 
             AssertRepoUpdates(expectedRepoUpdates, actualRepoUpdates);
         }
@@ -125,9 +126,9 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
                 new TestPullRequestFile("dtmi/test_company_1/test_device_1 interface_1.json", "added"),
             };
 
-            GitClientMoq.Setup(client => client.PullRequest.Files(RepoId, PullRequestId)).ReturnsAsync(repoUpdatesWithSpace);
+            GitClientMoq.Setup(client => client.PullRequest.Files(repositoryOwner, repositoryName, pullRequestId)).ReturnsAsync(repoUpdatesWithSpace);
 
-            await Assert.ThrowsAsync<Exception>(() => ModelValidationService.GetRepositoryUpdates(RepoId, PullRequestId, OutputFormat.space_delimited));
+            await Assert.ThrowsAsync<Exception>(() => ModelValidationService.GetRepositoryUpdates(repositoryOwner, repositoryName, pullRequestId, OutputFormat.space_delimited));
         }
 
         [Fact]
@@ -138,9 +139,9 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
                 new TestPullRequestFile("dtmi/test_company_1/test_device_1_interface_1.json", "random"),
             };
 
-            GitClientMoq.Setup(client => client.PullRequest.Files(RepoId, PullRequestId)).ReturnsAsync(repoUpdatesWithSpace);
+            GitClientMoq.Setup(client => client.PullRequest.Files(repositoryOwner, repositoryName, pullRequestId)).ReturnsAsync(repoUpdatesWithSpace);
 
-            await Assert.ThrowsAsync<ArgumentException>(() => ModelValidationService.GetRepositoryUpdates(RepoId, PullRequestId, OutputFormat.json));
+            await Assert.ThrowsAsync<ArgumentException>(() => ModelValidationService.GetRepositoryUpdates(repositoryOwner, repositoryName, pullRequestId, OutputFormat.json));
         }
 
         private void AssertRepoUpdates(RepositoryUpdatesFormatted expectedRepoUpdates, RepositoryUpdatesFormatted actualRepoUpdates)
