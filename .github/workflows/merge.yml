@@ -10,14 +10,14 @@ on:
     branches: [ main, dev ]
     paths:
     - 'clients/dotnet/**'
-    - './github/actions/**'
+    - '.github/actions/**'
     - '!**/**.md'
 
   pull_request:
     branches: [ main, dev ]
     paths:
     - 'clients/dotnet/**'
-    - './github/actions/**'
+    - '.github/actions/**'
     - '!**/**.md'
 
 jobs:
