@@ -55,6 +55,7 @@ def handle_added_set(context: dict) -> bool:
     repo_dir = context[repo_key]
     if context.get(added_key):
         print(f"::group::Process {added_key} files")
+        print(f"::notice title=Digital Twin Parser::Using Digital Twin Parser v{get_parser_version()} for model validation.")
         for f in context[added_key]:
             if looks_like_dtmi(f):
                 result = validate_model(repo_dir, f)
@@ -68,6 +69,24 @@ def handle_added_set(context: dict) -> bool:
         print("::endgroup::")
 
     return has_error
+
+
+def get_parser_version() -> str:
+    import re
+
+    parser_id = "DTDLParser"
+
+    cmd = f"dmr-client --debug"
+    cmd = shlex.split(cmd)
+    result = subprocess.run(
+        cmd, stderr=subprocess.PIPE, stdout=subprocess.DEVNULL, text=True
+    )
+    match = re.search(f"{parser_id}/.+", result.stderr, re.IGNORECASE)
+    if match:
+        matched_str = match.group()
+        return matched_str[len(parser_id) + 1:]
+
+    return "Unknown"
 
 
 def get_process_context() -> dict:
@@ -108,7 +127,7 @@ def get_immutable_msg(action: str, file: str) -> str:
 
 
 def get_warning_msg(action: str, file: str) -> str:
-    return f"::warning file={file},title=File {tense_map[action]} detected {file}::Please review intent."
+    return f"::warning file={file},title=File {tense_map[action]} detected {file}::Please review intent for {file}."
 
 
 def get_validation_msg(output: str, file: str) -> str:

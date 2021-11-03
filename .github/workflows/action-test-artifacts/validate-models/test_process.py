@@ -52,7 +52,12 @@ def test_fail():
 @patch("process.handle_added_set")
 @patch("process.handle_immutable_set")
 def test_process(
-    mock_immutable_set, mock_added_set, cleanup_env_context, immutable_error, added_error, has_error
+    mock_immutable_set,
+    mock_added_set,
+    cleanup_env_context,
+    immutable_error,
+    added_error,
+    has_error,
 ):
     mock_immutable_set.return_value = immutable_error
     mock_added_set.return_value = added_error
@@ -122,9 +127,18 @@ def test_handle_added_set(
 
     return_code = 1 if has_error else 0
     target_stderr = get_random_id()
-    mock_run.return_value = subprocess.CompletedProcess(
-        [], return_code, stderr=target_stderr
+    target_version = get_random_id()
+    sample_debug = (
+        "ModelsRepositoryCommandLine/1.0.0-beta.5 "
+        "ModelsRepositoryClient/1.0.0-preview.4+b2e34443be8995bbb96d42ad32f5c3b290eed97e "
+        f"DTDLParser/{target_version}\n"
     )
+    mock_run.side_effect = [
+        subprocess.CompletedProcess(
+            [], 0, stderr=sample_debug
+        ),  # Assume dmr-client is installed for version check.
+        subprocess.CompletedProcess([], return_code, stderr=target_stderr),
+    ]
 
     generate_test_env(**kwargs)
     context = get_process_context()
@@ -137,16 +151,24 @@ def test_handle_added_set(
             mock_print.call_args_list[0].args[0]
             == f"::group::Process {file_action} files"
         )
-        issue_indicator = mock_print.call_args_list[1].args[0]
+        parser_version_indicator = mock_print.call_args_list[1].args[0]
+        assert parser_version_indicator == (
+            f"::notice title=Digital Twin Parser::Using Digital Twin Parser v{target_version} for model validation."
+        )
+        issue_indicator = mock_print.call_args_list[2].args[0]
 
         if kwargs["dtdl_files"] is False:
             assert issue_indicator.startswith("::warning")
         elif has_error:
-            assert issue_indicator.startswith("::error") and issue_indicator.endswith(target_stderr)
+            assert issue_indicator.startswith("::error") and issue_indicator.endswith(
+                target_stderr
+            )
         else:
-            assert issue_indicator.startswith("Validation of") and issue_indicator.endswith("OK!")
+            assert issue_indicator.startswith(
+                "Validation of"
+            ) and issue_indicator.endswith("OK!")
 
-        assert mock_print.call_args_list[2].args[0].startswith("::endgroup::")
+        assert mock_print.call_args_list[3].args[0].startswith("::endgroup::")
 
 
 @pytest.mark.parametrize(
@@ -234,7 +256,7 @@ def test_get_warning_msg():
     msg = get_warning_msg(action, file)
     assert (
         msg
-        == f"::warning file={file},title=File {tense_map[action]} detected {file}::Please review intent."
+        == f"::warning file={file},title=File {tense_map[action]} detected {file}::Please review intent for {file}."
     )
 
 
