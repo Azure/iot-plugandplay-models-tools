@@ -25,7 +25,6 @@ resources:
 jobs:
 - template: nuget-builder.yml@templates
   parameters:
-    vmImage: 'ubuntu-20.04'
     dotnetBuildConfiguration: 'Release'
     toolId: ${{ parameters.toolId }}
     toolVersion: ${{ parameters.toolVersion }}

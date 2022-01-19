@@ -1,0 +1,47 @@
+# Copyright (c) Microsoft Corporation. All rights reserved.
+
+# Required for schedule only trigger
+trigger: none
+pr: none
+
+# Run weekly at midnight (Pacific).
+schedules:
+- cron: "0 8 * * 1"
+  displayName: 'Weekly Static Analysis'
+  branches:
+    include:
+    - dev
+
+variables:
+  LGTM.UploadSnapshot: true
+  Semmle.SkipAnalysis: true
+
+stages:
+  - stage: 'staticAnalysis'
+    displayName: 'Static Analysis'
+    jobs:
+      - job: 'codeQL_dmr_commandline'
+        displayName: 'Execute CodeQL Analysis for DMR command line tool'
+        variables:
+          targetProduct: 'Microsoft.IoT.ModelsRepository.CommandLine'
+          targetProjectPath: '$(Build.SourcesDirectory)/clients/dotnet/$(targetProduct)'
+          targetSolutionFilePath: '$(targetProjectPath)/$(targetProduct).sln'
+        pool:
+          vmImage: 'windows-2019'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Install net 6 sdk'
+            inputs:
+              packageType: 'sdk'
+              version: '6.0.x'
+          - task: Semmle@1
+            inputs:
+              sourceCodeDirectory: '$(targetProjectPath)/src'
+              language: 'csharp'
+              buildCommandsString: 'dotnet clean $(targetSolutionFilePath)#dotnet build $(targetSolutionFilePath)'
+              querySuite: 'Recommended'
+              timeout: '1800'
+              ram: '16384'
+              addProjectDirToScanningExclusionList: true
+            env:
+              System_AccessToken: $(System.AccessToken)

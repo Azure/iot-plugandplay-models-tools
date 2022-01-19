@@ -43,29 +43,32 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
         /// </summary>
         public async Task<List<string>> ExpandModel(string dtmi)
         {
-            var dependentReferences = new Dictionary<string, string>();
-            IDictionary<string, string> rootGetModelsResult = await _repositoryClient.GetModelsAsync(dtmi, ModelDependencyResolution.Disabled);
-            dependentReferences.Add(dtmi, rootGetModelsResult[dtmi]);
+            var totalDependentReferences = new Dictionary<string, string>();
+            ModelResult rootModelResult = await _repositoryClient.GetModelAsync(dtmi, ModelDependencyResolution.Disabled);
+            totalDependentReferences.Add(dtmi, rootModelResult.Content[dtmi]);
 
             var parser = new ModelParser
             {
                 DtmiResolver = async (IReadOnlyCollection<Dtmi> dtmis) =>
                 {
                     IEnumerable<string> dtmiStrings = dtmis.Select(s => s.AbsoluteUri);
-                    IDictionary<string, string> getModelsResult =
-                        await _repositoryClient.GetModelsAsync(dtmiStrings, ModelDependencyResolution.Disabled);
-                    foreach (KeyValuePair<string, string> model in getModelsResult)
+                    var dependentReferences = new Dictionary<string, string>();
+                    foreach (string dtmi in dtmiStrings)
                     {
-                        if (!dependentReferences.ContainsKey(model.Key))
+                        if (!totalDependentReferences.ContainsKey(dtmi))
                         {
-                            dependentReferences.Add(model.Key, model.Value);
+                            ModelResult modelResult = await _repositoryClient.GetModelAsync(dtmi, ModelDependencyResolution.Disabled);
+                            totalDependentReferences.Add(dtmi, modelResult.Content[dtmi]);
                         }
+
+                        dependentReferences[dtmi] = totalDependentReferences[dtmi];
                     }
-                    return getModelsResult.Values.ToList();
+
+                    return dependentReferences.Values.ToList();
                 }
             };
-            await parser.ParseAsync(rootGetModelsResult.Values.ToList());
-            return ConvertToExpanded(dtmi, dependentReferences);
+            await parser.ParseAsync(rootModelResult.Content.Values.ToList());
+            return ConvertToExpanded(dtmi, totalDependentReferences);
         }
 
         private List<string> ConvertToExpanded(string rootDtmi, IDictionary<string, string> models)

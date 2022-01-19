@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>1.0.0-beta.5</Version>
+    <Version>1.0.0-beta.6</Version>
     <AssemblyName>Microsoft.IoT.ModelsRepository.CommandLine</AssemblyName>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dmr-client</ToolCommandName>
@@ -16,15 +16,22 @@
     <RepositoryUrl>https://github.com/Azure/iot-plugandplay-models-tools</RepositoryUrl>
     <PackageTags>IoT;ModelsRepository;Pnp;DigitalTwins</PackageTags>
     <PackageProjectUrl>https://github.com/Azure/iot-plugandplay-models-tools</PackageProjectUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Description>Command line for the Azure IoT Models Repository</Description>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>https://github.com/Azure/iot-plugandplay-models-tools/blob/1.0.0-beta.5/clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/Azure/iot-plugandplay-models-tools/blob/1.0.0-beta.6/clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Iot.ModelsRepository" Version="1.0.0-preview.4" />
+    <PackageReference Include="Azure.Iot.ModelsRepository" Version="1.0.0-preview.5" />
     <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.7" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.21308.1" />
+    <PackageReference Include="System.Text.Json" Version="6.0.1" />
   </ItemGroup>
 
 </Project>
