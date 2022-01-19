@@ -45,6 +45,11 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 return "net5.0";
             }
 
+            if (lframeworkDesc.StartsWith(".net 6.0"))
+            {
+                return "net6.0";
+            }
+
             throw new ArgumentException($"Unsupported framework: {lframeworkDesc}.");
         }
 

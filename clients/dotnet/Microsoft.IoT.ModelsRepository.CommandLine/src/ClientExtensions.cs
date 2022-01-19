@@ -14,8 +14,14 @@ namespace Microsoft.IoT.ModelsRepository.Extensions
         public async static Task<IEnumerable<string>> ParserDtmiResolver(this ModelsRepositoryClient client, IReadOnlyCollection<Dtmi> dtmis)
         {
             IEnumerable<string> dtmiStrings = dtmis.Select(s => s.AbsoluteUri);
-            IDictionary<string, string> result = await client.GetModelsAsync(dtmiStrings);
-            return result.Values.ToList();
+            var modelDefinitions = new List<string>();
+            foreach (var dtmi in dtmiStrings)
+            {
+                ModelResult result = await client.GetModelAsync(dtmi, ModelDependencyResolution.Disabled);
+                modelDefinitions.Add(result.Content[dtmi]);
+            }
+
+            return modelDefinitions;
         }
     }
 }

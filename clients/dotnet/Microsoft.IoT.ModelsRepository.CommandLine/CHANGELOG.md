@@ -1,5 +1,11 @@
 # Release History
 
+## 1.0.0-beta.6 (unreleased)
+
+- Supports dotnet 6
+- Adds SourceLink configuration to package
+- Upgrade Azure.IoT.ModelsRepository dependency to 1.0.0-preview.5
+
 ## 1.0.0-beta.5 (2021-09-02)
 
 - The `validate` command supports validation of directory model files (recursive) with file search pattern.

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
@@ -100,7 +101,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 return new JsonSerializerOptions
                 {
                     WriteIndented = true,
-                    IgnoreNullValues = true,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     AllowTrailingCommas = true,
                     // DTDL supports these characters.
                     Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
