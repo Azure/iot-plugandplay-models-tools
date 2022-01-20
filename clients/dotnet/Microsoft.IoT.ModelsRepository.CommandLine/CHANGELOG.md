@@ -1,6 +1,6 @@
 # Release History
 
-## 1.0.0-beta.6 (unreleased)
+## 1.0.0-beta.6 (2022-01-20)
 
 - Supports dotnet 6
 - Adds SourceLink configuration to package
