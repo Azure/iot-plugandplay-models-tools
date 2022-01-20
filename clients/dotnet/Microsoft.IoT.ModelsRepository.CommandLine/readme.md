@@ -6,39 +6,39 @@ This solution includes a command line project `Microsoft.IoT.ModelsRepository.Co
 
 ## Install the dmr-client command line tool
 
-The Device Models Repository command line tool (aka `dmr-client`) is published on [NuGet](https://www.nuget.org/packages/Microsoft.IoT.ModelsRepository.CommandLine) and requires `dotnet sdk 3.1` or `dotnet sdk 5.0`.
-
-> Note: .NET 6 is not yet supported.
+The Device Models Repository command line tool (aka `dmr-client`) is published on [NuGet](https://www.nuget.org/packages/Microsoft.IoT.ModelsRepository.CommandLine) and requires `dotnet sdk 3.1.x`, `5.0.x` or `6.0.x`.
 
 You can use the `dotnet` command line via the `dotnet tool install` command to install `dmr-client`. The following is an example to install `dmr-client` as a global tool:
 
-`dotnet tool install -g Microsoft.IoT.ModelsRepository.CommandLine --version 1.0.0-beta.4`
+`dotnet tool install -g Microsoft.IoT.ModelsRepository.CommandLine --version 1.0.0-beta.6`
 
 To learn how to install `dmr-client` in a local context, please see [this guide](https://docs.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
 
 ## Usage of `dmr-client`
 
 ```text
-dmr-client:
-  Microsoft IoT Models Repository CommandLine v1.0.0-beta.4
+dmr-client
+  Microsoft IoT Models Repository CommandLine v1.0.0-beta.6
 
 Usage:
   dmr-client [options] [command]
 
 Options:
-  --debug           Shows additional logs for debugging.
-  --silent          Silences command output on standard out.
-  --version         Show version information
-  -?, -h, --help    Show help and usage information
+  --debug         Shows additional logs for debugging. [default: False]
+  --silent        Silences command output on standard out. [default: False]
+  --version       Show version information
+  -?, -h, --help  Show help and usage information
 
 Commands:
-  export      Exports a model producing the model and its dependency chain in an expanded format. The target repository is used for model resolution.
-  validate    Validates the DTDL model contained in a file. When validating a single model object the target repository is used for model resolution. When
-              validating an array of models only the array contents is used for resolution.
-  import      Imports models from a model file into the local repository. The local repository is used for model resolution.
-  index       Builds a model index file from the state of a target local models repository.
-  expand      For each model in a local repository, generate expanded model files and insert them in-place. The expanded version of a model includes the model with
-              its full model dependency chain.
+  export    Exports a model producing the model and its dependency chain in an expanded format. 
+            The target repository is used for model resolution.
+  validate  Validates the DTDL model contained in a file. When validating a single model object the target repository
+            is used for model resolution. When validating an array of models only the array contents is used for resolution.
+  import    Imports models from a model file into the local repository. The local repository is used for model resolution.
+            Target model files for import will first be validated to ensure adherence to IoT Models Repository conventions.
+  index     Builds a model index file from the state of a target local models repository.
+  expand    For each model in a local repository, generate expanded model files and insert them in-place.
+            The expanded version of a model includes the model with its full model dependency chain.
 ```
 
 ## Examples
