@@ -15,7 +15,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Services
 
     class ModelValidationService : IModelValidationService
     {
-        private IGitHubClient gitClient;
+        private readonly IGitHubClient gitClient;
         internal ModelValidationService(IGitHubClient gitClient)
         {
             this.gitClient = gitClient;
@@ -78,7 +78,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Services
             return formattedRepoUpdates;
         }
 
-        private RepositoryUpdatesFormatted FormatRepositoryUpdates(RepositoryUpdates repoUpdates, OutputFormat outputFormat)
+        private static RepositoryUpdatesFormatted FormatRepositoryUpdates(RepositoryUpdates repoUpdates, OutputFormat outputFormat)
         {
             switch (outputFormat)
             {

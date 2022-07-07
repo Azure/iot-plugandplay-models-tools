@@ -23,7 +23,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
         private const string repositoryName = "iot-plugandplay-modelz";
         private const int pullRequestId = 0;
 
-        private static Mock<IGitHubClient> GitClientMoq = new Mock<IGitHubClient>();
+        private static readonly Mock<IGitHubClient> GitClientMoq = new Mock<IGitHubClient>();
 
         private IModelValidationService ModelValidationService = new ModelValidationService(GitClientMoq.Object);
 
@@ -144,7 +144,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
             await Assert.ThrowsAsync<ArgumentException>(() => ModelValidationService.GetRepositoryUpdates(repositoryOwner, repositoryName, pullRequestId, OutputFormat.json));
         }
 
-        private void AssertRepoUpdates(RepositoryUpdatesFormatted expectedRepoUpdates, RepositoryUpdatesFormatted actualRepoUpdates)
+        private static void AssertRepoUpdates(RepositoryUpdatesFormatted expectedRepoUpdates, RepositoryUpdatesFormatted actualRepoUpdates)
         {
             Assert.NotNull(actualRepoUpdates);
             Assert.Equal(expectedRepoUpdates.FilesAddedFormatted, actualRepoUpdates.FilesAddedFormatted);
