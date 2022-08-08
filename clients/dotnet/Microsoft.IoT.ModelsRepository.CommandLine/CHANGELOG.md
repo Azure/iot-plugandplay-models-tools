@@ -1,5 +1,9 @@
 # Release History
 
+## 1.0.0-beta.7 (2022-08-08)
+
+- Add explicit `Newtonsoft.Json` reference for `13.0.1`. This is a dependency for the DTDL parser however this change will constrain the installable version.
+
 ## 1.0.0-beta.6 (2022-01-20)
 
 - Supports dotnet 6
