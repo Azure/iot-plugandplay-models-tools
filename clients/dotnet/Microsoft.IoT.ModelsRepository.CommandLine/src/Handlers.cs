@@ -79,7 +79,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                     {
                         var enumeratedFile = new FileInfo(file);
                         result = await Validations.ValidateModelFileAsync(enumeratedFile, repoProvider, validationRules);
-                        
+
                         // TODO: Consider processing modes "return on first error", "return all errors"
                         if (result != ReturnCodes.Success)
                         {
@@ -132,7 +132,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return ReturnCodes.InvalidArguments;
         }
 
-        public static async Task<int> Import(FileInfo modelFile, DirectoryInfo directory, string searchPattern, DirectoryInfo localRepo)
+        public static async Task<int> Import(FileInfo modelFile, DirectoryInfo directory, string searchPattern, DirectoryInfo localRepo, bool force)
         {
             if (localRepo == null)
             {
@@ -150,7 +150,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                         ensureContentRootType: false,
                         ensureDtmiNamespace: true);
 
-                    return await ModelImporter.ImportFileAsync(modelFile, localRepo, repoProvider, importFileValidationRules);
+                    return await ModelImporter.ImportFileAsync(modelFile, localRepo, repoProvider, force, importFileValidationRules);
                 }
 
                 // When importing models from an arbitrary directory we have to extract all models content
@@ -185,7 +185,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                     int result;
                     foreach (KeyValuePair<FileInfo, List<string>> entry in contentMap)
                     {
-                        result = await ModelImporter.ImportFileAsync(entry.Key, localRepo, repoProvider, importDirectoryValidationRules);
+                        result = await ModelImporter.ImportFileAsync(entry.Key, localRepo, repoProvider, force, importDirectoryValidationRules);
                         if (result != ReturnCodes.Success)
                         {
                             return result;

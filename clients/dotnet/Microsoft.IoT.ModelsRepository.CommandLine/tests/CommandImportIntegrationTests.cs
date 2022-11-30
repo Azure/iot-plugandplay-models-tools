@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using Azure.IoT.ModelsRepository;
+using NUnit.Framework;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 {
@@ -57,6 +57,16 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             modelFile = new FileInfo(Path.GetFullPath(testImportRepo.FullName + "/" + modelFilePath));
             Assert.AreEqual(lastWriteTimeUtc, modelFile.LastWriteTimeUtc);
             Assert.True(standardOut.Contains($"Skipping \"{expectedDtmi}\". Model file already exists in repository."));
+
+            (returnCode, standardOut, _) =
+                ClientInvokator.Invoke($"import --force --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
+
+            Assert.AreEqual(ReturnCodes.Success, returnCode);
+            modelFile = new FileInfo(Path.GetFullPath(testImportRepo.FullName + "/" + modelFilePath));
+            Assert.True(modelFile.Exists);
+            lastWriteTimeUtc = modelFile.LastWriteTimeUtc;
+            Assert.AreEqual(expectedDtmi, ParsingUtils.GetRootId(modelFile));
+            Assert.True(standardOut.Contains($"Overriding existing model \"{expectedDtmi}\" because --force option is set."));
         }
 
         [TestCase(

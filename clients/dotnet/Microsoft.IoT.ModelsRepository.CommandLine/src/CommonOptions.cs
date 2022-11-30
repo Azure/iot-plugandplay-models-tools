@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Azure.IoT.ModelsRepository;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.IO;
+using Azure.IoT.ModelsRepository;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
@@ -127,7 +127,22 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             }
         }
 
-        public static Option<bool> Silent
+
+      public static Option<bool> Force
+      {
+         get
+         {
+            return new Option<bool>(
+                alias: "--force",
+                description: "Forces import operation to override existing model file.",
+                getDefaultValue: () => false)
+            {
+               Arity = ArgumentArity.ZeroOrOne
+            };
+         }
+      }
+
+      public static Option<bool> Silent
         {
             get
             {
