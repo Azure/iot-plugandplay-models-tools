@@ -7,7 +7,7 @@
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>1.0.0-beta.7</Version>
+    <Version>1.0.0-beta.8</Version>
     <AssemblyName>Microsoft.IoT.ModelsRepository.CommandLine</AssemblyName>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dmr-client</ToolCommandName>
@@ -20,7 +20,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Description>Command line for the Azure IoT Models Repository</Description>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>https://github.com/Azure/iot-plugandplay-models-tools/blob/1.0.0-beta.7/clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/Azure/iot-plugandplay-models-tools/blob/1.0.0-beta.8/clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

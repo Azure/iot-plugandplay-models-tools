@@ -21,13 +21,13 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             {
                 if (!force)
                 {
-                Outputs.WriteOut(
-                    $"* Skipping \"{rootId}\". Model file already exists in repository.",
-                    ConsoleColor.DarkCyan);
-                return;
+                    Outputs.WriteOut(
+                        $"* Skipping \"{rootId}\". Model file already exists in repository.",
+                        ConsoleColor.DarkCyan);
+                    return;
                 }
-            Outputs.WriteOut(
-                $"* Overriding existing model \"{rootId}\" because --force option is set.");
+                Outputs.WriteOut(
+                    $"* Overriding existing model \"{rootId}\" because --force option is set.");
             }
 
             (new FileInfo(createPath)).Directory.Create();
