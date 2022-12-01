@@ -10,7 +10,7 @@ The Device Models Repository command line tool (aka `dmr-client`) is published o
 
 You can use the `dotnet` command line via the `dotnet tool install` command to install `dmr-client`. The following is an example to install `dmr-client` as a global tool:
 
-`dotnet tool install -g Microsoft.IoT.ModelsRepository.CommandLine --version 1.0.0-beta.6`
+`dotnet tool install -g Microsoft.IoT.ModelsRepository.CommandLine --version 1.0.0-beta.8`
 
 To learn how to install `dmr-client` in a local context, please see [this guide](https://docs.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
 
@@ -18,7 +18,7 @@ To learn how to install `dmr-client` in a local context, please see [this guide]
 
 ```text
 dmr-client
-  Microsoft IoT Models Repository CommandLine v1.0.0-beta.6
+  Microsoft IoT Models Repository CommandLine v1.0.0-beta.8
 
 Usage:
   dmr-client [options] [command]
@@ -30,7 +30,7 @@ Options:
   -?, -h, --help  Show help and usage information
 
 Commands:
-  export    Exports a model producing the model and its dependency chain in an expanded format. 
+  export    Exports a model producing the model and its dependency chain in an expanded format.
             The target repository is used for model resolution.
   validate  Validates the DTDL model contained in a file. When validating a single model object the target repository
             is used for model resolution. When validating an array of models only the array contents is used for resolution.

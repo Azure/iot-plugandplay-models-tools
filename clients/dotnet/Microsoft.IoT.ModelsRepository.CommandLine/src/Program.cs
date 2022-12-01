@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using Azure.Core.Diagnostics;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
@@ -10,6 +9,7 @@ using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Core.Diagnostics;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
@@ -113,11 +113,12 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 CommonOptions.ModelsDirectory,
                 CommonOptions.ModelsDirectorySearchPattern,
                 CommonOptions.LocalRepo,
+                CommonOptions.Force
             };
             importModelCommand.Description =
                 "Imports models from a model file into the local repository. The local repository is used for model resolution. " +
                 "Target model files for import will first be validated to ensure adherence to IoT Models Repository conventions.";
-            importModelCommand.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, string, DirectoryInfo>(Handlers.Import);
+            importModelCommand.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, string, DirectoryInfo, bool>(Handlers.Import);
 
             return importModelCommand;
         }
