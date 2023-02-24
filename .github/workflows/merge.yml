@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        tfm: [ net7.0, net6.0 ]
+        tfm: [ net6.0, net7.0 ]
     steps:
     - uses: actions/checkout@v2
   
