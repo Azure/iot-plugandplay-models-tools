@@ -1,0 +1,12 @@
+{
+  "@context": "dtmi:dtdl:context;3",
+  "@id": "dtmi:version3:emptyv3;1.2",
+  "@type": "Interface",
+  "contents": [
+    {
+      "@type": "Telemetry",
+      "name": "temperature",
+      "schema": "double"
+    }
+  ]
+}

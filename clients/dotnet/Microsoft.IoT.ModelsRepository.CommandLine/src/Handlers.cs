@@ -3,7 +3,7 @@
 
 using Azure;
 using Azure.IoT.ModelsRepository;
-using Microsoft.Azure.DigitalTwins.Parser;
+using DTDLParser;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -132,6 +132,15 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return ReturnCodes.InvalidArguments;
         }
 
+        internal static async IAsyncEnumerable<string> ToAsyncEnumerable(List<string> strings)
+        {
+            foreach (string s in strings)
+            {
+                yield return s;
+            }
+            await Task.Yield();
+        }
+
         public static async Task<int> Import(FileInfo modelFile, DirectoryInfo directory, string searchPattern, DirectoryInfo localRepo, bool force)
         {
             if (localRepo == null)
@@ -174,7 +183,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                         flatModelsContent.AddRange(entry.Value);
                     }
                     ModelParser parser = repoProvider.GetDtdlParser();
-                    await parser.ParseAsync(flatModelsContent);
+                    await parser.ParseAsync(ToAsyncEnumerable(flatModelsContent));
 
                     var importDirectoryValidationRules = new ValidationRules(
                         parseDtdl: false, // All the directory models content is parsed at once earlier.

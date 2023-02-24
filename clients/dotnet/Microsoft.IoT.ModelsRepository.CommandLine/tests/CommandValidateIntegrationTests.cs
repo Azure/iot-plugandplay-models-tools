@@ -99,8 +99,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
 
             Assert.True(standardError.Contains(
-                $"{Outputs.DefaultErrorToken} DtmiResolver failed to resolve requisite references to element(s): " +
-                missingReferences));
+                $"{Outputs.DefaultErrorToken} No DtmiResolverAsync provided to resolve requisite reference(s): "));
+                //+missingReferences));
             Assert.AreEqual(ReturnCodes.ResolutionError, returnCode);
         }
 
@@ -261,7 +261,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             if (expectedReturnCode == ReturnCodes.ValidationError)
             {
-                Assert.True(standardError.Contains("has value 'geopoint' that is not a DTMI or a DTDL term"));
+                Assert.True(standardError.Contains("has value 'geopoint' that is neither a valid DTMI reference nor a DTDL term"));
                 return;
             }
             

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.IoT.ModelsRepository;
-using Microsoft.Azure.DigitalTwins.Parser;
+using DTDLParser;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

@@ -5,6 +5,7 @@ using System.CommandLine;
 using System.CommandLine.Parsing;
 using System.IO;
 using Azure.IoT.ModelsRepository;
+using DTDLParser;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
@@ -23,7 +24,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 dtmiOption.AddValidator(option =>
                 {
                     string value = option.GetValueOrDefault<string>();
-                    if (!DtmiConventions.IsValidDtmi(value))
+                    if (!DTDLParser.Dtmi.TryCreateDtmi(value, out DTDLParser.Dtmi dtmi))
                     {
                         return $"Invalid dtmi format '{value}'.";
                     }

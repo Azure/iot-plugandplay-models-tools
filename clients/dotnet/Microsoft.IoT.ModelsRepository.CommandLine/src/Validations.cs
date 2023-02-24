@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.IoT.ModelsRepository;
-using Microsoft.Azure.DigitalTwins.Parser;
+using DTDLParser;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -103,13 +103,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             {
                 // Special case: when validating from an array, only use array contents for resolution.
                 // Setup vanilla parser with no resolution. We get a better error message when a delegate is assigned.
-                parser = new ModelParser
-                {
-                    DtmiResolver = (IReadOnlyCollection<Dtmi> dtmis) =>
-                    {
-                        return Task.FromResult(Enumerable.Empty<string>());
-                    }
-                };
+                // TODO: rido, review error message from this comment
+                parser = new ModelParser();
             }
             else
             {
@@ -121,7 +116,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
 
             if (rules.ParseDtdl)
             {
-                await parser.ParseAsync(models);
+                await parser.ParseAsync(Handlers.ToAsyncEnumerable(models));
             }
 
             if (rules.EnsureContentRootType)

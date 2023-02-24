@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <Company>Microsoft</Company>
     <Authors>Microsoft</Authors>
-    <Version>1.0.0-beta.8</Version>
+    <Version>1.0.0-beta.9</Version>
     <AssemblyName>Microsoft.IoT.ModelsRepository.CommandLine</AssemblyName>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dmr-client</ToolCommandName>
@@ -25,14 +25,13 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Iot.ModelsRepository" Version="1.0.0-preview.5" />
-    <PackageReference Include="Microsoft.Azure.DigitalTwins.Parser" Version="3.12.7" />
+    <PackageReference Include="DTDLParser" Version="1.*-*" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.21308.1" />
-    <PackageReference Include="System.Text.Json" Version="6.0.1" />
   </ItemGroup>
 
 </Project>

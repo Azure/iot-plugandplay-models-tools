@@ -71,6 +71,10 @@
     "Microsoft.IoT.ModelsRepository.CommandLine.IndexRepo": {
       "commandName": "Project",
       "commandLineArgs": "index --local-repo ../../../../tests/TestModelRepo/indexable/ --page-limit 2"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.ImportVersion3": {
+      "commandName": "Project",
+      "commandLineArgs": "import --model-file ../../../../tests/TestModelRepo/dtmi/version3/emptyv3-1.json"
     }
   }
 }
