@@ -57,7 +57,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 {
                     if (!totalDependentReferences.ContainsKey(dtmi))
                     {
-                        ModelResult modelResult = await _repositoryClient.GetModelAsync(dtmi, ModelDependencyResolution.Disabled);
+                        ModelResult modelResult = await _repositoryClient.GetModelAsync(dtmi, ModelDependencyResolution.Disabled, ct);
                         totalDependentReferences.Add(dtmi, modelResult.Content[dtmi]);
                     }
                     yield return totalDependentReferences[dtmi];
