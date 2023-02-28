@@ -87,11 +87,12 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return result;
         }
 
-        public ModelParser GetDtdlParser()
+        public ModelParser GetDtdlParser(int maxDtdlVersion)
         {
             var parser = new ModelParser(new ParsingOptions()
             {
-                DtmiResolverAsync = _repositoryClient.ParserDtmiResolver
+                DtmiResolverAsync = _repositoryClient.ParserDtmiResolver,
+                MaxDtdlVersion = maxDtdlVersion
             });
             return parser;
         }

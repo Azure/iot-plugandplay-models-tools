@@ -15,6 +15,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
     internal class Validations
     {
+        internal const int DefaultMaxDtdlVersion = 2;
+
         public static string EnsureValidModelFilePath(string modelFilePath, string modelContent, string repository)
         {
             if (RepoProvider.IsRelativePath(repository))
@@ -80,7 +82,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
         }
 
         public static async Task<int> ValidateModelFileAsync(
-            FileInfo modelFile, RepoProvider repoProvider, ValidationRules rules = null)
+            FileInfo modelFile, RepoProvider repoProvider, ValidationRules rules = null, int maxDtdlVersion = DefaultMaxDtdlVersion)
         {
             if (rules == null)
             {
@@ -108,7 +110,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             }
             else
             {
-                parser = repoProvider.GetDtdlParser();
+                parser = repoProvider.GetDtdlParser(maxDtdlVersion);
             }
 
             // TODO: Extract strings

@@ -184,5 +184,20 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 };
             }
         }
+
+        public static Option<int> MaxDtdlVersion
+        {
+            get
+            {
+                return new Option<int>(
+                    alias: "--maxDtdlVersion",
+                    description: "Sets the maximum DTDL version accepted.",
+                    getDefaultValue: () => 3)
+                {
+                    Arity = ArgumentArity.ZeroOrOne
+                };
+
+            }
+        }
     }
 }

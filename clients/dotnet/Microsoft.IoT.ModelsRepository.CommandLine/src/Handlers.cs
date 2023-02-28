@@ -60,15 +60,16 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return ReturnCodes.Success;
         }
 
-        public static async Task<int> Validate(FileInfo modelFile, DirectoryInfo directory, string searchPattern, string repo, bool strict)
+        public static async Task<int> Validate(FileInfo modelFile, DirectoryInfo directory, string searchPattern, string repo, bool strict, int maxDtdlVersion)
         {
             try
             {
                 ValidationRules validationRules = strict ? new ValidationRules() : ValidationRules.GetJustParseRules();
+                
                 RepoProvider repoProvider = new RepoProvider(repo);
                 if (modelFile != null && modelFile.Exists)
                 {
-                    return await Validations.ValidateModelFileAsync(modelFile, repoProvider, validationRules);
+                    return await Validations.ValidateModelFileAsync(modelFile, repoProvider, validationRules, maxDtdlVersion);
                 }
 
                 if (directory != null && directory.Exists)
@@ -78,7 +79,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                         new EnumerationOptions { RecurseSubdirectories = true }))
                     {
                         var enumeratedFile = new FileInfo(file);
-                        result = await Validations.ValidateModelFileAsync(enumeratedFile, repoProvider, validationRules);
+                        result = await Validations.ValidateModelFileAsync(enumeratedFile, repoProvider, validationRules, maxDtdlVersion);
 
                         // TODO: Consider processing modes "return on first error", "return all errors"
                         if (result != ReturnCodes.Success)
@@ -141,7 +142,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             await Task.Yield();
         }
 
-        public static async Task<int> Import(FileInfo modelFile, DirectoryInfo directory, string searchPattern, DirectoryInfo localRepo, bool force)
+        public static async Task<int> Import(FileInfo modelFile, DirectoryInfo directory, string searchPattern, DirectoryInfo localRepo, bool force, int maxDtdlVersion)
         {
             if (localRepo == null)
             {
@@ -182,7 +183,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                     {
                         flatModelsContent.AddRange(entry.Value);
                     }
-                    ModelParser parser = repoProvider.GetDtdlParser();
+                    ModelParser parser = repoProvider.GetDtdlParser(maxDtdlVersion);
                     await parser.ParseAsync(ToAsyncEnumerable(flatModelsContent));
 
                     var importDirectoryValidationRules = new ValidationRules(
