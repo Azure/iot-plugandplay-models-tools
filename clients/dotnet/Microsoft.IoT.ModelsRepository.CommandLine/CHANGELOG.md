@@ -3,7 +3,7 @@
 ## 1.0.0-beta.8 (2023-02-23)
 
 - Update target frameworks to net6 and net7
-- Support DTDL v3
+- Support DTDL v3 (behind the argument `maxDtdlVersion`)
 - Switch to latest DTDLParser (1.0.12-preview)
 - Adds `--force` option to `import` #190
 - Removes `Newtonsoft.Json` dependency

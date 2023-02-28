@@ -10,7 +10,7 @@ The Device Models Repository command line tool (aka `dmr-client`) is published o
 
 You can use the `dotnet` command line via the `dotnet tool install` command to install `dmr-client`. The following is an example to install `dmr-client` as a global tool:
 
-`dotnet tool install -g Microsoft.IoT.ModelsRepository.CommandLine --version 1.0.0-beta.9`
+`dotnet tool install -g Microsoft.IoT.ModelsRepository.CommandLine --version 1.0.0-beta.8`
 
 To learn how to install `dmr-client` in a local context, please see [this guide](https://docs.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
 
@@ -24,10 +24,11 @@ Usage:
   dmr-client [options] [command]
 
 Options:
-  --debug         Shows additional logs for debugging. [default: False]
-  --silent        Silences command output on standard out. [default: False]
-  --version       Show version information
-  -?, -h, --help  Show help and usage information
+  --debug          Shows additional logs for debugging. [default: False]
+  --silent         Silences command output on standard out. [default: False]
+  --version        Show version information
+  --maxDtdlVersion Sets Max DTDL Version for import and validate
+  -?, -h, --help   Show help and usage information
 
 Commands:
   export    Exports a model producing the model and its dependency chain in an expanded format.
@@ -67,7 +68,7 @@ Commands:
 ```bash
 # Adds an external model to the target models repository (in this case the current working directory) following the DTMI to path convention.
 
-> dmr-client import --model-file "MyExampleThermostat1.json" --local-repo .
+> dmr-client import --model-file "MyExampleThermostat1.json" --local-repo . --maxDtdlVersion 2
 
 # Creates the path `./dtmi/com/example/thermostat-1.json`
 ```
@@ -77,7 +78,7 @@ Commands:
 ```bash
 # Validates a DTDL v2 model using the Digital Twins Parser and global models repository https://devicemodels.azure.com for model dependency resolution.
 
-> dmr-client validate --model-file "/path/to/model/file.json"
+> dmr-client validate --model-file "/path/to/model/file.json" --maxDtdlVersion 2
 ```
 
 ```bash
