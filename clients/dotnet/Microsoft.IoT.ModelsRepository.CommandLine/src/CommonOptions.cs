@@ -192,7 +192,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 return new Option<int>(
                     alias: "--maxDtdlVersion",
                     description: "Sets the maximum DTDL version accepted.",
-                    getDefaultValue: () => 3)
+                    getDefaultValue: () => Validations.DefaultMaxDtdlVersion)
                 {
                     Arity = ArgumentArity.ZeroOrOne
                 };

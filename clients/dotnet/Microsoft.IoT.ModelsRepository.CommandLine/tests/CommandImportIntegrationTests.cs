@@ -254,5 +254,35 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
             Assert.True(standardError.Contains("[Error]: Nothing to import!"), "Missing expected error message.");
         }
+
+        [TestCase("dtmi/version3/emptyv3-1.json")]
+        public void Importv3FailsIfNotSet(string modelFilePath)
+        {
+            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+            string targetRepo = $"--local-repo \"{testImportRepo.FullName}\"";
+
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo}");
+
+            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
+
+            Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+        }
+
+        [TestCase("dtmi/version3/emptyv3-1.json")]
+        public void Importv3Ok(string modelFilePath)
+        {
+            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+            string targetRepo = $"--local-repo \"{testImportRepo.FullName}\"";
+
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} --maxDtdlVersion 3");
+
+            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
+
+            Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+        }
     }
 }
