@@ -281,7 +281,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.AreEqual(expectedReturnCode, returnCode);
               
-            Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
+            Assert.IsEmpty(standardError);
             Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
         }
     }
