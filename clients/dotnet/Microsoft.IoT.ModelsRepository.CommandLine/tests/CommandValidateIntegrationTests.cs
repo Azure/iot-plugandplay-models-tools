@@ -100,7 +100,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.True(standardError.Contains(
                 $"{Outputs.DefaultErrorToken} No DtmiResolverAsync provided to resolve requisite reference(s): "));
-                //+missingReferences));
+            missingReferences.ToList().ForEach(x => Assert.True(standardError.Contains(x)));
             Assert.AreEqual(ReturnCodes.ResolutionError, returnCode);
         }
 
