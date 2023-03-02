@@ -348,7 +348,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"" +
                 $"validate --model-file \"{qualifiedModelFilePath}\" " +
-                $"--maxDtdlVersion 2 " +
+                $"--max-dtdl-version 2 " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
 
             Assert.AreEqual(expectedReturnCode, returnCode);
@@ -371,7 +371,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             (int returnCode, string standardOut, string standardError) =
                 ClientInvokator.Invoke($"" +
                 $"validate --model-file \"{qualifiedModelFilePath}\" " +
-                $"--maxDtdlVersion 3 " +
+                $"--max-dtdl-version 3 " +
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
 
             Assert.AreEqual(expectedReturnCode, returnCode);

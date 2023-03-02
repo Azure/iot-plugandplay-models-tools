@@ -27,7 +27,7 @@ Options:
   --debug          Shows additional logs for debugging. [default: False]
   --silent         Silences command output on standard out. [default: False]
   --version        Show version information
-  --maxDtdlVersion Sets Max DTDL Version for import and validate
+  --max-dtdl-version Sets Max DTDL Version for import and validate
   -?, -h, --help   Show help and usage information
 
 Commands:
@@ -68,7 +68,7 @@ Commands:
 ```bash
 # Adds an external model to the target models repository (in this case the current working directory) following the DTMI to path convention.
 
-> dmr-client import --model-file "MyExampleThermostat1.json" --local-repo . --maxDtdlVersion 2
+> dmr-client import --model-file "MyExampleThermostat1.json" --local-repo . --max-dtdl-version 2
 
 # Creates the path `./dtmi/com/example/thermostat-1.json`
 ```
@@ -78,7 +78,7 @@ Commands:
 ```bash
 # Validates a DTDL v2 model using the Digital Twins Parser and global models repository https://devicemodels.azure.com for model dependency resolution.
 
-> dmr-client validate --model-file "/path/to/model/file.json" --maxDtdlVersion 2
+> dmr-client validate --model-file "/path/to/model/file.json" --max-dtdl-version 2
 ```
 
 ```bash

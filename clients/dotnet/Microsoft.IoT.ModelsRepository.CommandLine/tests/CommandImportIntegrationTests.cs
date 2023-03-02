@@ -270,17 +270,17 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
         }
 
-        [TestCase("dtmi/version3/emptyv3-1.json")]
-        public void Importv3Ok(string modelFilePath)
+        [TestCase("dtmi/version3/emptyv3-1.json", ReturnCodes.Success)]
+        public void ImportV3SucceedsWithMaxVersion(string modelFilePath, int expectedReturnCode)
         {
             string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
             string targetRepo = $"--local-repo \"{testImportRepo.FullName}\"";
 
             (int returnCode, string standardOut, string standardError) =
-                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} --maxDtdlVersion 3");
+                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} --max-dtdl-version 3");
 
-            Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
-
+            Assert.AreEqual(expectedReturnCode, returnCode);
+              
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
         }

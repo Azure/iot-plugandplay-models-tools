@@ -72,9 +72,13 @@
       "commandName": "Project",
       "commandLineArgs": "index --local-repo ../../../../tests/TestModelRepo/indexable/ --page-limit 2"
     },
+    "Microsoft.IoT.ModelsRepository.CommandLine.ValidateVersion3": {
+      "commandName": "Project",
+      "commandLineArgs": "validate --model-file ../../../../tests/TestModelRepo/dtmi/version3/emptyv3-1.json --max-dtdl-version 3"
+    },
     "Microsoft.IoT.ModelsRepository.CommandLine.ImportVersion3": {
       "commandName": "Project",
-      "commandLineArgs": "import --model-file ../../../../tests/TestModelRepo/dtmi/version3/emptyv3-1.json"
+      "commandLineArgs": "import --model-file ../../../../tests/TestModelRepo/dtmi/version3/emptyv3-1.json --max-dtdl-version 3"
     }
   }
 }

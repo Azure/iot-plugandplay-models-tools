@@ -160,7 +160,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                         ensureContentRootType: false,
                         ensureDtmiNamespace: true);
 
-                    return await ModelImporter.ImportFileAsync(modelFile, localRepo, repoProvider, force, importFileValidationRules);
+                    return await ModelImporter.ImportFileAsync(modelFile, localRepo, repoProvider, force, importFileValidationRules, maxDtdlVersion);
                 }
 
                 // When importing models from an arbitrary directory we have to extract all models content
