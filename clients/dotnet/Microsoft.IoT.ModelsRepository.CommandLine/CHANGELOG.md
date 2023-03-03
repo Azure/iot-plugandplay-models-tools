@@ -5,7 +5,7 @@
 - Update target frameworks to net6 and net7
 - Removes net31 and net5 support
 - Support DTDL v3 (behind the argument `max-dtdl-version`)
-- Switch to latest DTDLParser (1.0.*-preview)
+- Switch to latest DTDLParser Feed (1.0.*-preview)
 - Adds `--force` option to `import` #190
 - Removes `Newtonsoft.Json` dependency
 

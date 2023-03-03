@@ -47,6 +47,9 @@ jobs:
     - name: 'Build solution Microsoft.IoT.ModelsRepository.CommandLine'
       run: dotnet build clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine
 
+    - name: 'List Dependencies'
+      run: cd clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine/src &&  dotnet list package
+
     - name: 'Execute solution Microsoft.IoT.ModelsRepository.CommandLine tests'
       run: dotnet test --no-build clients/dotnet/Microsoft.IoT.ModelsRepository.CommandLine --framework ${{ matrix.tfm }} --blame-hang
 
