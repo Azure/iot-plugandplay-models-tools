@@ -18,7 +18,7 @@ To learn how to install `dmr-client` in a local context, please see [this guide]
 
 ```text
 dmr-client
-  Microsoft IoT Models Repository CommandLine v1.0.0-beta.9
+  Microsoft IoT Models Repository CommandLine v1.0.0-beta.8
 
 Usage:
   dmr-client [options] [command]
