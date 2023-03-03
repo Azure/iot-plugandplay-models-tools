@@ -27,7 +27,6 @@ Options:
   --debug          Shows additional logs for debugging. [default: False]
   --silent         Silences command output on standard out. [default: False]
   --version        Show version information
-  --max-dtdl-version Sets Max DTDL Version for import and validate
   -?, -h, --help   Show help and usage information
 
 Commands:
