@@ -106,7 +106,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 // Special case: when validating from an array, only use array contents for resolution.
                 // Setup vanilla parser with no resolution. We get a better error message when a delegate is assigned.
                 // TODO: rido, review error message from this comment
-                parser = new ModelParser();
+                parser = new ModelParser(new ParsingOptions() { MaxDtdlVersion = maxDtdlVersion });
             }
             else
             {
@@ -114,7 +114,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             }
 
             // TODO: Extract strings
-            Outputs.WriteOut($"* Validating model file content conforms to DTDL.");
+            Outputs.WriteOut($"* Validating model file content conforms to DTDL version {parser.MaxDtdlVersion}.");
 
             if (rules.ParseDtdl)
             {

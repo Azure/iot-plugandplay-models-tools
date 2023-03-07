@@ -25,8 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Iot.ModelsRepository" Version="1.0.0-preview.5" />
-    <PackageReference Include="DTDLParser" Version="1.0.12-preview-ge5017bcd00" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="7.0.0" />
+    <PackageReference Include="DTDLParser" Version="1.0.37-preview-g0f8f3131c8" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -40,7 +40,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
 
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
             Assert.True(standardOut.Contains("* Ensuring DTMIs namespace conformance for model"));
             Assert.True(standardOut.Contains($"* Importing model \"{expectedDtmi}\"."));
 
@@ -90,7 +90,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
 
             for (int i = 0; i < dtmis.Length; i++)
             {
@@ -113,7 +113,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
         }
 
         [TestCase("dtmi/com/example/invalidmodel-1.json")]
@@ -128,7 +128,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(ReturnCodes.ResolutionError, returnCode);
 
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
         }
 
         [TestCase("dtmi/strict/namespaceconflict-1.json", "dtmi:strict:namespaceconflict;1", "dtmi:com:example:acceleration;1")]
@@ -142,7 +142,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
             Assert.True(standardOut.Contains($"* Ensuring DTMIs namespace conformance for model \"{rootDtmi}\"."));
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardError.Contains(violationDtmi));
@@ -267,7 +267,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
         }
 
         [TestCase("dtmi/version3/emptyv3-1.json", ReturnCodes.Success)]
@@ -282,7 +282,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(expectedReturnCode, returnCode);
               
             Assert.IsEmpty(standardError);
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 3."));
         }
     }
 }

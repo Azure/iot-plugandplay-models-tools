@@ -64,6 +64,10 @@
       "commandName": "Project",
       "commandLineArgs": "import --model-file ../../../../tests/TestModelRepo/dtmi/com/example/thermostat-1.json --local-repo ./localRepository"
     },
+    "Microsoft.IoT.ModelsRepository.CommandLine.ImportModelExpanded": {
+      "commandName": "Project",
+      "commandLineArgs": "import --model-file ../../../../tests/TestModelRepo/dtmi/com/example/temperaturecontroller-1.expanded.json --local-repo ./localRepository"
+    },
     "Microsoft.IoT.ModelsRepository.CommandLine.ImportModelInvalid": {
       "commandName": "Project",
       "commandLineArgs": "import --model-file ../../../../tests/TestModelRepo/dtmi/com/example/invalidmodel-2.json --local-repo ./localRepository/"
@@ -79,6 +83,10 @@
     "Microsoft.IoT.ModelsRepository.CommandLine.ImportVersion3": {
       "commandName": "Project",
       "commandLineArgs": "import --model-file ../../../../tests/TestModelRepo/dtmi/version3/emptyv3-1.json --max-dtdl-version 3"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.ImportVersion4": {
+      "commandName": "Project",
+      "commandLineArgs": "import --model-file ../../../../tests/TestModelRepo/dtmi/version3/emptyv3-1.json --max-dtdl-version 4"
     }
   }
 }
