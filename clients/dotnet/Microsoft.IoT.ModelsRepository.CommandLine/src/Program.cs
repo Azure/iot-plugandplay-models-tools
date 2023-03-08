@@ -92,6 +92,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 CommonOptions.ModelsDirectorySearchPattern,
                 CommonOptions.Repo,
                 CommonOptions.Strict,
+                CommonOptions.MaxDtdlVersion
             };
 
             validateModelCommand.Description =
@@ -100,7 +101,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 "contents is used for resolution.";
 
             validateModelCommand.Handler =
-                CommandHandler.Create<FileInfo, DirectoryInfo, string, string, bool>(Handlers.Validate);
+                CommandHandler.Create<FileInfo, DirectoryInfo, string, string, bool, int>(Handlers.Validate);
 
             return validateModelCommand;
         }
@@ -113,12 +114,13 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                 CommonOptions.ModelsDirectory,
                 CommonOptions.ModelsDirectorySearchPattern,
                 CommonOptions.LocalRepo,
-                CommonOptions.Force
+                CommonOptions.Force,
+                CommonOptions.MaxDtdlVersion
             };
             importModelCommand.Description =
                 "Imports models from a model file into the local repository. The local repository is used for model resolution. " +
                 "Target model files for import will first be validated to ensure adherence to IoT Models Repository conventions.";
-            importModelCommand.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, string, DirectoryInfo, bool>(Handlers.Import);
+            importModelCommand.Handler = CommandHandler.Create<FileInfo, DirectoryInfo, string, DirectoryInfo, bool, int>(Handlers.Import);
 
             return importModelCommand;
         }

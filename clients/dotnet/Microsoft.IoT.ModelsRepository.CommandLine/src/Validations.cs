@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.IoT.ModelsRepository;
-using Microsoft.Azure.DigitalTwins.Parser;
+using DTDLParser;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +15,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
 {
     internal class Validations
     {
+        internal const int DefaultMaxDtdlVersion = 2;
+
         public static string EnsureValidModelFilePath(string modelFilePath, string modelContent, string repository)
         {
             if (RepoProvider.IsRelativePath(repository))
@@ -80,7 +82,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
         }
 
         public static async Task<int> ValidateModelFileAsync(
-            FileInfo modelFile, RepoProvider repoProvider, ValidationRules rules = null)
+            FileInfo modelFile, RepoProvider repoProvider, ValidationRules rules = null, int maxDtdlVersion = DefaultMaxDtdlVersion)
         {
             if (rules == null)
             {
@@ -103,25 +105,20 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             {
                 // Special case: when validating from an array, only use array contents for resolution.
                 // Setup vanilla parser with no resolution. We get a better error message when a delegate is assigned.
-                parser = new ModelParser
-                {
-                    DtmiResolver = (IReadOnlyCollection<Dtmi> dtmis) =>
-                    {
-                        return Task.FromResult(Enumerable.Empty<string>());
-                    }
-                };
+                // TODO: rido, review error message from this comment
+                parser = new ModelParser(new ParsingOptions() { MaxDtdlVersion = maxDtdlVersion });
             }
             else
             {
-                parser = repoProvider.GetDtdlParser();
+                parser = repoProvider.GetDtdlParser(maxDtdlVersion);
             }
 
             // TODO: Extract strings
-            Outputs.WriteOut($"* Validating model file content conforms to DTDL.");
+            Outputs.WriteOut($"* Validating model file content conforms to DTDL version {parser.MaxDtdlVersion}.");
 
             if (rules.ParseDtdl)
             {
-                await parser.ParseAsync(models);
+                await parser.ParseAsync(Handlers.ToAsyncEnumerable(models));
             }
 
             if (rules.EnsureContentRootType)

@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 
 using Azure.IoT.ModelsRepository;
-using Microsoft.Azure.DigitalTwins.Parser;
+using DTDLParser;
 using Microsoft.IoT.ModelsRepository.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.IoT.ModelsRepository.CommandLine
@@ -36,6 +38,9 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return await ExpandModel(dtmi);
         }
 
+        
+
+
         /// <summary>
         /// Uses a combination of the Model Parser and DMR Client to produce expanded model format.
         /// This method is implemented such that the Model Parser will drive model dependency resolution,
@@ -44,30 +49,29 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
         public async Task<List<string>> ExpandModel(string dtmi)
         {
             var totalDependentReferences = new Dictionary<string, string>();
+            async IAsyncEnumerable<string> ResolveForExpandAsync(IReadOnlyCollection<Dtmi> dtmis, [EnumeratorCancellation] CancellationToken ct = default)
+            {
+                IEnumerable<string> dtmiStrings = dtmis.Select(s => s.AbsoluteUri);
+                var dependentReferences = new Dictionary<string, string>();
+                foreach (string dtmi in dtmiStrings)
+                {
+                    if (!totalDependentReferences.ContainsKey(dtmi))
+                    {
+                        ModelResult modelResult = await _repositoryClient.GetModelAsync(dtmi, ModelDependencyResolution.Disabled, ct);
+                        totalDependentReferences.Add(dtmi, modelResult.Content[dtmi]);
+                    }
+                    yield return totalDependentReferences[dtmi];
+                }
+            }
+            
             ModelResult rootModelResult = await _repositoryClient.GetModelAsync(dtmi, ModelDependencyResolution.Disabled);
             totalDependentReferences.Add(dtmi, rootModelResult.Content[dtmi]);
 
-            var parser = new ModelParser
+            var parser = new ModelParser(new ParsingOptions()
             {
-                DtmiResolver = async (IReadOnlyCollection<Dtmi> dtmis) =>
-                {
-                    IEnumerable<string> dtmiStrings = dtmis.Select(s => s.AbsoluteUri);
-                    var dependentReferences = new Dictionary<string, string>();
-                    foreach (string dtmi in dtmiStrings)
-                    {
-                        if (!totalDependentReferences.ContainsKey(dtmi))
-                        {
-                            ModelResult modelResult = await _repositoryClient.GetModelAsync(dtmi, ModelDependencyResolution.Disabled);
-                            totalDependentReferences.Add(dtmi, modelResult.Content[dtmi]);
-                        }
-
-                        dependentReferences[dtmi] = totalDependentReferences[dtmi];
-                    }
-
-                    return dependentReferences.Values.ToList();
-                }
-            };
-            await parser.ParseAsync(rootModelResult.Content.Values.ToList());
+                DtmiResolverAsync = ResolveForExpandAsync
+            });
+            await parser.ParseAsync(Handlers.ToAsyncEnumerable(rootModelResult.Content.Values.ToList()));
             return ConvertToExpanded(dtmi, totalDependentReferences);
         }
 
@@ -83,12 +87,13 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return result;
         }
 
-        public ModelParser GetDtdlParser()
+        public ModelParser GetDtdlParser(int maxDtdlVersion)
         {
-            var parser = new ModelParser
+            var parser = new ModelParser(new ParsingOptions()
             {
-                DtmiResolver = _repositoryClient.ParserDtmiResolver
-            };
+                DtmiResolverAsync = _repositoryClient.ParserDtmiResolver,
+                MaxDtdlVersion = maxDtdlVersion
+            });
             return parser;
         }
 

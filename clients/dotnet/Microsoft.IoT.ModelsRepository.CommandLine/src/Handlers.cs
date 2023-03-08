@@ -3,7 +3,7 @@
 
 using Azure;
 using Azure.IoT.ModelsRepository;
-using Microsoft.Azure.DigitalTwins.Parser;
+using DTDLParser;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -60,15 +60,16 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return ReturnCodes.Success;
         }
 
-        public static async Task<int> Validate(FileInfo modelFile, DirectoryInfo directory, string searchPattern, string repo, bool strict)
+        public static async Task<int> Validate(FileInfo modelFile, DirectoryInfo directory, string searchPattern, string repo, bool strict, int maxDtdlVersion)
         {
             try
             {
                 ValidationRules validationRules = strict ? new ValidationRules() : ValidationRules.GetJustParseRules();
+                
                 RepoProvider repoProvider = new RepoProvider(repo);
                 if (modelFile != null && modelFile.Exists)
                 {
-                    return await Validations.ValidateModelFileAsync(modelFile, repoProvider, validationRules);
+                    return await Validations.ValidateModelFileAsync(modelFile, repoProvider, validationRules, maxDtdlVersion);
                 }
 
                 if (directory != null && directory.Exists)
@@ -78,7 +79,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                         new EnumerationOptions { RecurseSubdirectories = true }))
                     {
                         var enumeratedFile = new FileInfo(file);
-                        result = await Validations.ValidateModelFileAsync(enumeratedFile, repoProvider, validationRules);
+                        result = await Validations.ValidateModelFileAsync(enumeratedFile, repoProvider, validationRules, maxDtdlVersion);
 
                         // TODO: Consider processing modes "return on first error", "return all errors"
                         if (result != ReturnCodes.Success)
@@ -132,7 +133,16 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             return ReturnCodes.InvalidArguments;
         }
 
-        public static async Task<int> Import(FileInfo modelFile, DirectoryInfo directory, string searchPattern, DirectoryInfo localRepo, bool force)
+        internal static async IAsyncEnumerable<string> ToAsyncEnumerable(List<string> strings)
+        {
+            foreach (string s in strings)
+            {
+                yield return s;
+            }
+            await Task.Yield();
+        }
+
+        public static async Task<int> Import(FileInfo modelFile, DirectoryInfo directory, string searchPattern, DirectoryInfo localRepo, bool force, int maxDtdlVersion)
         {
             if (localRepo == null)
             {
@@ -150,7 +160,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                         ensureContentRootType: false,
                         ensureDtmiNamespace: true);
 
-                    return await ModelImporter.ImportFileAsync(modelFile, localRepo, repoProvider, force, importFileValidationRules);
+                    return await ModelImporter.ImportFileAsync(modelFile, localRepo, repoProvider, force, importFileValidationRules, maxDtdlVersion);
                 }
 
                 // When importing models from an arbitrary directory we have to extract all models content
@@ -173,8 +183,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
                     {
                         flatModelsContent.AddRange(entry.Value);
                     }
-                    ModelParser parser = repoProvider.GetDtdlParser();
-                    await parser.ParseAsync(flatModelsContent);
+                    ModelParser parser = repoProvider.GetDtdlParser(maxDtdlVersion);
+                    await parser.ParseAsync(ToAsyncEnumerable(flatModelsContent));
 
                     var importDirectoryValidationRules = new ValidationRules(
                         parseDtdl: false, // All the directory models content is parsed at once earlier.

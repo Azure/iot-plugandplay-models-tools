@@ -6,7 +6,7 @@ This solution includes a command line project `Microsoft.IoT.ModelsRepository.Co
 
 ## Install the dmr-client command line tool
 
-The Device Models Repository command line tool (aka `dmr-client`) is published on [NuGet](https://www.nuget.org/packages/Microsoft.IoT.ModelsRepository.CommandLine) and requires `dotnet sdk 3.1.x`, `5.0.x` or `6.0.x`.
+The Device Models Repository command line tool (aka `dmr-client`) is published on [NuGet](https://www.nuget.org/packages/Microsoft.IoT.ModelsRepository.CommandLine) and requires `dotnet sdk `6.0.x` or `7.0.x`.
 
 You can use the `dotnet` command line via the `dotnet tool install` command to install `dmr-client`. The following is an example to install `dmr-client` as a global tool:
 
@@ -24,10 +24,10 @@ Usage:
   dmr-client [options] [command]
 
 Options:
-  --debug         Shows additional logs for debugging. [default: False]
-  --silent        Silences command output on standard out. [default: False]
-  --version       Show version information
-  -?, -h, --help  Show help and usage information
+  --debug          Shows additional logs for debugging. [default: False]
+  --silent         Silences command output on standard out. [default: False]
+  --version        Show version information
+  -?, -h, --help   Show help and usage information
 
 Commands:
   export    Exports a model producing the model and its dependency chain in an expanded format.
@@ -67,7 +67,7 @@ Commands:
 ```bash
 # Adds an external model to the target models repository (in this case the current working directory) following the DTMI to path convention.
 
-> dmr-client import --model-file "MyExampleThermostat1.json" --local-repo .
+> dmr-client import --model-file "MyExampleThermostat1.json" --local-repo . --max-dtdl-version 2
 
 # Creates the path `./dtmi/com/example/thermostat-1.json`
 ```
@@ -77,7 +77,7 @@ Commands:
 ```bash
 # Validates a DTDL v2 model using the Digital Twins Parser and global models repository https://devicemodels.azure.com for model dependency resolution.
 
-> dmr-client validate --model-file "/path/to/model/file.json"
+> dmr-client validate --model-file "/path/to/model/file.json" --max-dtdl-version 2
 ```
 
 ```bash

@@ -25,7 +25,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(ReturnCodes.Success, returnCode);
 
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
 
             if (strict)
             {
@@ -52,7 +52,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.AreEqual(ReturnCodes.Success, returnCode);
             Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
 
             if (strict)
             {
@@ -78,7 +78,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             {
                 Assert.AreEqual(ReturnCodes.Success, returnCode);
                 Assert.False(standardError.Contains(Outputs.DefaultErrorToken));
-                Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+                Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
                 return;
             }
 
@@ -99,8 +99,8 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
                 $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
 
             Assert.True(standardError.Contains(
-                $"{Outputs.DefaultErrorToken} DtmiResolver failed to resolve requisite references to element(s): " +
-                missingReferences));
+                $"{Outputs.DefaultErrorToken} No DtmiResolverAsync provided to resolve requisite reference(s): "));
+            missingReferences.ToList().ForEach(x => Assert.True(standardError.Contains(x)));
             Assert.AreEqual(ReturnCodes.ResolutionError, returnCode);
         }
 
@@ -117,7 +117,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
         }
 
         [TestCase("dtmi/com/example/invalidmodel-1.json")]
@@ -133,7 +133,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.AreEqual(ReturnCodes.ResolutionError, returnCode);
 
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
         }
 
         [TestCase("dtmi/strict/namespaceconflict-1.json", "dtmi:strict:namespaceconflict;1", "dtmi:com:example:acceleration;1")]
@@ -148,7 +148,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
             Assert.True(standardOut.Contains($"* Ensuring DTMIs namespace conformance for model \"{rootDtmi}\"."));
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
             Assert.True(standardError.Contains(violationDtmi));
@@ -166,7 +166,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.AreEqual(ReturnCodes.ValidationError, returnCode);
 
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
             Assert.True(standardOut.Contains($"* Ensuring DTMIs namespace conformance for model \"{rootDtmi}\"."));
             Assert.True(standardOut.Contains($"* Ensuring model file path adheres to DMR path conventions."));
             Assert.True(standardError.Contains(Outputs.DefaultErrorToken));
@@ -261,11 +261,11 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             if (expectedReturnCode == ReturnCodes.ValidationError)
             {
-                Assert.True(standardError.Contains("has value 'geopoint' that is not a DTMI or a DTDL term"));
+                Assert.True(standardError.Contains("has value 'geopoint' that is neither a valid DTMI reference nor a DTDL term"));
                 return;
             }
             
-            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL."));
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
         }
 
         [TestCase("indexable", "deviceinformation*", "deviceinformation-1.json", false, ReturnCodes.Success)]
@@ -314,6 +314,81 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
 
             Assert.AreEqual(ReturnCodes.InvalidArguments, returnCode);
             Assert.True(standardError.Contains("[Error]: Nothing to validate!"), "Missing expected error message.");
+        }
+
+
+        [TestCase("dtmi/version3/emptyv3-1.json", ReturnCodes.ValidationError)]
+        [TestCase("dtmi/centralctx/locationpoint-2.json", ReturnCodes.Success)]
+        public void ValidateModelV3FailsWithDefaults(string modelFilePath, int expectedReturnCode)
+        {
+            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"" +
+                $"validate --model-file \"{qualifiedModelFilePath}\" " +
+                $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
+
+            Assert.AreEqual(expectedReturnCode, returnCode);
+
+            if (expectedReturnCode == ReturnCodes.ValidationError)
+            {
+                Assert.True(standardError.Contains("@context specifier has value 'dtmi:dtdl:context;3', which specifies a DTDL version that exceeds the configured max version of 2"));
+                return;
+            }
+
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
+        }
+
+        [TestCase("dtmi/version3/emptyv3-1.json", ReturnCodes.ValidationError)]
+        [TestCase("dtmi/centralctx/locationpoint-2.json", ReturnCodes.Success)]
+        public void ValidateModelWithMaxDtdlSetTo2(string modelFilePath, int expectedReturnCode)
+        {
+            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"" +
+                $"validate --model-file \"{qualifiedModelFilePath}\" " +
+                $"--max-dtdl-version 2 " +
+                $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
+
+            Assert.AreEqual(expectedReturnCode, returnCode);
+
+            if (expectedReturnCode == ReturnCodes.ValidationError)
+            {
+                Assert.True(standardError.Contains("@context specifier has value 'dtmi:dtdl:context;3', which specifies a DTDL version that exceeds the configured max version of 2"));
+                return;
+            }
+
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 2."));
+        }
+
+        [TestCase("dtmi/version3/emptyv3-1.json", ReturnCodes.Success)]
+        [TestCase("dtmi/centralctx/locationpoint-2.json", ReturnCodes.Success)]
+        public void ValidateModelWithMaxDtdlSetTo3(string modelFilePath, int expectedReturnCode)
+        {
+            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"" +
+                $"validate --model-file \"{qualifiedModelFilePath}\" " +
+                $"--max-dtdl-version 3 " +
+                $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
+
+            Assert.AreEqual(expectedReturnCode, returnCode);
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 3."));
+        }
+
+        [TestCase("dtmi/version3/emptyv3-1.json", ReturnCodes.Success)]
+        public void SetVersionTo4ValidatesAs3 (string modelFilePath, int expectedReturnCode)
+        {
+            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"" +
+                $"validate --model-file \"{qualifiedModelFilePath}\" " +
+                $"--max-dtdl-version 4 " +
+                $"--repo \"{TestHelpers.TestLocalModelRepository}\" ");
+            Assert.AreEqual(expectedReturnCode, returnCode);
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 3."));
         }
     }
 }

@@ -35,19 +35,15 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
         public static string GetFrameworkMoniker()
         {
             string lframeworkDesc = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.ToLower();
-            if (lframeworkDesc.StartsWith(".net core 3.1"))
-            {
-                return "netcoreapp3.1";
-            }
-
-            if (lframeworkDesc.StartsWith(".net 5.0"))
-            {
-                return "net5.0";
-            }
-
+         
             if (lframeworkDesc.StartsWith(".net 6.0"))
             {
                 return "net6.0";
+            }
+
+            if (lframeworkDesc.StartsWith(".net 7.0"))
+            {
+                return "net7.0";
             }
 
             throw new ArgumentException($"Unsupported framework: {lframeworkDesc}.");

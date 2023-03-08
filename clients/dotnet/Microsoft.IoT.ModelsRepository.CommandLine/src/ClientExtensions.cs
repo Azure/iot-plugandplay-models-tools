@@ -2,26 +2,26 @@
 // Licensed under the MIT License.
 
 using Azure.IoT.ModelsRepository;
-using Microsoft.Azure.DigitalTwins.Parser;
+using DTDLParser;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.IoT.ModelsRepository.Extensions
 {
     public static class ClientExtensions
     {
-        public async static Task<IEnumerable<string>> ParserDtmiResolver(this ModelsRepositoryClient client, IReadOnlyCollection<Dtmi> dtmis)
+        public async static IAsyncEnumerable<string> ParserDtmiResolver(this ModelsRepositoryClient client, IReadOnlyCollection<Dtmi> dtmis, 
+            [EnumeratorCancellation] CancellationToken ct = default)
         {
             IEnumerable<string> dtmiStrings = dtmis.Select(s => s.AbsoluteUri);
-            var modelDefinitions = new List<string>();
             foreach (var dtmi in dtmiStrings)
             {
-                ModelResult result = await client.GetModelAsync(dtmi, ModelDependencyResolution.Disabled);
-                modelDefinitions.Add(result.Content[dtmi]);
+                ModelResult result = await client.GetModelAsync(dtmi, ModelDependencyResolution.Disabled, ct);
+                yield return result.Content[dtmi];
             }
-
-            return modelDefinitions;
         }
     }
 }

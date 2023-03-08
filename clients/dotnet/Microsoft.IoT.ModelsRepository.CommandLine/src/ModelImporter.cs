@@ -34,9 +34,9 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine
             Outputs.WriteToFile(createPath, modelContent);
         }
 
-        public static async Task<int> ImportFileAsync(FileInfo modelFile, DirectoryInfo repository, RepoProvider repoProvider, bool force, ValidationRules rules=null)
+        public static async Task<int> ImportFileAsync(FileInfo modelFile, DirectoryInfo repository, RepoProvider repoProvider, bool force, ValidationRules rules=null, int maxDtdlVersion = Validations.DefaultMaxDtdlVersion)
         {
-            int validationResult = await Validations.ValidateModelFileAsync(modelFile, repoProvider, rules);
+            int validationResult = await Validations.ValidateModelFileAsync(modelFile, repoProvider, rules, maxDtdlVersion);
             if (validationResult != ReturnCodes.Success)
             {
                 return validationResult;
