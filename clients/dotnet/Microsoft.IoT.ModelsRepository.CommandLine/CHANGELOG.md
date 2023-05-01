@@ -2,6 +2,10 @@
 
 ## 1.0.0-beta.8 (2023-03)
 
+- Switch to latest DTDLParser (1.0.52). Please note: no version and major.minor version forms in DTMIs are not supported
+
+## 1.0.0-beta.8 (2023-03)
+
 - Update target frameworks to net6 and net7
 - Removes net31 and net5 support
 - Support DTDL v3 (behind the argument `max-dtdl-version`)
