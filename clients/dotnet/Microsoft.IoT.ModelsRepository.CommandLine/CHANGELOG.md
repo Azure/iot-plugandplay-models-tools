@@ -2,7 +2,7 @@
 
 ## 1.0.0-beta.9 (2023-05)
 
-- Switch to latest DTDLParser (1.0.52). Please note: no version and major.minor version forms in DTMIs are not supported
+- Switch to latest DTDLParser (1.0.52). Please note: no version and major.minor version forms in DTMIs are not supported for DTDL v3 models
 
 ## 1.0.0-beta.8 (2023-03)
 
