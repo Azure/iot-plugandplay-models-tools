@@ -284,5 +284,20 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             Assert.IsEmpty(standardError);
             Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 3."));
         }
+
+        [TestCase("dtmi/version3/newv3-1.json", ReturnCodes.Success)]
+        public void ImportNewUpdatesInV3(string modelFilePath, int expectedReturnCode)
+        {
+            string qualifiedModelFilePath = Path.Combine(TestHelpers.TestLocalModelRepository, modelFilePath);
+            string targetRepo = $"--local-repo \"{testImportRepo.FullName}\"";
+
+            (int returnCode, string standardOut, string standardError) =
+                ClientInvokator.Invoke($"import --model-file \"{qualifiedModelFilePath}\" {targetRepo} --max-dtdl-version 3");
+
+            Assert.AreEqual(expectedReturnCode, returnCode);
+
+            Assert.IsEmpty(standardError);
+            Assert.True(standardOut.Contains("* Validating model file content conforms to DTDL version 3."));
+        }
     }
 }

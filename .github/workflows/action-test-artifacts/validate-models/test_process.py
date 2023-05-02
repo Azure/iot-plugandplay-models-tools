@@ -129,7 +129,7 @@ def test_handle_added_set(
     target_stderr = get_random_id()
     target_version = get_random_id()
     sample_debug = (
-        "ModelsRepositoryCommandLine/1.0.0-beta.8 "
+        "ModelsRepositoryCommandLine/1.0.0-beta.9 "
         "ModelsRepositoryClient/1.0.0-preview.4+b2e34443be8995bbb96d42ad32f5c3b290eed97e "
         f"DTDLParser/{target_version}\n"
     )

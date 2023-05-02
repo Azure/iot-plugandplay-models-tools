@@ -87,6 +87,14 @@
     "Microsoft.IoT.ModelsRepository.CommandLine.ImportVersion4": {
       "commandName": "Project",
       "commandLineArgs": "import --model-file ../../../../tests/TestModelRepo/dtmi/version3/emptyv3-1.json --max-dtdl-version 4"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.ValidateContentVersion3": {
+      "commandName": "Project",
+      "commandLineArgs": "validate --model-file ../../../../tests/TestModelRepo/dtmi/version3/newv3-1.json --max-dtdl-version 3"
+    },
+    "Microsoft.IoT.ModelsRepository.CommandLine.ImportContentVersion3": {
+      "commandName": "Project",
+      "commandLineArgs": "import --model-file ../../../../tests/TestModelRepo/dtmi/version3/newv3-1.json --max-dtdl-version 3"
     }
   }
 }

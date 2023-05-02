@@ -1,0 +1,62 @@
+{
+  "@context": "dtmi:dtdl:context;3",
+  "@id": "dtmi:version3:newv3;1",
+  "@type": "Interface",
+  "contents": [
+    {
+      "@type": "Telemetry",
+      "name": "temperature",
+      "schema": "double"
+    },
+    {
+      "@type": "Property",
+      "name": "setPointTemp",
+      "schema": "point",
+      "writable": true
+    },
+    {
+      "@type": "Telemetry",
+      "name": "state",
+      "schema": {
+        "@type": "Enum",
+        "valueSchema": "integer",
+        "enumValues": []
+      }
+    },
+    {
+      "@type": "Telemetry",
+      "name": "accelerometer",
+      "schema": {
+        "@type": "Object",
+        "fields": []
+      }
+    },
+    {
+      "@type": "Command",
+      "commandType": "synchronous",
+      "description": {
+        "en": "Reboots the device after waiting the number of seconds specified."
+      },
+      "displayName": {
+        "en": "Reboot"
+      },
+      "name": "reboot",
+      "request": {
+        "@type": "CommandRequest",
+        "displayName": {
+          "en": "Restart Delay in seconds [3..9]"
+        },
+        "name": "RestartDelay",
+        "schema": "integer"
+      },
+      "response": {
+        "@type": "CommandResponse",
+        "displayName": {
+          "en": "Restart Device Result"
+        },
+        "name": "RestartDeviceResult",
+        "schema": "string"
+      }
+    }
+  ]
+}
