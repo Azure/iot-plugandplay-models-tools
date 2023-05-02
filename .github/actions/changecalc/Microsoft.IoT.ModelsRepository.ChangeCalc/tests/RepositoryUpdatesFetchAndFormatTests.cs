@@ -8,15 +8,6 @@ using Microsoft.IoT.ModelsRepository.ChangeCalc.Models;
 
 namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
 {
-    class TestPullRequestFile : PullRequestFile
-    {
-        internal TestPullRequestFile(string fileName, string status)
-        {
-            FileName = fileName;
-            Status = status;
-        }
-    }
-
     public class RepositoryUpdatesFetchAndFormatTests
     {
         private const string repositoryOwner = "Azure";
@@ -27,15 +18,21 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
 
         private IModelValidationService ModelValidationService = new ModelValidationService(GitClientMoq.Object);
 
+        private static PullRequestFile CreateTestPullRequestFile(string fileName, string status)
+        {
+            var pullRequestFile = new PullRequestFile(null, fileName, status, 0, 0, 0, null, null, null, null, null);
+            return pullRequestFile;
+        }
+
         List<PullRequestFile> ModelRepositoryFileUpdates = new List<PullRequestFile>
         {
-            new TestPullRequestFile("dtmi/test_company_1/test_device_1_interface_1.json", "added"),
-            new TestPullRequestFile("dtmi/test_company_1/test_device_1_interface_2.json", "modified"),
-            new TestPullRequestFile("dtmi/test_company_1/test_device_2_interface_1.json", "removed"),
-            new TestPullRequestFile("dtmi/test_company_1/test_device_2_interface_2.json", "added"),
-            new TestPullRequestFile("dtmi/test_company_1/test_device_3_interface_1.json", "renamed"),
-            new TestPullRequestFile("dtmi/test_company_1/test_device_3_interface_2.json", "modified"),
-            new TestPullRequestFile("dtmi/test_company_1/test_device_3_interface_3.json", "none")
+            CreateTestPullRequestFile("dtmi/test_company_1/test_device_1_interface_1.json", "added"),
+            CreateTestPullRequestFile("dtmi/test_company_1/test_device_1_interface_2.json", "modified"),
+            CreateTestPullRequestFile("dtmi/test_company_1/test_device_2_interface_1.json", "removed"),
+            CreateTestPullRequestFile("dtmi/test_company_1/test_device_2_interface_2.json", "added"),
+            CreateTestPullRequestFile("dtmi/test_company_1/test_device_3_interface_1.json", "renamed"),
+            CreateTestPullRequestFile("dtmi/test_company_1/test_device_3_interface_2.json", "modified"),
+            CreateTestPullRequestFile("dtmi/test_company_1/test_device_3_interface_3.json", "none")
         };
 
         [Fact]
@@ -123,7 +120,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
         {
             var repoUpdatesWithSpace = new List<PullRequestFile>
             {
-                new TestPullRequestFile("dtmi/test_company_1/test_device_1 interface_1.json", "added"),
+                CreateTestPullRequestFile("dtmi/test_company_1/test_device_1 interface_1.json", "added"),
             };
 
             GitClientMoq.Setup(client => client.PullRequest.Files(repositoryOwner, repositoryName, pullRequestId)).ReturnsAsync(repoUpdatesWithSpace);
@@ -136,7 +133,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
         {
             var repoUpdatesWithSpace = new List<PullRequestFile>
             {
-                new TestPullRequestFile("dtmi/test_company_1/test_device_1_interface_1.json", "random"),
+                CreateTestPullRequestFile("dtmi/test_company_1/test_device_1_interface_1.json", "random"),
             };
 
             GitClientMoq.Setup(client => client.PullRequest.Files(repositoryOwner, repositoryName, pullRequestId)).ReturnsAsync(repoUpdatesWithSpace);
