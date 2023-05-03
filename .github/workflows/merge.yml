@@ -29,7 +29,7 @@ jobs:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
         tfm: [ net6.0, net7.0 ]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
   
     - name: 'Setup .NET 6.0.x'
       uses: actions/setup-dotnet@v3
@@ -63,8 +63,8 @@ jobs:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-python@v2
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
       with:
         python-version: '3.8.x'
         architecture: 'x64'

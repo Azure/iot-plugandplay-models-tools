@@ -10,11 +10,11 @@ runs:
       run: |
         dotnet tool install -g Microsoft.IoT.ModelsRepository.CommandLine --version 1.0.0-beta.9
       shell: bash
-    - uses: 'actions/setup-python@v2'
+    - uses: 'actions/setup-python@v3'
       with:
         python-version: '3.8.x'
     - name: 'Checkout repository models'
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: 'Calculate changed files'
       id: files
       uses: 'Azure/iot-plugandplay-models-tools/.github/actions/changecalc@dev'
