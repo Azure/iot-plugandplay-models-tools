@@ -14,7 +14,7 @@ runs:
       with:
         python-version: '3.8.x'
     - name: 'Checkout repository models'
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: 'Calculate changed files'
       id: files
       uses: 'Azure/iot-plugandplay-models-tools/.github/actions/changecalc@dev'
