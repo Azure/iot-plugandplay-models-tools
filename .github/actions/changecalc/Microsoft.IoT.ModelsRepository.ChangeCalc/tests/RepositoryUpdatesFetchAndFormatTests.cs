@@ -20,8 +20,7 @@ namespace Microsoft.IoT.ModelsRepository.ChangeCalc.Tests
 
         private static PullRequestFile CreateTestPullRequestFile(string fileName, string status)
         {
-            var pullRequestFile = new PullRequestFile(null, fileName, status, 0, 0, 0, null, null, null, null, null);
-            return pullRequestFile;
+            return new PullRequestFile(null, fileName, status, 0, 0, 0, null, null, null, null, null);
         }
 
         List<PullRequestFile> ModelRepositoryFileUpdates = new List<PullRequestFile>
