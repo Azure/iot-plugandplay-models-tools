@@ -30,10 +30,10 @@ stages:
           vmImage: 'windows-2019'
         steps:
           - task: UseDotNet@2
-            displayName: 'Install net 6 sdk'
+            displayName: 'Install net 7 sdk'
             inputs:
               packageType: 'sdk'
-              version: '6.0.x'
+              version: '7.0.x'
           - task: Semmle@1
             inputs:
               sourceCodeDirectory: '$(targetProjectPath)/src'
