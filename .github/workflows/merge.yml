@@ -26,10 +26,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-        tfm: [ net6.0, net7.0 ]
+        os: [ ubuntu-latest, windows-latest, macos-13 ] 
+        tfm: [ net6.0, net7.0, net8.0 ]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
   
     - name: 'Setup .NET 6.0.x'
       uses: actions/setup-dotnet@v3
@@ -40,6 +40,11 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
+    
+    - name: 'Setup .NET 8.0.x'
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
 
     - name: 'dotnet --info'
       run: dotnet --info
@@ -61,12 +66,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-13 ]
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
       with:
-        python-version: '3.8.x'
+        python-version: '3.9.x'
         architecture: 'x64'
     - run: python -m pip install -r .github/workflows/action-test-artifacts/validate-models/requirements &&
         pytest -v .github/workflows/action-test-artifacts/validate-models/test_process.py --cov=process

@@ -17,7 +17,7 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             string moniker = GetFrameworkMoniker();
             var cmdsi = new ProcessStartInfo("dotnet")
             {
-                Arguments = $"run {GetBuildParam()} --framework {moniker} -- {commandArgs}",
+                Arguments = $"run {GetBuildParam()} --no-launch-profile --framework {moniker} -- {commandArgs}",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -44,6 +44,11 @@ namespace Microsoft.IoT.ModelsRepository.CommandLine.Tests
             if (lframeworkDesc.StartsWith(".net 7.0"))
             {
                 return "net7.0";
+            }
+
+            if (lframeworkDesc.StartsWith(".net 8.0"))
+            {
+                return "net8.0";
             }
 
             throw new ArgumentException($"Unsupported framework: {lframeworkDesc}.");
